@@ -56,6 +56,11 @@ That's all.
     <li>Per entry user-defined request and response delays (lags)</li>
 </ul>
 
+<h2>Prerequisites</h2>
+<ul>
+	<li>Java 15 or above</li>
+</ul>
+
 <h2>Command Line Interface (CLI)</h2>
 
 
@@ -69,10 +74,6 @@ Options:
   --no-etag      disable ETag optimization
 
 ```
-<h2>Prerequisites</h2>
-<ul>
-	<li>Java 15 or above</li>
-</ul>
 
 <h2>Optional response headers</h2>
 
