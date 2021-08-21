@@ -24,7 +24,7 @@ Use it for:
 </tr>
 </table>
 
-<h2>How it works:</h2>
+<h2>How it works</h2>
 <ol>
     <li>Got client request</li>
     <li>Search dump entries (request-response pairs) for appropriate entry by matching all specified request entry parts: method, path, headers, body</li>
@@ -35,7 +35,7 @@ Use it for:
 </ol>
 That's all.
 
-<h2>Features:</h2>
+<h2>Features</h2>
 <ul>
     <li>No dependencies</li>
     <li>No installation</li>
@@ -56,7 +56,7 @@ That's all.
     <li>Per entry user-defined request and response delays (lags)</li>
 </ul>
 
-<h2>Command line:</h2>
+<h2>Command Line Interface (CLI)</h2>
 
 
 ```text
@@ -71,7 +71,7 @@ Options:
 ```
 
 
-<h2>Optional response headers:</h2>
+<h2>Optional response headers</h2>
 
 <table>
 	<tr><th width="21%" >Header</th>                                <th>Description</th></tr>
@@ -188,7 +188,7 @@ The DeepfakeHTTP is released under <a href="https://github.com/xnbox/DeepfakeHTT
 <h1>APPENDIX<br>
 Dump examples
 </h1>
-<h3>Example 1:</h3>
+<h3>Example 1.</h3>
 
 ```text
 
@@ -234,7 +234,7 @@ Content-Type: application/json
 
 ```
 
-<h3>Example 2:</h3>
+<h3>Example 2.</h3>
 
 ```text
 GET /form.html HTTP/1.1
@@ -269,7 +269,7 @@ X-Body-Type: text/template
 
 ```
 
-<h3>Example 3:</h3>
+<h3>Example 3.</h3>
 
 ```text
 GET /form.html HTTP/1.1
