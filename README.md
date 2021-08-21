@@ -7,7 +7,7 @@
 
 <table>
 <tr>
-<td width="200rem">
+<td>
 <img src="image.png" height="200rem">
 </td>
 <td valign="top">
