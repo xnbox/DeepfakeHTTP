@@ -35,6 +35,55 @@ Use it for:
 </ol>
 That's all.
 
+<h2>Try DeepfakeHTTP</h2>
+
+<ol>
+	<li>Copy the content of the dump example to the file <code>MyDump.txt</code></li>
+	<li>Start the DeepfakeHTTP server from command line: <code>java -jar df.jar MyDump.txt</code></li>
+	<li>Use a browser to check whether DeepfakeHTTP is running on URL <code>http://localhost:8080/form.html</code></li>
+</ol>
+
+<h2>Dump example</h2>
+
+```text
+
+# Comments are welcome! :)
+
+# Fake HTML file :)
+GET /form.html HTTP/1.1
+
+HTTP/1.1 200 OK
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <form action="/add_user.php" method="POST">
+        <label for="fname">First name:</label><input type="text" name="fname"><br><br>
+        <label for="lname">Last name: </label><input type="text" name="lname"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
+
+# Fake PHP file :)
+POST /add_user.php HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+HTTP/1.1 200 OK
+Content-Type: text/html
+X-Body-Type: text/template
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+	<h1>Hello, ${fname[0]} ${lname[0]}!</h1>
+</body>
+</html>
+
+
+```
+
 <h2>Features</h2>
 <ul>
     <li>No dependencies</li>
@@ -197,13 +246,12 @@ Dump examples
 
 ```text
 
-#
-# Comments are welcome :)
-# Please don't miss single carriage return between headers and body!
-#
+# Comments are welcome! :)
+# Please don't miss a single carriage return between headers and body!
+
 
 #
-# Request-response entry
+# First request-response entry
 #
 
 # Client request
@@ -221,7 +269,7 @@ Content-Type: application/json
 
 
 #
-# Another request-response entry
+# Second request-response entry
 #
 
 # Client request
@@ -242,6 +290,11 @@ Content-Type: application/json
 <h3>Example 2.</h3>
 
 ```text
+
+#
+# Work with HTML forms (1)
+#
+
 GET /form.html HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -256,6 +309,7 @@ HTTP/1.1 200 OK
     </form>
 </body>
 </html>
+
 
 POST /action_page.php HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
@@ -277,6 +331,11 @@ X-Body-Type: text/template
 <h3>Example 3.</h3>
 
 ```text
+
+#
+# Work with HTML forms (2)
+#
+
 GET /form.html HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -295,6 +354,7 @@ HTTP/1.1 200 OK
     </form>
 </body>
 </html>
+
 
 POST /action_page.php HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
