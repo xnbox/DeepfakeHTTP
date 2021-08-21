@@ -182,7 +182,7 @@ X-Response-Delay: 2000
 Latest release: <a href="https://github.com/xnbox/DeepfakeHTTP/releases/download/v1.0.2/df-1.0.2.jar">df-1.0.2.jar</a>
 
 <h2>License</h2>
-The DeepfakeHTTP is released under <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/LICENSE">MIT</a> license.
+The DeepfakeHTTP is released under <a href="https://github.com/xnbox/DeepfakeHTTP/main/LICENSE">MIT</a> license.
 
 
 <h1>APPENDIX<br>
