@@ -70,10 +70,8 @@ Options:
 
 ```
 <h2>Prerequisites</h2>
-You have the following installed on your machine
-
 <ul>
-	<li>Java v15 or above</li>
+	<li>Java 15 or above</li>
 </ul>
 
 <h2>Optional response headers</h2>
