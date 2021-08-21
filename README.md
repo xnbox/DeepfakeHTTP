@@ -45,7 +45,7 @@ That's all.
     <li>ETag optimization</li>
 </ul>
 
-... also supports
+... also supports:
 
 <ul>
     <li>All HTTP methods</li>
