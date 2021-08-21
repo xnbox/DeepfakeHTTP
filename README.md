@@ -77,7 +77,7 @@ X-Body-Type: text/template
 <!DOCTYPE html>
 <html lang="en">
 <body>
-	<h1>Hello, ${fname[0]} ${lname[0]}!</h1>
+    <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
 </body>
 </html>
 
@@ -267,8 +267,8 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-	"id": 5,
-	"name": "Джон Доу"
+    "id": 5,
+    "name": "Джон Доу"
 }
 
 
@@ -284,8 +284,8 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-	"id": 5,
-	"name": "John Doe"
+    "id": 5,
+    "name": "John Doe"
 }
 
 
@@ -325,7 +325,7 @@ X-Body-Type: text/template
 <!DOCTYPE html>
 <html lang="en">
 <body>
-	<h1>Hello, ${fname[0]} ${lname[0]}!</h1>
+    <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
 </body>
 </html>
 
