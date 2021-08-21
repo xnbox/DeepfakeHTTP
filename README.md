@@ -8,7 +8,7 @@
 <table>
 <tr>
 <td>
-<img src="image.png" height="200rem">
+<img src="image.png" height="190rem">
 </td>
 <td valign="top">
 <strong>DeepfakeHTTP</strong> is an HTTP server that uses HTTP dumps as a source for responses.<br><br>
