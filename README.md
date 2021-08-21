@@ -45,14 +45,15 @@ That's all.
     <li>ETag optimization</li>
 </ul>
 
-... also
+... also supports
+
 <ul>
-    <li>Supports all HTTP methods</li>
-    <li>Supports multi-line and multi-value headers</li>
-    <li>Supports wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in request's path and header values</li>
-    <li>Supports templates in response body</li>
-    <li>Supports response body fetching from external sources like URLs, local files, and data URI</li>
-    <li>Supports per entry user-defined request and response delays (lags)</li>
+    <li>All HTTP methods</li>
+    <li>Multi-line and multi-value headers</li>
+    <li>Wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in request's path and header values</li>
+    <li>Templates in response body</li>
+    <li>Response body fetching from external sources like URLs, local files, and data URI</li>
+    <li>Per entry user-defined request and response delays (lags)</li>
 </ul>
 
 <h2>Command line:</h2>
