@@ -127,7 +127,7 @@ Options:
 
 <h2>Optional response headers
 <br>
-(will not sent to clients)
+(will not be sent to clients)
 </h2>
 
 <table>
