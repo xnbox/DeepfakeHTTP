@@ -125,7 +125,9 @@ Options:
 
 ```
 
-<h2>Optional response headers</h2>
+<h2>Optional response headers
+<h3>(will not sent to clients)</h3>
+</h2>
 
 <table>
 	<tr><th width="21%" >Header</th>                                <th>Description</th></tr>
