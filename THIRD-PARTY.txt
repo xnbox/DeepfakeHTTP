@@ -1,0 +1,32 @@
+
+THIRD PARTY PRODUCTS
+
+
+NAME       : Apache Hive™
+LICENSE    : Apache License 2.0
+HOME PAGE  : https://hive.apache.org
+DESCRIPTION: Used for produce Murmur3 hashes (org.apache.hive.common.util.Murmur3.java)
+
+
+NAME       : ImageJ
+LICENSE    : Public domain
+HOME PAGE  : https://imagej.nih.gov/ij
+DESCRIPTION: Used for matching strings by wildcards (ij.util.WildcardMatch.java)
+
+
+NAME       : Tommy
+LICENSE    : MIT License
+HOME PAGE  : https://github/xnbox/tommy
+DESCRIPTION: Used as embedded Java Application Server.
+
+
+NAME       : Shhh (#2) image by oksmith
+LICENSE    : Public domain
+HOME PAGE  : https://openclipart.org/detail/301958/shhh-2
+DESCRIPTION: Used im README.md
+
+
+Please contact xnbox team by E-Mail xnbox.team@outlook.com
+or visit https://xnbox.github.io if you need additional
+information or have any questions.
+
