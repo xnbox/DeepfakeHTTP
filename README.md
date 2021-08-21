@@ -183,8 +183,9 @@ Latest release: <a href="https://github.com/xnbox/DeepfakeHTTP/releases/download
 
 <h2>License</h2>
 The DeepfakeHTTP is released under <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/LICENSE">MIT</a> license.
-
-
+<br><br>
+<h1></h1>
+<br><br>
 <h1>APPENDIX<br>
 Dump examples
 </h1>
