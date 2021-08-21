@@ -83,6 +83,7 @@ X-Body-Type: text/template
 
 
 ```
+More examples see <a href="#appendixdump-examples">here</a>
 
 <h2>Features</h2>
 <ul>
