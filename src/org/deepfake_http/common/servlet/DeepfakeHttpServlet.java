@@ -298,8 +298,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 * @throws IOException
 	 */
 	private void doDbRequest(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		//req.getParameterMap();
-
 		/**
 		 * https://tomcat.apache.org/tomcat-9.0-doc/api/org/apache/catalina/Globals.html#ASYNC_SUPPORTED_ATTR
 		 */
