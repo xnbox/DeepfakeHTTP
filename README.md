@@ -49,9 +49,9 @@ That's all.
 
 # Comments are welcome! :)
 
-# Fake HTML file :)
 GET /form.html HTTP/1.1
 
+# Fake HTML file :)
 HTTP/1.1 200 OK
 
 <!DOCTYPE html>
@@ -66,10 +66,10 @@ HTTP/1.1 200 OK
 </html>
 
 
-# Fake PHP file :)
 POST /add_user.php HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
 
+# Fake PHP file :)
 HTTP/1.1 200 OK
 Content-Type: text/html
 X-Body-Type: text/template
