@@ -35,7 +35,7 @@ Use it for:
 </ol>
 That's all.
 
-<h2>Try DeepfakeHTTP</h2>
+<h2>Try it</h2>
 
 <ol>
 	<li>Copy the content of the dump example to the file <code>MyDump.txt</code></li>
