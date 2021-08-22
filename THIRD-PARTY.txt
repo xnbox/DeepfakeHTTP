@@ -8,6 +8,12 @@ HOME PAGE  : https://hive.apache.org
 DESCRIPTION: Used for produce Murmur3 hashes (org.apache.hive.common.util.Murmur3.java)
 
 
+NAME       : Apache FreeMarker™
+LICENSE    : Apache License 2.0
+HOME PAGE  : https://freemarker.apache.org
+DESCRIPTION: Used as template engine
+
+
 NAME       : ImageJ
 LICENSE    : Public domain
 HOME PAGE  : https://imagej.nih.gov/ij
