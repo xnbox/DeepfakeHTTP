@@ -39,8 +39,18 @@ That's all.
 
 <ol>
 	<li>Copy the content of the dump example to the file <code>MyDump.txt</code></li>
-	<li>Start the DeepfakeHTTP server from command line: <code>java -jar df.jar MyDump.txt</code></li>
-	<li>Use a browser to check whether DeepfakeHTTP is running on URL <code>http://localhost:8080/form.html</code></li>
+	<li>Start the DeepfakeHTTP server from command line:
+
+```text
+java -jar df.jar MyDump.txt
+```
+</li>
+	<li>Use a browser to check whether DeepfakeHTTP is running on URL:
+
+```text
+http://localhost:8080/form.html
+```
+</li>
 </ol>
 
 <h2>Dump example</h2>
