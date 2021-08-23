@@ -51,6 +51,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -114,6 +119,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noEtag   = false;
 
 	private Collection<Script> hooks;
+	private ExecutorService    executorService;
 
 	private Map<String /* dump file */, String /* dump content */ > dumps;
 
@@ -254,6 +260,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					} else
 						logger.log(Level.WARNING, "File \"{0}\" does not exists", fileName);
 				}
+			}
+
+			if (!hooks.isEmpty()) {
+				int capacity        = 10;
+				int corePoolSize    = 10;
+				int maximumPoolSize = 100;
+				int keepAliveTime   = 1000;
+
+				BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(capacity, true);
+				executorService = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.MILLISECONDS, workQueue);
 			}
 
 			boolean activateDirWatchers = !noListen;
@@ -418,7 +434,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					/* search for request-reponse pair */
 					ReqResp                   reqResp                 = null;
-					Map<String, List<String>> providedHeaderValuesMap = null;
+					Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();;
 					for (ReqResp rr : allReqResps) {
 						if (new WildcardMatch().match(providedFirstLineStr, rr.request.firstLine)) {
 							for (String headerStr : rr.request.headers) {
@@ -458,7 +474,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							}
 
 							/* provided headers */
-							providedHeaderValuesMap = new LinkedHashMap<>();
+							providedHeaderValuesMap.clear();
 							for (Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements();) {
 								String       headerName       = e.nextElement().toLowerCase(Locale.ENGLISH);
 								List<String> headerValuesList = providedHeaderValuesMap.get(headerName);
@@ -614,41 +630,48 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					}
 
 					if (!hooks.isEmpty()) {
-						try {
-							Map<String, Object> http         = new HashMap<>();
-							Map<String, Object> httpRequest  = new HashMap<>();
-							Map<String, Object> httpResponse = new HashMap<>();
+						executorService.execute(new Runnable() {
 
-							http.put("request", httpRequest);
+							@Override
+							public void run() {
+								try {
+									Map<String, Object> http         = new HashMap<>();
+									Map<String, Object> httpRequest  = new HashMap<>();
+									Map<String, Object> httpResponse = new HashMap<>();
+									
+									http.put("request", httpRequest);
+									
+									httpRequest.put("method", method);
+									httpRequest.put("path", providedPath);
+									httpRequest.put("protocol", protocol);
+									httpRequest.put("parameters", providedParams);
+									httpRequest.put("body", bs);
+									httpRequest.put("headers", providedHeaderValuesMap);
 
-							httpRequest.put("method", method);
-							httpRequest.put("path", providedPath);
-							httpRequest.put("protocol", protocol);
-							httpRequest.put("parameters", providedParams);
-							httpRequest.put("body", bs);
-							httpRequest.put("headers", providedHeaderValuesMap);
+									http.put("response", httpResponse);
+									httpResponse.put("body", new byte[0]);
+									httpResponse.put("headers", new LinkedHashMap<String, List<String>>());
+									httpResponse.put("status", 200);
+									httpResponse.put("message", "");
+									httpResponse.put("protocol", "HTTP/1.1");
 
-							http.put("response", httpResponse);
-							httpResponse.put("body", new byte[0]);
-							httpResponse.put("headers", new LinkedHashMap<String, List<String>>());
-							httpResponse.put("status", 200);
-							httpResponse.put("message", "");
-							httpResponse.put("protocol", "HTTP/1.1");
-
-							Context cx = Context.enter();
-							cx.setLanguageVersion(Context.VERSION_1_8);
-							cx.setOptimizationLevel(9);
-							ScriptableObject scope = new ImporterTopLevel(cx);
-							scope = (ScriptableObject) cx.initStandardObjects(scope);
-							Object obj = Context.javaToJS(http, scope);
-							ScriptableObject.putProperty(scope, "http", obj);
-							for (Script script : hooks)
-								script.exec(cx, scope);
-						} catch (Throwable e) {
-							e.printStackTrace();
-						} finally {
-							Context.exit();
-						}
+									Context cx = Context.enter();
+									cx.setLanguageVersion(Context.VERSION_1_8);
+									cx.setOptimizationLevel(9);
+									ScriptableObject scope = new ImporterTopLevel(cx);
+									scope = (ScriptableObject) cx.initStandardObjects(scope);
+									Object obj = Context.javaToJS(http, scope);
+									ScriptableObject.putProperty(scope, "http", obj);
+									for (Script script : hooks)
+										script.exec(cx, scope);
+								} catch (Throwable e) {
+									e.printStackTrace();
+								} finally {
+									Context.exit();
+								}
+								
+							}
+						});
 					}
 					if (message == null)
 						response.setStatus(status);
