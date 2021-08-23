@@ -61,6 +61,10 @@ import org.deepfake_http.common.FirstLineResp;
 import org.deepfake_http.common.Header;
 import org.deepfake_http.common.ReqResp;
 import org.deepfake_http.common.utils.Utils;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptableObject;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -88,6 +92,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	/* command line args */
 	private static final String ARGS_NO_LISTEN_OPTION = "--no-listen"; // disable listening on dump(s) changes
 	private static final String ARGS_NO_ETAG_OPTION   = "--no-etag";   // disable ETag optimization
+	private static final String ARGS_HOOK_OPTION      = "--hook";      // provide hook script(s) (JavaScript)
+	private static final String ARGS_DUMP_OPTION      = "--dump";      // provide dump(s)
 
 	private static final String HTTP_HEADER_CONNECTION     = "Connection";
 	private static final String HTTP_HEADER_CONTENT_LENGTH = "Content-Length";
@@ -103,12 +109,13 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 	private static final String X_POWERED_BY_VALUE = "DeepfakeHTTP";
 
-	/* CLI args */
-	private String[] args;
-
 	/* CLI flags */
 	private boolean noListen = false;
 	private boolean noEtag   = false;
+
+	private Collection<Script> hooks;
+
+	private Map<String /* dump file */, String /* dump content */ > dumps;
 
 	private Logger logger;
 
@@ -193,25 +200,67 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 */
 	@Override
 	public void init(ServletConfig servletConfig) throws ServletException {
+		logger = Logger.getLogger(getClass().getName());
+		logger.log(Level.INFO, "DeepfakeHTTP Logger: HELLO!");
+
 		try {
 			InitialContext ctx = new InitialContext();
+
 			/* get custom command-line args */
-			args = (String[]) ctx.lookup("java:comp/env/tommy/args");
+			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
+
+			hooks = new ArrayList<>();
+			dumps = new LinkedHashMap<>();
+
+			boolean inHooks = false;
+			boolean inDumps = false;
 			for (int i = 0; i < args.length; i++) {
-				if (args[i].equals(ARGS_NO_LISTEN_OPTION))
+				if (args[i].equals(ARGS_NO_LISTEN_OPTION)) {
 					noListen = true;
-				else if (args[i].equals(ARGS_NO_ETAG_OPTION))
-					noEtag = true;
+					inHooks  = false;
+					inDumps  = false;
+				} else if (args[i].equals(ARGS_NO_ETAG_OPTION)) {
+					noEtag  = true;
+					inHooks = false;
+					inDumps = false;
+				} else if (args[i].equals(ARGS_DUMP_OPTION)) {
+					inDumps = true;
+					inHooks = false;
+				} else if (args[i].equals(ARGS_HOOK_OPTION)) {
+					inHooks = true;
+					inDumps = false;
+				} else {
+					String fileName = args[i];
+					Path   path     = Paths.get(fileName);
+					if (Files.exists(path)) {
+						String content = Files.readString(path);
+						if (inHooks) {
+							try {
+								Context cx = Context.enter();
+								cx.setLanguageVersion(Context.VERSION_1_8);
+								cx.setOptimizationLevel(9);
+								ScriptableObject scope = new ImporterTopLevel(cx);
+								scope = (ScriptableObject) cx.initStandardObjects(scope);
+								Script script = cx.compileString(content, fileName, 0, null);
+								hooks.add(script);
+							} catch (Throwable e) {
+								e.printStackTrace();
+							} finally {
+								Context.exit();
+							}
+
+						} else if (inDumps)
+							dumps.put(fileName, content);
+					} else
+						logger.log(Level.WARNING, "File \"{0}\" does not exists", fileName);
+				}
 			}
+
 			boolean activateDirWatchers = !noListen;
 			reload(activateDirWatchers);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-
-		logger = Logger.getLogger(getClass().getName());
-
-		logger.log(Level.INFO, "DeepfakeHTTP Logger: HELLO!");
 
 		String contextPath = servletConfig.getServletContext().getContextPath();
 		logger.log(Level.INFO, "Context path: {0}", contextPath);
@@ -348,15 +397,17 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 				try {
 
-					String method       = request.getMethod().trim().toUpperCase(Locale.ENGLISH);
-					String providedPath = request.getServletPath() + request.getPathInfo();
-					String protocol     = request.getProtocol();
+					String method              = request.getMethod().trim().toUpperCase(Locale.ENGLISH);
+					String providedPath        = request.getServletPath() + request.getPathInfo();
+					String providedQueryString = Utils.extractQueryStringFromPath(providedPath);
+					String protocol            = request.getProtocol();
 
 					String providedFirstLineStr = method + ' ' + providedPath + ' ' + protocol;
 					String providedBody         = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
 					Map<String, List<String>> providedParams = new LinkedHashMap<>();
-					Utils.parseQueryString(providedPath, providedParams);
+					if (!providedQueryString.isEmpty())
+						Utils.parseQueryString(providedQueryString, providedParams);
 					String requestHeaderContentType = request.getHeader(HTTP_HEADER_CONTENT_TYPE);
 					if (requestHeaderContentType != null && requestHeaderContentType.startsWith("application/x-www-form-urlencoded"))
 						Utils.parseQueryString(providedBody, providedParams);
@@ -366,7 +417,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					int    responseDelay = 0;
 
 					/* search for request-reponse pair */
-					ReqResp reqResp = null;
+					ReqResp                   reqResp                 = null;
+					Map<String, List<String>> providedHeaderValuesMap = null;
 					for (ReqResp rr : allReqResps) {
 						if (new WildcardMatch().match(providedFirstLineStr, rr.request.firstLine)) {
 							for (String headerStr : rr.request.headers) {
@@ -406,7 +458,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							}
 
 							/* provided headers */
-							Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();
+							providedHeaderValuesMap = new LinkedHashMap<>();
 							for (Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements();) {
 								String       headerName       = e.nextElement().toLowerCase(Locale.ENGLISH);
 								List<String> headerValuesList = providedHeaderValuesMap.get(headerName);
@@ -469,12 +521,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					String        responseFirstLineStr = reqResp.response.firstLine;
 					FirstLineResp firstLineResp        = Utils.parseFirstLineResp(responseFirstLineStr);
 
-					int    status   = firstLineResp.status;
-					String message  = firstLineResp.message;
-					String mime     = null;
-					String encoding = null;
-
+					int                 status          = firstLineResp.status;
+					String              message         = firstLineResp.message;
+					String              mime            = null;
+					String              encoding        = null;
 					Map<String, String> responseHeaders = new LinkedHashMap<>();
+
 					for (String headerStr : reqResp.response.headers) {
 						Header header              = Utils.parseHeader(headerStr);
 						String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
@@ -526,10 +578,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						}
 						body = writer.toString();
 						bs   = body.getBytes(StandardCharsets.UTF_8);
-					} else if (bodyType.equals("application/javascript")) {
-						bs = null;
-					} else if (bodyType.equals("application/java")) {
-						bs = null;
 					} else if (bodyType.equals("text/uri-list") && body.startsWith("file:") || body.startsWith("https:") || body.startsWith("http:")) {
 						InputStream is = new URL(body).openStream();
 						bs = is.readAllBytes();
@@ -565,6 +613,43 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							responseHeaders.put(HTTP_HEADER_E_TAG, etag);
 					}
 
+					if (!hooks.isEmpty()) {
+						try {
+							Map<String, Object> http         = new HashMap<>();
+							Map<String, Object> httpRequest  = new HashMap<>();
+							Map<String, Object> httpResponse = new HashMap<>();
+
+							http.put("request", httpRequest);
+
+							httpRequest.put("method", method);
+							httpRequest.put("path", providedPath);
+							httpRequest.put("protocol", protocol);
+							httpRequest.put("parameters", providedParams);
+							httpRequest.put("body", bs);
+							httpRequest.put("headers", providedHeaderValuesMap);
+
+							http.put("response", httpResponse);
+							httpResponse.put("body", new byte[0]);
+							httpResponse.put("headers", new LinkedHashMap<String, List<String>>());
+							httpResponse.put("status", 200);
+							httpResponse.put("message", "");
+							httpResponse.put("protocol", "HTTP/1.1");
+
+							Context cx = Context.enter();
+							cx.setLanguageVersion(Context.VERSION_1_8);
+							cx.setOptimizationLevel(9);
+							ScriptableObject scope = new ImporterTopLevel(cx);
+							scope = (ScriptableObject) cx.initStandardObjects(scope);
+							Object obj = Context.javaToJS(http, scope);
+							ScriptableObject.putProperty(scope, "http", obj);
+							for (Script script : hooks)
+								script.exec(cx, scope);
+						} catch (Throwable e) {
+							e.printStackTrace();
+						} finally {
+							Context.exit();
+						}
+					}
 					if (message == null)
 						response.setStatus(status);
 					else
@@ -625,12 +710,13 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 */
 	private void reload(boolean activateDirWatchers) throws Throwable {
 		allReqResps.clear();
-		for (String arg : args) {
-			Path   path     = Paths.get(arg);
+		for (Map.Entry<String /* dump file */, String /* dump content */ > entry : dumps.entrySet()) {
+			String dumpFile = entry.getKey();
+			String dump     = entry.getValue();
+			Path   path     = Paths.get(dumpFile);
 			Path   dirPath  = path.getParent();
 			Path   filePath = path.getFileName();
-			String text     = Files.readString(path);
-			allReqResps.addAll(Utils.parseDump(text));
+			allReqResps.addAll(Utils.parseDump(dump));
 
 			if (activateDirWatchers) {
 				DirectoryWatcher dirWatcher = directoryWatchersMap.get(dirPath);
