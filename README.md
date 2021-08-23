@@ -45,11 +45,8 @@ That's all.
 java -jar df.jar MyDump.txt
 ```
 </li>
-	<li>Use a browser to check whether DeepfakeHTTP is running on URL:
-
-```text
-http://localhost:8080/form.html
-```
+	<li>Use a browser to check whether DeepfakeHTTP is running on URL:<br>
+	<a href="http://localhost:8080/form.html">http://localhost:8080/form.html</a>
 </li>
 </ol>
 
