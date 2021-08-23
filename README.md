@@ -56,7 +56,6 @@ http://localhost:8080/form.html
 <h2>Dump example</h2>
 
 ```text
-
 # Comments are welcome! :)
 
 GET /form.html HTTP/1.1
@@ -90,7 +89,6 @@ X-Body-Type: text/template
     <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
 </body>
 </html>
-
 
 ```
 For more examples see <a href="#appendixdump-examples">here</a>.
