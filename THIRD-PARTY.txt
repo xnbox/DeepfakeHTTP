@@ -14,6 +14,12 @@ HOME PAGE  : https://freemarker.apache.org
 DESCRIPTION: Used as template engine
 
 
+NAME       : Mozilla Rhino
+LICENSE    : MPL-2.0 (Mozilla Public License v2.0)
+HOME PAGE  : https://github.com/mozilla/rhino
+DESCRIPTION: Used as JavaScript engine for hooks
+
+
 NAME       : ImageJ
 LICENSE    : Public domain
 HOME PAGE  : https://imagej.nih.gov/ij
