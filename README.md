@@ -16,7 +16,7 @@ Use it for:
 <ul>
     <li>Creating the product <abbr title="Proof Of Concept">POC</abbr> or demo before even starting out with the backend</li>
     <li>REST, GraphQL, and other APIs prototyping and testing</li>
-    <li>Hiding critical enterprise infrastructure behind simple static facade</li>
+    <li>Hiding critical enterprise infrastructure behind a simple static facade</li>
     <li>Hacking and fine-tuning HTTP communications on both server and client sides</li>
 </ul>
 
