@@ -271,6 +271,19 @@ public class Utils {
 	}
 
 	/**
+	 * Extract query string from path
+	 *
+	 * @param path
+	 * @return
+	 */
+	public static String extractQueryStringFromPath(String path) {
+		int pos = path.indexOf('?');
+		if (pos == -1)
+			return "";
+		return path.substring(pos + 1);
+	}
+
+	/**
 	 * Parse query string
 	 *
 	 * @param q
