@@ -27,12 +27,15 @@ E-Mail: xnbox.team@outlook.com
 
 package org.deepfake_http.common.servlet;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -589,10 +592,36 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						try {
 							freeMarkerTemplate.process(providedParams, writer);
 						} catch (Exception e) {
+							status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR; // setting HTTP 500 and returning with empty body
+							bs     = new byte[0];
 							e.printStackTrace();
 						}
 						body = writer.toString();
 						bs   = body.getBytes(StandardCharsets.UTF_8);
+					} else if ("application/javascript".equals(bodyType)) {
+						Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
+						try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); PrintStream ps = new PrintStream(baos);) {
+							PrintStream stdout = System.out;
+							System.setOut(ps);
+							Context cx = Context.enter();
+							cx.setLanguageVersion(Context.VERSION_1_8);
+							cx.setOptimizationLevel(9);
+							cx.getWrapFactory().setJavaPrimitiveWrap(true);
+							ScriptableObject scope = new ImporterTopLevel(cx);
+							scope = (ScriptableObject) cx.initStandardObjects(scope);
+							Object obj = Context.javaToJS(http, scope);
+							ScriptableObject.putProperty(scope, "http", obj);
+							cx.evaluateString(scope, body, providedFirstLineStr, 0, null);
+							Map<String, Object> httpRresponse = (Map<String, Object>) http.get("response");
+							bs = baos.toByteArray();
+							System.setOut(stdout);
+						} catch (Throwable e) {
+							status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR; // setting HTTP 500 and returning with empty body
+							bs     = new byte[0];
+							e.printStackTrace();
+						} finally {
+							Context.exit();
+						}
 					} else if ("text/uri-list".equals(bodyType)) {
 						if (body.startsWith("file:") || body.startsWith("https:") || body.startsWith("http:")) {
 							InputStream is = new URL(body).openStream();
@@ -637,46 +666,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					}
 
 					if (!hooks.isEmpty()) {
+						final Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, bs);
 						executorService.execute(new Runnable() {
 
 							@Override
 							public void run() {
-								try {
-									Map<String, Object> http         = new HashMap<>();
-									Map<String, Object> httpRequest  = new HashMap<>();
-									Map<String, Object> httpResponse = new HashMap<>();
-
-									http.put("request", httpRequest);
-
-									httpRequest.put("method", method);
-									httpRequest.put("path", providedPath);
-									httpRequest.put("protocol", protocol);
-									httpRequest.put("parameters", providedParams);
-									httpRequest.put("body", bs);
-									httpRequest.put("headers", providedHeaderValuesMap);
-
-									http.put("response", httpResponse);
-									httpResponse.put("body", new byte[0]);
-									httpResponse.put("headers", new LinkedHashMap<String, List<String>>());
-									httpResponse.put("status", 200);
-									httpResponse.put("message", "");
-									httpResponse.put("protocol", "HTTP/1.1");
-
-									Context cx = Context.enter();
-									cx.setLanguageVersion(Context.VERSION_1_8);
-									cx.setOptimizationLevel(9);
-									ScriptableObject scope = new ImporterTopLevel(cx);
-									scope = (ScriptableObject) cx.initStandardObjects(scope);
-									Object obj = Context.javaToJS(http, scope);
-									ScriptableObject.putProperty(scope, "http", obj);
-									for (Script script : hooks)
-										script.exec(cx, scope);
-								} catch (Throwable e) {
-									e.printStackTrace();
-								} finally {
-									Context.exit();
-								}
-
+								execHookScripts(http);
 							}
 						});
 					}
@@ -703,6 +698,47 @@ public class DeepfakeHttpServlet extends HttpServlet {
 				}
 			}
 		});
+	}
+
+	private Map<String, Object> createHttpObject(String requestMethod, String requestPath, String requestProtocol, Map<String, List<String>> requestParameters, Map<String, List<String>> requestHeaderValuesMap, byte[] requestBs, String responseProtocol, int responseStatus, String responseMessage, Map<String, String> responseHeaders, byte[] responseBs) {
+		Map<String, Object> http         = new HashMap<>();
+		Map<String, Object> httpRequest  = new HashMap<>();
+		Map<String, Object> httpResponse = new HashMap<>();
+
+		http.put("request", httpRequest);
+
+		httpRequest.put("method", requestMethod);
+		httpRequest.put("path", requestPath);
+		httpRequest.put("protocol", requestProtocol);
+		httpRequest.put("parameters", requestParameters);
+		httpRequest.put("body", requestBs);
+		httpRequest.put("headers", requestHeaderValuesMap);
+
+		http.put("response", httpResponse);
+		httpResponse.put("protocol", responseProtocol);
+		httpResponse.put("status", responseStatus);
+		httpResponse.put("message", responseMessage);
+		httpResponse.put("headers", responseHeaders);
+		httpResponse.put("body", responseBs);
+		return http;
+	}
+
+	private void execHookScripts(Map<String, Object> http) {
+		try {
+			Context cx = Context.enter();
+			cx.setLanguageVersion(Context.VERSION_1_8);
+			cx.setOptimizationLevel(9);
+			ScriptableObject scope = new ImporterTopLevel(cx);
+			scope = (ScriptableObject) cx.initStandardObjects(scope);
+			Object obj = Context.javaToJS(http, scope);
+			ScriptableObject.putProperty(scope, "http", obj);
+			for (Script script : hooks)
+				script.exec(cx, scope);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		} finally {
+			Context.exit();
+		}
 	}
 
 	/**
