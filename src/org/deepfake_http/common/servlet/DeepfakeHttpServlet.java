@@ -434,7 +434,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					/* search for request-reponse pair */
 					ReqResp                   reqResp                 = null;
-					Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();;
+					Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();
+					;
 					for (ReqResp rr : allReqResps) {
 						if (new WildcardMatch().match(providedFirstLineStr, rr.request.firstLine)) {
 							for (String headerStr : rr.request.headers) {
@@ -582,9 +583,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					String body = reqResp.response.body.toString();
 
 					byte[] bs;
-					if (bodyType == null)
-						bs = body.getBytes(StandardCharsets.UTF_8);
-					else if (bodyType.equals("text/template")) {
+					if ("text/template".equals(bodyType)) {
 						Template     freeMarkerTemplate = new Template("", new StringReader(body), freeMarkerConfiguration);
 						StringWriter writer             = new StringWriter();
 						try {
@@ -594,22 +593,30 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						}
 						body = writer.toString();
 						bs   = body.getBytes(StandardCharsets.UTF_8);
-					} else if (bodyType.equals("text/uri-list") && body.startsWith("file:") || body.startsWith("https:") || body.startsWith("http:")) {
-						InputStream is = new URL(body).openStream();
-						bs = is.readAllBytes();
-						is.close();
-					} else if (bodyType.equals("text/uri-list") && body.startsWith("data:")) {
-						StringBuilder mediatypeSb = new StringBuilder();
-						StringBuilder encodingSb  = new StringBuilder();
-						bs = Utils.parseDataUrl(body, mediatypeSb, encodingSb);
-						String mimeStr = mediatypeSb.toString().strip();
-						if (!mimeStr.isEmpty())
-							mime = mimeStr;
-						String encodingStr = encodingSb.toString().strip();
-						if (!encodingStr.isEmpty())
-							encoding = encodingStr;
-					} else
-						throw new Exception("Bad URL");
+					} else if ("text/uri-list".equals(bodyType)) {
+						if (body.startsWith("file:") || body.startsWith("https:") || body.startsWith("http:")) {
+							InputStream is = new URL(body).openStream();
+							bs = is.readAllBytes();
+							is.close();
+						} else if (body.startsWith("data:")) { // data URI
+							StringBuilder mediatypeSb = new StringBuilder();
+							StringBuilder encodingSb  = new StringBuilder();
+							bs = Utils.parseDataUrl(body, mediatypeSb, encodingSb);
+							String mimeStr = mediatypeSb.toString().strip();
+							if (!mimeStr.isEmpty())
+								mime = mimeStr;
+							String encodingStr = encodingSb.toString().strip();
+							if (!encodingStr.isEmpty())
+								encoding = encodingStr;
+						} else { // fallback to ignored bodyType
+							logger.log(Level.WARNING, "\"X-Body-Type: {0}\", but body content is not valid URL or URL protocol is not supported. Ignored. Valid URL protocols: file, http, https, data", bodyType);
+							bs = body.getBytes(StandardCharsets.UTF_8);
+						}
+					} else { // Unknown or null bodyType
+						bs = body.getBytes(StandardCharsets.UTF_8);
+						if (bodyType != null) // Unknown bodyType
+							logger.log(Level.WARNING, "\"X-Body-Type: {0}\" is not supported. Ignored.", bodyType);
+					}
 					if (responseDelay != 0)
 						Thread.sleep(responseDelay);
 
@@ -638,9 +645,9 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									Map<String, Object> http         = new HashMap<>();
 									Map<String, Object> httpRequest  = new HashMap<>();
 									Map<String, Object> httpResponse = new HashMap<>();
-									
+
 									http.put("request", httpRequest);
-									
+
 									httpRequest.put("method", method);
 									httpRequest.put("path", providedPath);
 									httpRequest.put("protocol", protocol);
@@ -669,7 +676,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 								} finally {
 									Context.exit();
 								}
-								
+
 							}
 						});
 					}
