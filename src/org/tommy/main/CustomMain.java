@@ -53,12 +53,12 @@ public class CustomMain {
 			sb.append(" java -jar dhttp.jar [options]\n");
 			sb.append("\n");
 			sb.append(" Options:\n");
-			sb.append("  --help                      print help message\n");
-			sb.append("  --port                      port number, default: 8080\n");
-			sb.append("  --no-listen                 disable listening on dump(s) changes\n");
-			sb.append("  --no-etag                   disable ETag optimization\n");
-			sb.append("  --dump <dump file(s) ...>   provide dump file(s)\n");
-			sb.append("  --hook <hook script(s) ...> provide hook script(s)\n");
+			sb.append("  --help          print help message\n");
+			sb.append("  --port          port number, default: 8080\n");
+			sb.append("  --no-listen     disable listening on dump(s) changes\n");
+			sb.append("  --no-etag       disable ETag optimization\n");
+			sb.append("  --dump <file> … dump file(s)\n");
+			sb.append("  --hook <file> … hook script(s)\n");
 			System.out.println(sb);
 			System.exit(0);
 		}
