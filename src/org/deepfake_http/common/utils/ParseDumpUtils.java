@@ -71,7 +71,7 @@ public class ParseDumpUtils {
 		boolean inResponse = false;
 		boolean inBody     = false;
 
-		List<ReqResp> map = new ArrayList<>();
+		List<ReqResp> list = new ArrayList<>();
 
 		ReqResp reqResp       = null;
 		int     lineNo        = 0;
@@ -116,7 +116,7 @@ public class ParseDumpUtils {
 				if (first)
 					first = false;
 				else
-					map.add(reqResp);
+					list.add(reqResp);
 				requestLineNo = lineNo;
 
 				reqResp                   = new ReqResp();
@@ -167,9 +167,10 @@ public class ParseDumpUtils {
 		}
 		if (inRequest)
 			throw new Exception("Request without response! Line: " + requestLineNo);
-		map.add(reqResp);
+		if (reqResp != null)
+			list.add(reqResp);
 
-		return map;
+		return list;
 	}
 
 	/**
