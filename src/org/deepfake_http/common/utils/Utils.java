@@ -149,28 +149,27 @@ public class Utils {
 						else if (inResponse)
 							reqResp.response.body.append(line + '\n');
 					} else {
-						if (!inBody)
-							if (line.strip().isEmpty())
-								inBody = true;
-							else {
-								if (line.startsWith(" ") || line.startsWith("\t")) {
-									int lastElIndex;
-									if (inRequest) {
-										lastElIndex = reqResp.request.headers.size() - 1;
-										String lastHeader = reqResp.request.headers.get(lastElIndex);
-										reqResp.request.headers.set(lastElIndex, lastHeader + line.strip());
-									} else if (inResponse) {
-										lastElIndex = reqResp.response.headers.size() - 1;
-										String lastHeader = reqResp.response.headers.get(lastElIndex);
-										reqResp.response.headers.set(lastElIndex, lastHeader + line.strip());
-									}
-								} else {
-									if (inRequest)
-										reqResp.request.headers.add(line.strip());
-									else if (inResponse)
-										reqResp.response.headers.add(line.strip());
+						if (line.strip().isEmpty())
+							inBody = true;
+						else {
+							if (line.startsWith(" ") || line.startsWith("\t")) {
+								int lastElIndex;
+								if (inRequest) {
+									lastElIndex = reqResp.request.headers.size() - 1;
+									String lastHeader = reqResp.request.headers.get(lastElIndex);
+									reqResp.request.headers.set(lastElIndex, lastHeader + line.strip());
+								} else if (inResponse) {
+									lastElIndex = reqResp.response.headers.size() - 1;
+									String lastHeader = reqResp.response.headers.get(lastElIndex);
+									reqResp.response.headers.set(lastElIndex, lastHeader + line.strip());
 								}
+							} else {
+								if (inRequest)
+									reqResp.request.headers.add(line.strip());
+								else if (inResponse)
+									reqResp.response.headers.add(line.strip());
 							}
+						}
 					}
 				}
 			}
