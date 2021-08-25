@@ -63,8 +63,8 @@ import org.deepfake_http.common.FirstLineResp;
 import org.deepfake_http.common.Header;
 import org.deepfake_http.common.ReqResp;
 import org.deepfake_http.common.utils.DataUriUtils;
-import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.deepfake_http.common.utils.HttpPathUtils;
+import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.ScriptableObject;
@@ -561,7 +561,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							Object obj = Context.javaToJS(http, scope);
 							ScriptableObject.putProperty(scope, "http", obj);
 							cx.evaluateString(scope, body, providedFirstLineStr, 0, null);
-							Map<String, Object> httpRresponse = (Map<String, Object>) http.get("response");
 							bs = baos.toByteArray();
 							System.setOut(stdout);
 						} catch (Throwable e) {
@@ -698,13 +697,15 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private void reload(boolean activateDirWatchers) throws Throwable {
 		allReqResps.clear();
 		for (Map.Entry<String /* dump file */, String /* dump content */ > entry : dumps.entrySet()) {
-			String       dumpFile  = entry.getKey();
-			String       dump      = entry.getValue();
-			Path         path      = Paths.get(dumpFile);
-			Path         dirPath   = path.getParent();
-			Path         filePath  = path.getFileName();
-			List<String> dumpLines = ParseDumpUtils.readLines(dump);
-			allReqResps.addAll(ParseDumpUtils.parseDump(dumpLines));
+			String        dumpFile    = entry.getKey();
+			String        dump        = entry.getValue();
+			Path          path        = Paths.get(dumpFile);
+			Path          dirPath     = path.getParent();
+			Path          filePath    = path.getFileName();
+			List<String>  dumpLines   = ParseDumpUtils.readLines(dump);
+			List<ReqResp> dumpReqResp = ParseDumpUtils.parseDump(dumpLines);
+			logger.log(Level.INFO, "File: \"{0}\" ({1} entries found)", new Object[] { dumpFile, dumpReqResp.size() });
+			allReqResps.addAll(dumpReqResp);
 
 			if (activateDirWatchers) {
 				DirectoryWatcher dirWatcher = directoryWatchersMap.get(dirPath);
