@@ -28,12 +28,14 @@ E-Mail: xnbox.team@outlook.com
 package org.deepfake_http.common.servlet;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.ProcessBuilder.Redirect;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -44,8 +46,12 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,6 +59,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -547,6 +555,25 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						}
 						body = writer.toString();
 						bs   = body.getBytes(StandardCharsets.UTF_8);
+					} else if ("application/x-sh".equals(bodyType)) {
+						Path tmpFile = Files.createTempFile("df-", "tmp");
+						Files.write(tmpFile, body.getBytes(StandardCharsets.UTF_8));
+						Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
+						Files.setPosixFilePermissions(tmpFile, perms);
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						ProcessBuilder        pb   = new ProcessBuilder()                  //
+								.directory(new File(System.getProperty("user.home")))      //
+								.command(new String[] { "sh", "-c", tmpFile.toString() }); //
+
+						Process     process = pb.start();
+						InputStream is      = process.getInputStream();
+						is.transferTo(baos);
+
+						bs = baos.toByteArray();
+						int exitCode = process.waitFor();
+						Files.deleteIfExists(tmpFile);
+						logger.log(exitCode == 0 ? Level.INFO : Level.WARNING, "Exit code: {0}", exitCode);
+						process.destroy();
 					} else if ("application/javascript".equals(bodyType)) {
 						Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
 						try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); PrintStream ps = new PrintStream(baos);) {
