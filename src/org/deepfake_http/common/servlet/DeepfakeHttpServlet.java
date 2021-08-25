@@ -223,7 +223,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						logger.log(Level.WARNING, "File \"{0}\" does not exists", fileName);
 				}
 			}
-System.out.println("---------------------------------- " + dumps.keySet());
 			boolean activateDirWatchers = !noListen;
 			reload(activateDirWatchers);
 		} catch (Throwable e) {
