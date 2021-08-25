@@ -62,7 +62,9 @@ import org.apache.hive.common.util.Murmur3;
 import org.deepfake_http.common.FirstLineResp;
 import org.deepfake_http.common.Header;
 import org.deepfake_http.common.ReqResp;
-import org.deepfake_http.common.utils.Utils;
+import org.deepfake_http.common.utils.DataUriUtils;
+import org.deepfake_http.common.utils.ParseDumpUtils;
+import org.deepfake_http.common.utils.HttpPathUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.ScriptableObject;
@@ -366,7 +368,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					String method              = request.getMethod().trim().toUpperCase(Locale.ENGLISH);
 					String providedPath        = request.getServletPath() + request.getPathInfo();
-					String providedQueryString = Utils.extractQueryStringFromPath(providedPath);
+					String providedQueryString = HttpPathUtils.extractQueryStringFromPath(providedPath);
 					String protocol            = request.getProtocol();
 
 					String providedFirstLineStr = method + ' ' + providedPath + ' ' + protocol;
@@ -374,10 +376,10 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					Map<String, List<String>> providedParams = new LinkedHashMap<>();
 					if (!providedQueryString.isEmpty())
-						Utils.parseQueryString(providedQueryString, providedParams);
+						HttpPathUtils.parseQueryString(providedQueryString, providedParams);
 					String requestHeaderContentType = request.getHeader(HTTP_HEADER_CONTENT_TYPE);
 					if (requestHeaderContentType != null && requestHeaderContentType.startsWith("application/x-www-form-urlencoded"))
-						Utils.parseQueryString(providedBody, providedParams);
+						HttpPathUtils.parseQueryString(providedBody, providedParams);
 
 					String bodyType      = null;
 					int    requestDelay  = 0;
@@ -389,13 +391,13 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					for (ReqResp rr : allReqResps) {
 						if (new WildcardMatch().match(providedFirstLineStr, rr.request.firstLine)) {
 							for (String headerStr : rr.request.headers) {
-								Header header              = Utils.parseHeader(headerStr);
+								Header header              = ParseDumpUtils.parseHeader(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 								if (lowerCaseHeaderName.equals(INTERNAL_HTTP_HEADER_X_SERVER_REQUEST_DELAY.toLowerCase(Locale.ENGLISH)))
 									requestDelay = Integer.parseInt(header.value);
 							}
 							for (String headerStr : rr.response.headers) {
-								Header header              = Utils.parseHeader(headerStr);
+								Header header              = ParseDumpUtils.parseHeader(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 								if (INTERNAL_HTTP_HEADER_X_SERVER_BODY_TYPE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									bodyType = header.value;
@@ -408,7 +410,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							/* headers from file */
 							Map<String, List<String>> headerValuesMap = new LinkedHashMap<>();
 							for (String headerStr : rr.request.headers) {
-								Header       header              = Utils.parseHeader(headerStr);
+								Header       header              = ParseDumpUtils.parseHeader(headerStr);
 								String       lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 								List<String> headerValuesList    = headerValuesMap.get(lowerCaseHeaderName);
 								if (headerValuesList == null) {
@@ -486,7 +488,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					}
 
 					String        responseFirstLineStr = reqResp.response.firstLine;
-					FirstLineResp firstLineResp        = Utils.parseFirstLineResp(responseFirstLineStr);
+					FirstLineResp firstLineResp        = ParseDumpUtils.parseFirstLineResp(responseFirstLineStr);
 
 					int                 status          = firstLineResp.status;
 					String              message         = firstLineResp.message;
@@ -495,7 +497,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					Map<String, String> responseHeaders = new LinkedHashMap<>();
 
 					for (String headerStr : reqResp.response.headers) {
-						Header header              = Utils.parseHeader(headerStr);
+						Header header              = ParseDumpUtils.parseHeader(headerStr);
 						String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 
 						if (INTERNAL_HTTP_HEADER_X_SERVER_BODY_TYPE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
@@ -515,7 +517,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						Thread.sleep(requestDelay);
 
 					for (String headerStr : reqResp.request.headers) {
-						Header header              = Utils.parseHeader(headerStr);
+						Header header              = ParseDumpUtils.parseHeader(headerStr);
 						String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 
 						if (HTTP_HEADER_CONNECTION.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
@@ -523,7 +525,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					}
 
 					for (String headerStr : reqResp.response.headers) {
-						Header header              = Utils.parseHeader(headerStr);
+						Header header              = ParseDumpUtils.parseHeader(headerStr);
 						String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 
 						if (HTTP_HEADER_CONNECTION.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
@@ -577,7 +579,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						} else if (body.startsWith("data:")) { // data URI
 							StringBuilder mediatypeSb = new StringBuilder();
 							StringBuilder encodingSb  = new StringBuilder();
-							bs = Utils.parseDataUrl(body, mediatypeSb, encodingSb);
+							bs = DataUriUtils.parseDataUri(body, mediatypeSb, encodingSb);
 							String mimeStr = mediatypeSb.toString().strip();
 							if (!mimeStr.isEmpty())
 								mime = mimeStr;
@@ -668,7 +670,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 */
 	private static ReqResp getBadRequest400(List<ReqResp> reqResps) throws Exception {
 		for (ReqResp reqResp : reqResps) {
-			FirstLineResp firstLineResp = Utils.parseFirstLineResp(reqResp.response.firstLine);
+			FirstLineResp firstLineResp = ParseDumpUtils.parseFirstLineResp(reqResp.response.firstLine);
 			if (firstLineResp.status == HttpServletResponse.SC_BAD_REQUEST)
 				return reqResp;
 		}
@@ -696,12 +698,13 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private void reload(boolean activateDirWatchers) throws Throwable {
 		allReqResps.clear();
 		for (Map.Entry<String /* dump file */, String /* dump content */ > entry : dumps.entrySet()) {
-			String dumpFile = entry.getKey();
-			String dump     = entry.getValue();
-			Path   path     = Paths.get(dumpFile);
-			Path   dirPath  = path.getParent();
-			Path   filePath = path.getFileName();
-			allReqResps.addAll(Utils.parseDump(dump));
+			String       dumpFile  = entry.getKey();
+			String       dump      = entry.getValue();
+			Path         path      = Paths.get(dumpFile);
+			Path         dirPath   = path.getParent();
+			Path         filePath  = path.getFileName();
+			List<String> dumpLines = ParseDumpUtils.readLines(dump);
+			allReqResps.addAll(ParseDumpUtils.parseDump(dumpLines));
 
 			if (activateDirWatchers) {
 				DirectoryWatcher dirWatcher = directoryWatchersMap.get(dirPath);
