@@ -11,8 +11,8 @@
 <img src="image.png" height="170rem">
 </td>
 <td valign="top">
-<strong>DeepfakeHTTP</strong> is an HTTP server that uses HTTP dumps as a source for responses.<br><br>
-Use it for:
+DeepfakeHTTP is a web server that uses HTTP dumps as a source for responses.<br><br>
+<strong>What are people using it for?</strong>
 <ul>
     <li>Creating the product <abbr title="Proof Of Concept">POC</abbr> or demo before even starting out with the backend</li>
     <li>REST, GraphQL, and other APIs prototyping and testing</li>
@@ -24,7 +24,7 @@ Use it for:
 </tr>
 </table>
 
-<h2>How it works</h2>
+<h2>How does it work?</h2>
 <ol>
     <li>Got client request</li>
     <li>Search dump entries (request-response pairs) for appropriate entry by matching all specified request entry parts: method, path, headers, body</li>
