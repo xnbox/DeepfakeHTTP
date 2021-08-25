@@ -35,7 +35,6 @@ import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,11 +53,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -71,7 +65,6 @@ import org.deepfake_http.common.ReqResp;
 import org.deepfake_http.common.utils.Utils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
-import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
 import freemarker.template.Configuration;
@@ -100,8 +93,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	/* command line args */
 	private static final String ARGS_NO_LISTEN_OPTION = "--no-listen"; // disable listening on dump(s) changes
 	private static final String ARGS_NO_ETAG_OPTION   = "--no-etag";   // disable ETag optimization
-	private static final String ARGS_HOOK_OPTION      = "--hook";      // provide hook script(s) (JavaScript)
-	private static final String ARGS_DUMP_OPTION      = "--dump";      // provide dump(s)
 
 	private static final String HTTP_HEADER_CONNECTION     = "Connection";
 	private static final String HTTP_HEADER_CONTENT_LENGTH = "Content-Length";
@@ -120,9 +111,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	/* CLI flags */
 	private boolean noListen = false;
 	private boolean noEtag   = false;
-
-	private Collection<Script> hooks;
-	private ExecutorService    executorService;
 
 	private Map<String /* dump file */, String /* dump content */ > dumps;
 
@@ -218,63 +206,24 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			hooks = new ArrayList<>();
 			dumps = new LinkedHashMap<>();
 
-			boolean inHooks = false;
-			boolean inDumps = false;
 			for (int i = 0; i < args.length; i++) {
 				if (args[i].equals(ARGS_NO_LISTEN_OPTION)) {
 					noListen = true;
-					inHooks  = false;
-					inDumps  = false;
 				} else if (args[i].equals(ARGS_NO_ETAG_OPTION)) {
-					noEtag  = true;
-					inHooks = false;
-					inDumps = false;
-				} else if (args[i].equals(ARGS_DUMP_OPTION)) {
-					inDumps = true;
-					inHooks = false;
-				} else if (args[i].equals(ARGS_HOOK_OPTION)) {
-					inHooks = true;
-					inDumps = false;
+					noEtag = true;
 				} else {
 					String fileName = args[i];
 					Path   path     = Paths.get(fileName);
 					if (Files.exists(path)) {
 						String content = Files.readString(path);
-						if (inHooks) {
-							try {
-								Context cx = Context.enter();
-								cx.setLanguageVersion(Context.VERSION_1_8);
-								cx.setOptimizationLevel(9);
-								ScriptableObject scope = new ImporterTopLevel(cx);
-								scope = (ScriptableObject) cx.initStandardObjects(scope);
-								Script script = cx.compileString(content, fileName, 0, null);
-								hooks.add(script);
-							} catch (Throwable e) {
-								e.printStackTrace();
-							} finally {
-								Context.exit();
-							}
-
-						} else if (inDumps)
-							dumps.put(fileName, content);
+						dumps.put(fileName, content);
 					} else
 						logger.log(Level.WARNING, "File \"{0}\" does not exists", fileName);
 				}
 			}
-
-			if (!hooks.isEmpty()) {
-				int capacity        = 10;
-				int corePoolSize    = 10;
-				int maximumPoolSize = 100;
-				int keepAliveTime   = 1000;
-
-				BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(capacity, true);
-				executorService = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.MILLISECONDS, workQueue);
-			}
-
+System.out.println("---------------------------------- " + dumps.keySet());
 			boolean activateDirWatchers = !noListen;
 			reload(activateDirWatchers);
 		} catch (Throwable e) {
@@ -438,7 +387,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					/* search for request-reponse pair */
 					ReqResp                   reqResp                 = null;
 					Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();
-					;
 					for (ReqResp rr : allReqResps) {
 						if (new WildcardMatch().match(providedFirstLineStr, rr.request.firstLine)) {
 							for (String headerStr : rr.request.headers) {
@@ -665,16 +613,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							responseHeaders.put(HTTP_HEADER_E_TAG, etag);
 					}
 
-					if (!hooks.isEmpty()) {
-						final Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, bs);
-						executorService.execute(new Runnable() {
-
-							@Override
-							public void run() {
-								execHookScripts(http);
-							}
-						});
-					}
 					if (message == null)
 						response.setStatus(status);
 					else
@@ -721,24 +659,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		httpResponse.put("headers", responseHeaders);
 		httpResponse.put("body", responseBs);
 		return http;
-	}
-
-	private void execHookScripts(Map<String, Object> http) {
-		try {
-			Context cx = Context.enter();
-			cx.setLanguageVersion(Context.VERSION_1_8);
-			cx.setOptimizationLevel(9);
-			ScriptableObject scope = new ImporterTopLevel(cx);
-			scope = (ScriptableObject) cx.initStandardObjects(scope);
-			Object obj = Context.javaToJS(http, scope);
-			ScriptableObject.putProperty(scope, "http", obj);
-			for (Script script : hooks)
-				script.exec(cx, scope);
-		} catch (Throwable e) {
-			e.printStackTrace();
-		} finally {
-			Context.exit();
-		}
 	}
 
 	/**
