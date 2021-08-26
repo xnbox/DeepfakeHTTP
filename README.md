@@ -144,7 +144,7 @@ Options:
 	<i>Examples:</i>
 <br><br>
 
-📎 Response body is a character data (Default).<br>
+📎 Response body is a character data (default).<br>
 No <code>X-Body-Type</code> header needed.
 
 ```text
@@ -162,7 +162,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 X-Body-Type: text/uri-list
 
-http://example.com/api/car/1234
+http://example.com/api/car/1234.json
 ```
 
 📎 Get response body from file.<br>
