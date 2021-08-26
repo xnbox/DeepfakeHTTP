@@ -145,7 +145,7 @@ Options:
 <br><br>
 📎 Response body is a character data (Default).<br>
 No <code>X-Body-Type</code> header needed.
-
+<br>
 ```text
 HTTP/1.1 200 OK
 Content-Type: application/json
