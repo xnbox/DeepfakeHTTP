@@ -143,7 +143,7 @@ Options:
 	<p>This header is useful when you want to use template or binary data as a response body.</p>
 	<i>Examples:</i>
 <br><br>
-Response body is a character data (Default).<br>
+🔹Response body is a character data (Default).<br>
 No <code>X-Body-Type</code> header needed.
 
 ```text
@@ -153,7 +153,7 @@ Content-Type: application/json
 {"id": 5, "name": "John Doe"}
 ```
 
-Get response body from remote server.<br>
+🔹Get response body from remote server.<br>
 Body type is <code>text/uri-list</code> (RFC 2483)
 
 ```text
@@ -164,7 +164,7 @@ X-Body-Type: text/uri-list
 http://example.com/api/car/1234
 ```
 
-Get response body from file.<br>
+🔹Get response body from file.<br>
 Body type is <code>text/uri-list</code> (RFC 2483)
 
 ```text
@@ -175,7 +175,7 @@ X-Body-Type: text/uri-list
 file:///home/john/photo.jpeg
 ```
 
-Get response body from data URI.<br>
+🔹Get response body from data URI.<br>
 Body type is <code>text/uri-list</code> (RFC 2483)
 
 ```text
@@ -186,7 +186,7 @@ X-Body-Type: text/uri-list
 data:image/gif;base64,R0lGODlhAQABAIAAAP...
 ```
 
-Get response body from template.<br>
+🔹Get response body from template.<br>
 Body type is <code>text/template</code>. Useful for forms processing.
 
 
