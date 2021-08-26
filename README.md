@@ -142,54 +142,54 @@ Options:
 	<p>Tells the server what the content type (media type) of the returned content actually is. Value of this header has same rules as value of standard HTTP <code>Content-Type</code> header.</p>
 	<p>This header is useful when you want to use template or binary data as a response body.</p>
 	<i>Examples:</i>
-	<br>
+<br><br>
+Response body is a character data (Default).<br>
+No <code>X-Body-Type</code> header needed.
 
 ```text
-# Response body is a character data.
-# No 'X-Body-Type' header needed.
-
 HTTP/1.1 200 OK
 Content-Type: application/json
 
 {"id": 5, "name": "John Doe"}
 ```
+<br>
+Get response body from remote server.<br>
+Body type is <code>text/uri-list</code> (RFC 2483)
 
 ```text
-# Get response body from remote server
-# Body type is 'text/uri-list' (See: RFC 2483)
-
 HTTP/1.1 200 OK
 Content-Type: application/json
 X-Body-Type: text/uri-list
 
 http://example.com/api/car/1234
 ```
+<br>
+Get response body from file.<br>
+Body type is <code>text/uri-list</code> (RFC 2483)
 
 ```text
-# Get response body from file:
-# Body type is 'text/uri-list' (See: RFC 2483)
-
 HTTP/1.1 200 OK
 Content-Type: image/jpeg
 X-Body-Type: text/uri-list
 
 file:///home/john/photo.jpeg
 ```
+<br>
+Get response body from data URI.<br>
+Body type is <code>text/uri-list</code> (RFC 2483)
 
 ```text
-# Get response body from data URI:
-# Body type is 'text/uri-list' (See: RFC 2483)
-
 HTTP/1.1 200 OK
 Content-Type: image/gif
 X-Body-Type: text/uri-list
 
 data:image/gif;base64,R0lGODlhAQABAIAAAP...
 ```
+<br>
+Get response body from template.<br>
+Body type is <code>text/template<code>. Useful for forms processing.
 
 ```text
-# Get response body from template
-# Body type is 'text/template'. Useful for forms processing.
 
 HTTP/1.1 200 OK
 Content-Type: text/html
