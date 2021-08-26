@@ -27,6 +27,7 @@ E-Mail: xnbox.team@outlook.com
 
 package org.deepfake_http.common.servlet;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +36,6 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.ProcessBuilder.Redirect;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -46,9 +46,7 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -60,7 +58,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,6 +69,7 @@ import org.deepfake_http.common.Header;
 import org.deepfake_http.common.ReqResp;
 import org.deepfake_http.common.utils.DataUriUtils;
 import org.deepfake_http.common.utils.HttpPathUtils;
+import org.deepfake_http.common.utils.JacksonUtils;
 import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
@@ -556,20 +554,25 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						body = writer.toString();
 						bs   = body.getBytes(StandardCharsets.UTF_8);
 					} else if ("application/x-sh".equals(bodyType)) {
-						Path tmpFile = Files.createTempFile("df-", "tmp");
+						Map<String, Object> http    = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
+						String              json    = JacksonUtils.stringifyToJson(http) + '\n';
+						Path                tmpFile = Files.createTempFile("df-", "tmp");
 						Files.write(tmpFile, body.getBytes(StandardCharsets.UTF_8));
 						Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
 						Files.setPosixFilePermissions(tmpFile, perms);
-						ByteArrayOutputStream baos = new ByteArrayOutputStream();
-						ProcessBuilder        pb   = new ProcessBuilder()                  //
-								.directory(new File(System.getProperty("user.home")))      //
+						ProcessBuilder pb = new ProcessBuilder() //
+								.directory(new File(System.getProperty("user.home"))) //
 								.command(new String[] { "sh", "-c", tmpFile.toString() }); //
 
-						Process     process = pb.start();
-						InputStream is      = process.getInputStream();
-						is.transferTo(baos);
+						Process process = pb.start();
 
-						bs = baos.toByteArray();
+						try (InputStream is = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)); OutputStream po = process.getOutputStream()) {
+							is.transferTo(po);
+						}
+						try (InputStream is = process.getInputStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
+							is.transferTo(baos);
+							bs = baos.toByteArray();
+						}
 						int exitCode = process.waitFor();
 						Files.deleteIfExists(tmpFile);
 						logger.log(exitCode == 0 ? Level.INFO : Level.WARNING, "Exit code: {0}", exitCode);
@@ -663,8 +666,65 @@ public class DeepfakeHttpServlet extends HttpServlet {
 				}
 			}
 		});
+
 	}
 
+	/**
+	 * Create http object
+	 * 
+	 * @param requestMethod
+	 * @param requestPath
+	 * @param requestProtocol
+	 * @param requestParameters
+	 * @param requestHeaderValuesMap
+	 * @param requestBs
+	 * @param responseProtocol
+	 * @param responseStatus
+	 * @param responseMessage
+	 * @param responseHeaders
+	 * @param responseBs
+	 * @return
+	 *
+	 *
+	 * Example:
+	 * 
+	 * {
+	 *   "request": {
+	 *     "method": "POST",
+	 *     "path": "/form.html",
+	 *     "protocol": "HTTP/1.1",
+	 *     "parameters": {
+	 *       "fname": ["John"],
+	 *       "lname": ["Doe"]
+	 *     },
+	 *     "body": "fname=John&lname=Doe",
+	 *     "headers": {
+	 *       "host": ["localhost:8080"],
+	 *       "connection": ["keep-alive"],
+	 *       "content-length": ["21"],
+	 *       "cache-control": ["max-age=0"],
+	 *       "upgrade-insecure-requests": ["1"],
+	 *       "origin": ["http://localhost:8080"],
+	 *       "content-type": ["application/x-www-form-urlencoded"],
+	 *       "user-agent": ["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML", "like Gecko) Chrome/91.0.4472.101 Safari/537.36"],
+	 *       "accept": ["text/html", "application/xhtml+xml", "application/xml;q=0.9", "image/avif", "image/webp", "image/apng"],
+	 *       "referer": ["http://localhost:8080/form.html"],
+	 *       "accept-encoding": ["gzip", "deflate", "br"],
+	 *       "accept-language": ["en-GB", "en;q=0.9", "ru;q=0.8", "en-US;q=0.7"]
+	 *     },
+	 *     "response": {
+	 *       "headers": {
+	 *         "Content-Type": "text/html"
+	 *       },
+	 *       "protocol": "HTTP/1.1",
+	 *       "message": "OK",
+	 *       "body": "<!DOCTYPE html><html lang=en><body><h1>Hello, John Doe!</h1></body></html>",
+	 *       "status": 200
+	 *     }
+	 *   }
+	 * }
+	 * 
+	 */
 	private Map<String, Object> createHttpObject(String requestMethod, String requestPath, String requestProtocol, Map<String, List<String>> requestParameters, Map<String, List<String>> requestHeaderValuesMap, byte[] requestBs, String responseProtocol, int responseStatus, String responseMessage, Map<String, String> responseHeaders, byte[] responseBs) {
 		Map<String, Object> http         = new HashMap<>();
 		Map<String, Object> httpRequest  = new HashMap<>();
