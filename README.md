@@ -143,9 +143,9 @@ Options:
 	<p>This header is useful when you want to use template or binary data as a response body.</p>
 	<i>Examples:</i>
 <br><br>
+
 📎 Response body is a character data (Default).<br>
 No <code>X-Body-Type</code> header needed.
-<br><br>
 
 ```text
 HTTP/1.1 200 OK
