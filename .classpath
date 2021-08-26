@@ -9,5 +9,8 @@
 	<classpathentry kind="lib" path="lib-compile-time/jakarta.servlet-api-5.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/freemarker.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7.13.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.12.0-rc2.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.12.0-rc2.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.12.0-rc2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
