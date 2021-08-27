@@ -12,5 +12,7 @@
 	<classpathentry kind="lib" path="lib/jackson-annotations-2.12.0-rc2.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-2.12.0-rc2.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.12.0-rc2.jar"/>
+	<classpathentry kind="lib" path="lib/spring-web-5.3.9.jar"/>
+	<classpathentry kind="lib" path="lib/spring-core-5.3.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
