@@ -144,8 +144,8 @@ Options:
 	<i>Examples:</i>
 <br><br>
 
-📎 Response body is a character data (default).<br>
-No <code>X-Body-Type</code> header needed.
+📎 A response body is a character data (default).<br>
+No <code>X-Body-Type</code> header is needed.
 
 ```text
 HTTP/1.1 200 OK
@@ -155,7 +155,7 @@ Content-Type: application/json
 ```
 
 <h1></h1>
-📎 Get response body from remote server.<br>
+📎 Get a response body from a remote server.<br>
 Body type is <code>text/uri-list</code> (RFC 2483)
 
 ```text
@@ -167,7 +167,7 @@ http://example.com/api/car/1234.json
 ```
 
 <h1></h1>
-📎 Get response body from file.<br>
+📎 Get a response body from a file.<br>
 Body type is <code>text/uri-list</code> (RFC 2483)
 
 ```text
@@ -179,7 +179,7 @@ file:///home/john/photo.jpeg
 ```
 
 <h1></h1>
-📎 Get response body from data URI.<br>
+📎 Get a response body from a data URI.<br>
 Body type is <code>text/uri-list</code> (RFC 2483)
 
 ```text
@@ -191,7 +191,7 @@ data:image/gif;base64,R0lGODlhAQABAIAAAP...
 ```
 
 <h1></h1>
-📎 Get response body from template.<br>
+📎 Get a response body from a template.<br>
 Body type is <code>text/template</code>. Useful for forms processing.
 
 
