@@ -154,7 +154,7 @@ Content-Type: application/json
 {"id": 5, "name": "John Doe"}
 ```
 
-<h1></h1>
+<h2></h2>
 📎 Get a response body from a remote server.<br>
 Body type is <code>text/uri-list</code> (RFC 2483)
 
@@ -166,7 +166,7 @@ X-Body-Type: text/uri-list
 http://example.com/api/car/1234.json
 ```
 
-<h1></h1>
+<h2></h2>
 📎 Get a response body from a file.<br>
 Body type is <code>text/uri-list</code> (RFC 2483)
 
@@ -178,7 +178,7 @@ X-Body-Type: text/uri-list
 file:///home/john/photo.jpeg
 ```
 
-<h1></h1>
+<h2></h2>
 📎 Get a response body from a data URI.<br>
 Body type is <code>text/uri-list</code> (RFC 2483)
 
@@ -190,10 +190,9 @@ X-Body-Type: text/uri-list
 data:image/gif;base64,R0lGODlhAQABAIAAAP...
 ```
 
-<h1></h1>
+<h2></h2>
 📎 Get a response body from a template.<br>
 Body type is <code>text/template</code>. Useful for forms processing.
-
 
 ```text
 HTTP/1.1 200 OK
