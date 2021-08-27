@@ -192,7 +192,6 @@ Body type is <code>text/template</code>. Useful for forms processing.
 
 
 ```text
-
 HTTP/1.1 200 OK
 Content-Type: text/html
 X-Body-Type: text/template
