@@ -27,8 +27,20 @@ E-Mail: xnbox.team@outlook.com
 
 package org.tommy.main;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import org.deepfake_http.common.FirstLineReq;
+import org.deepfake_http.common.ReqResp;
+import org.deepfake_http.common.utils.ParseCommandLineUtils;
+import org.deepfake_http.common.utils.ParseDumpUtils;
+
 public class CustomMain {
 	private static final String ARGS_HELP_OPTION = "--help";
+	private static final String ARGS_INFO        = "--info";
+	private static final String ARGS_REQUESTS    = "--requests";
 
 	/**
 	 * Custom main method (called for emmbedded web apps)
@@ -36,10 +48,18 @@ public class CustomMain {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		boolean help = false;
+		boolean help     = false;
+		boolean info     = false;
+		boolean requests = false;
 		for (int i = 0; i < args.length; i++)
 			if (args[i].equals(ARGS_HELP_OPTION)) {
 				help = true;
+				break;
+			} else if (args[i].equals(ARGS_INFO)) {
+				info = true;
+				break;
+			} else if (args[i].equals(ARGS_REQUESTS)) {
+				requests = true;
 				break;
 			}
 
@@ -55,9 +75,70 @@ public class CustomMain {
 			sb.append(" Options:\n");
 			sb.append("  --help          print help message\n");
 			sb.append("  --port          port number, default: 8080\n");
+			sb.append("  --requests      print request line for all handled requests\n");
+			sb.append("  --info          print dump(s) info\n");
 			sb.append("  --no-listen     disable listening on dump(s) changes\n");
 			sb.append("  --no-etag       disable ETag optimization\n");
 			System.out.println(sb);
+			System.exit(0);
+		} else if (info) {
+			Map<String /* dump file */, String /* dump content */ > dumps       = new LinkedHashMap<>();
+			boolean[]                                               noListenArr = new boolean[1];
+			boolean[]                                               noEtagArr   = new boolean[1];
+
+			try {
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noListenArr, noEtagArr);
+				StringBuilder sb = new StringBuilder();
+				sb.append('[');
+				boolean first = true;
+				for (Map.Entry<String /* dump file */, String /* dump content */ > entry : dumps.entrySet()) {
+					String        dumpFile    = entry.getKey();
+					List<ReqResp> dumpReqResp = ParseCommandLineUtils.getDumpReqResp(dumps, dumpFile);
+					if (first)
+						first = false;
+					else
+						sb.append(',');
+					sb.append('{');
+					sb.append("\"dumpFile\":\"" + dumpFile + "\",");
+					sb.append("\"requestCount\":" + dumpReqResp.size());
+					sb.append('}');
+				}
+				sb.append(']');
+				System.out.println(sb);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+			System.exit(0);
+		} else if (requests) {
+			Map<String /* dump file */, String /* dump content */ > dumps       = new LinkedHashMap<>();
+			boolean[]                                               noListenArr = new boolean[1];
+			boolean[]                                               noEtagArr   = new boolean[1];
+
+			try {
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noListenArr, noEtagArr);
+				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
+
+				StringBuilder sb = new StringBuilder();
+				sb.append('[');
+				boolean first = true;
+				for (ReqResp reqResp : allReqResps) {
+					if (first)
+						first = false;
+					else
+						sb.append(',');
+					sb.append('{');
+					FirstLineReq firstLineReq = ParseDumpUtils.parseFirstLineReq(reqResp.request.firstLine);
+					sb.append("\"method\":\"" + firstLineReq.method.toUpperCase(Locale.ENGLISH) + "\",");
+					sb.append("\"requestURI\":\"" + firstLineReq.path + "\",");
+					sb.append("\"dumpFile\":\"" + reqResp.dumpFile + "\",");
+					sb.append("\"dumpFileLineNumber\":" + reqResp.request.lineNumber);
+					sb.append('}');
+				}
+				sb.append(']');
+				System.out.println(sb);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
 			System.exit(0);
 		}
 	}
