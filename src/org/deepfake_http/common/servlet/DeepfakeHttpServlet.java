@@ -70,6 +70,7 @@ import org.deepfake_http.common.ReqResp;
 import org.deepfake_http.common.utils.DataUriUtils;
 import org.deepfake_http.common.utils.HttpPathUtils;
 import org.deepfake_http.common.utils.JacksonUtils;
+import org.deepfake_http.common.utils.ParseCommandLineUtils;
 import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
@@ -98,10 +99,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	/* command line args */
-	private static final String ARGS_NO_LISTEN_OPTION = "--no-listen"; // disable listening on dump(s) changes
-	private static final String ARGS_NO_ETAG_OPTION   = "--no-etag";   // disable ETag optimization
-
 	private static final String HTTP_HEADER_CONNECTION     = "Connection";
 	private static final String HTTP_HEADER_CONTENT_LENGTH = "Content-Length";
 	private static final String HTTP_HEADER_CONTENT_TYPE   = "Content-Type";
@@ -126,7 +123,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 	private Map<Path /* dirPath */, DirectoryWatcher> directoryWatchersMap = new HashMap<>();
 
-	private List<ReqResp> allReqResps = new ArrayList<>();
+	private List<ReqResp> allReqResps;
 	private ReqResp       badRequest400;
 
 	private Configuration freeMarkerConfiguration;
@@ -208,29 +205,20 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		logger = Logger.getLogger(getClass().getName());
 		logger.log(Level.INFO, "DeepfakeHTTP Logger: HELLO!");
 
+		dumps = new LinkedHashMap<>();
+		boolean[] noListenArr = new boolean[1];
+		boolean[] noEtagArr   = new boolean[1];
+
 		try {
 			InitialContext ctx = new InitialContext();
 
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			dumps = new LinkedHashMap<>();
+			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noListenArr, noEtagArr);
+			noListen = noListenArr[0];
+			noEtag   = noEtagArr[0];
 
-			for (int i = 0; i < args.length; i++) {
-				if (args[i].equals(ARGS_NO_LISTEN_OPTION)) {
-					noListen = true;
-				} else if (args[i].equals(ARGS_NO_ETAG_OPTION)) {
-					noEtag = true;
-				} else {
-					String fileName = args[i];
-					Path   path     = Paths.get(fileName);
-					if (Files.exists(path)) {
-						String content = Files.readString(path);
-						dumps.put(fileName, content);
-					} else
-						logger.log(Level.WARNING, "File \"{0}\" does not exists", fileName);
-				}
-			}
 			boolean activateDirWatchers = !noListen;
 			reload(activateDirWatchers);
 		} catch (Throwable e) {
@@ -782,17 +770,13 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 * @throws Throwable
 	 */
 	private void reload(boolean activateDirWatchers) throws Throwable {
-		allReqResps.clear();
+		allReqResps = ParseCommandLineUtils.getAllReqResp(logger, dumps);
+
 		for (Map.Entry<String /* dump file */, String /* dump content */ > entry : dumps.entrySet()) {
-			String        dumpFile    = entry.getKey();
-			String        dump        = entry.getValue();
-			Path          path        = Paths.get(dumpFile);
-			Path          dirPath     = path.getParent();
-			Path          filePath    = path.getFileName();
-			List<String>  dumpLines   = ParseDumpUtils.readLines(dump);
-			List<ReqResp> dumpReqResp = ParseDumpUtils.parseDump(dumpLines);
-			logger.log(Level.INFO, "File: \"{0}\" ({1} entries found)", new Object[] { dumpFile, dumpReqResp.size() });
-			allReqResps.addAll(dumpReqResp);
+			String dumpFile = entry.getKey();
+			Path   path     = Paths.get(dumpFile);
+			Path   dirPath  = path.getParent();
+			Path   filePath = path.getFileName();
 
 			if (activateDirWatchers) {
 				DirectoryWatcher dirWatcher = directoryWatchersMap.get(dirPath);

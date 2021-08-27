@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class R {
+	public int           lineNumber;
 	public String        firstLine;
 	public List<String>  headers = new ArrayList<>();
 	public StringBuilder body    = new StringBuilder();

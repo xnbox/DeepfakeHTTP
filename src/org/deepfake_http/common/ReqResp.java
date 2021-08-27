@@ -28,6 +28,7 @@ E-Mail: xnbox.team@outlook.com
 package org.deepfake_http.common;
 
 public class ReqResp {
-	public R request  = new R();
-	public R response = new R();
+	public String dumpFile;
+	public R      request  = new R();
+	public R      response = new R();
 }

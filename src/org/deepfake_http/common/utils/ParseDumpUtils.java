@@ -34,7 +34,7 @@ import java.util.Locale;
 import org.deepfake_http.common.FirstLineReq;
 import org.deepfake_http.common.FirstLineResp;
 import org.deepfake_http.common.Header;
-import org.deepfake_http.common.HttpMethods;
+import org.deepfake_http.common.HttpMethod;
 import org.deepfake_http.common.ReqResp;
 
 public class ParseDumpUtils {
@@ -60,11 +60,12 @@ public class ParseDumpUtils {
 	/**
 	 * Parse dump
 	 *
+	 * @param dumpFile
 	 * @param text
 	 * @return
 	 * @throws Throwable
 	 */
-	public static List<ReqResp> parseDump(List<String> lines) throws Throwable {
+	public static List<ReqResp> parseDump(String dumpFile, List<String> lines) throws Throwable {
 		boolean first = true;
 
 		boolean inRequest  = false;
@@ -92,7 +93,7 @@ public class ParseDumpUtils {
 			boolean requestMethodOk;
 			try {
 				String method = firstLineCandidateArr[0];
-				HttpMethods.valueOf(method.toUpperCase(Locale.ENGLISH));
+				HttpMethod.valueOf(method.toUpperCase(Locale.ENGLISH));
 				requestMethodOk = true;
 			} catch (Exception e) {
 				requestMethodOk = false;
@@ -120,7 +121,9 @@ public class ParseDumpUtils {
 				requestLineNo = lineNo;
 
 				reqResp                   = new ReqResp();
+				reqResp.dumpFile          = dumpFile;
 				reqResp.request.firstLine = line.strip();
+				reqResp.request.lineNumber = lineNo;
 
 				inBody     = false;
 				inRequest  = true;
@@ -129,7 +132,8 @@ public class ParseDumpUtils {
 				if (inResponse)
 					throw new Exception("Response without request! Line: " + requestLineNo);
 
-				reqResp.response.firstLine = line.strip();
+				reqResp.response.firstLine  = line.strip();
+				reqResp.response.lineNumber = lineNo;
 
 				inBody     = false;
 				inRequest  = false;
@@ -231,7 +235,7 @@ public class ParseDumpUtils {
 		String[]     arr          = firstLine.split("\s");
 		firstLineReq.method = arr[0];
 		try {
-			HttpMethods.valueOf(firstLineReq.method.toUpperCase(Locale.ENGLISH));
+			HttpMethod.valueOf(firstLineReq.method.toUpperCase(Locale.ENGLISH));
 		} catch (Exception e) {
 			throw new Exception("Bad HTTP method");
 		}
