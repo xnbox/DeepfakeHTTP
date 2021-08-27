@@ -1,4 +1,4 @@
-<h1>DeepfakeHTTP – Your 100% static dynamic backend</h1>
+<h1 align="center">DeepfakeHTTP – Your 100% static dynamic backend</h1>
 
 
 [![License MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE)
