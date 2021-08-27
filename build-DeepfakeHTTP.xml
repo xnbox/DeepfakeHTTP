@@ -55,7 +55,7 @@ E-Mail: xnbox.team@outlook.com
 		<delete file="${basedir}/RELEASE/df-${version}.jar" failonerror="false" />
 		<zip destfile="${basedir}/RELEASE/df-${version}.jar" level="9">
 			<zipfileset prefix="" dir="${java.io.tmpdir}/DeepfakeHTTP" />
-			<zipfileset prefix="org/tommy/main" file="${basedir}/bin/org/tommy/main/CustomMain.class" />
+			<zipfileset prefix="" dir="${basedir}/bin" />
 			<zipfileset prefix="" file="${java.io.tmpdir}/app.war" />
 		</zip>
 	</target>
