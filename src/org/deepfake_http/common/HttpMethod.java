@@ -27,6 +27,6 @@ E-Mail: xnbox.team@outlook.com
 
 package org.deepfake_http.common;
 
-public enum HttpMethods {
-	GET, POST
+public enum HttpMethod {
+	GET, POST, HEAD, PUT, PATCH, DELETE, CONNECT, OPTIONS, TRACE
 }
