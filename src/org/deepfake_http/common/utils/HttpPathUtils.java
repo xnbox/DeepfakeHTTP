@@ -27,45 +27,32 @@ E-Mail: xnbox.team@outlook.com
 
 package org.deepfake_http.common.utils;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 public class HttpPathUtils {
 
 	/**
-	 * Extract query string from path
+	 * Extract query string from uri
 	 *
-	 * @param path
+	 * @param uri
 	 * @return
 	 */
-	public static String extractQueryStringFromPath(String path) {
-		int pos = path.indexOf('?');
+	public static String extractQueryStringFromUri(String uri) {
+		int pos = uri.indexOf('?');
 		if (pos == -1)
 			return "";
-		return path.substring(pos + 1);
+		return uri.substring(pos + 1);
 	}
 
 	/**
-	 * Parse query string
+	 * Extract query string from uri
 	 *
-	 * @param q
-	 * @param map
+	 * @param uri
+	 * @return
 	 */
-	public static void parseQueryString(String q, Map<String, List<String>> map) {
-		final String[] pairs = q.split("&");
-		for (String pair : pairs) {
-			int          idx  = pair.indexOf('=');
-			String       key  = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8) : pair;
-			List<String> list = map.get(key);
-			if (list == null) {
-				list = new ArrayList<>();
-				map.put(key, list);
-			}
-			String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8) : null;
-			list.add(value);
-		}
+	public static String extractPathFromUri(String uri) {
+		int pos = uri.indexOf('?');
+		if (pos == -1)
+			return uri;
+		return uri.substring(0, pos);
 	}
+
 }

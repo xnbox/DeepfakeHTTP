@@ -27,10 +27,9 @@ E-Mail: xnbox.team@outlook.com
 
 package org.tommy.main;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.deepfake_http.common.FirstLineReq;
 import org.deepfake_http.common.ReqResp;
@@ -82,18 +81,17 @@ public class CustomMain {
 			System.out.println(sb);
 			System.exit(0);
 		} else if (info) {
-			Map<String /* dump file */, String /* dump content */ > dumps       = new LinkedHashMap<>();
-			boolean[]                                               noListenArr = new boolean[1];
-			boolean[]                                               noEtagArr   = new boolean[1];
+			List<String /* dump file */> dumps       = new ArrayList<>();
+			boolean[]                    noListenArr = new boolean[1];
+			boolean[]                    noEtagArr   = new boolean[1];
 
 			try {
 				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noListenArr, noEtagArr);
 				StringBuilder sb = new StringBuilder();
 				sb.append('[');
 				boolean first = true;
-				for (Map.Entry<String /* dump file */, String /* dump content */ > entry : dumps.entrySet()) {
-					String        dumpFile    = entry.getKey();
-					List<ReqResp> dumpReqResp = ParseCommandLineUtils.getDumpReqResp(dumps, dumpFile);
+				for (String dumpFile : dumps) {
+					List<ReqResp> dumpReqResp = ParseCommandLineUtils.getDumpReqResp(dumpFile);
 					if (first)
 						first = false;
 					else
@@ -110,9 +108,9 @@ public class CustomMain {
 			}
 			System.exit(0);
 		} else if (requests) {
-			Map<String /* dump file */, String /* dump content */ > dumps       = new LinkedHashMap<>();
-			boolean[]                                               noListenArr = new boolean[1];
-			boolean[]                                               noEtagArr   = new boolean[1];
+			List<String /* dump file */ > dumps       = new ArrayList<>();
+			boolean[]                     noListenArr = new boolean[1];
+			boolean[]                     noEtagArr   = new boolean[1];
 
 			try {
 				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noListenArr, noEtagArr);
@@ -129,7 +127,7 @@ public class CustomMain {
 					sb.append('{');
 					FirstLineReq firstLineReq = ParseDumpUtils.parseFirstLineReq(reqResp.request.firstLine);
 					sb.append("\"method\":\"" + firstLineReq.method.toUpperCase(Locale.ENGLISH) + "\",");
-					sb.append("\"requestURI\":\"" + firstLineReq.path + "\",");
+					sb.append("\"requestURI\":\"" + firstLineReq.uri + "\",");
 					sb.append("\"dumpFile\":\"" + reqResp.dumpFile + "\",");
 					sb.append("\"dumpFileLineNumber\":" + reqResp.request.lineNumber);
 					sb.append('}');

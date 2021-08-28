@@ -120,9 +120,9 @@ public class ParseDumpUtils {
 					list.add(reqResp);
 				requestLineNo = lineNo;
 
-				reqResp                   = new ReqResp();
-				reqResp.dumpFile          = dumpFile;
-				reqResp.request.firstLine = line.strip();
+				reqResp                    = new ReqResp();
+				reqResp.dumpFile           = dumpFile;
+				reqResp.request.firstLine  = line.strip();
 				reqResp.request.lineNumber = lineNo;
 
 				inBody     = false;
@@ -239,9 +239,10 @@ public class ParseDumpUtils {
 		} catch (Exception e) {
 			throw new Exception("Bad HTTP method");
 		}
-		firstLineReq.path = arr[1].trim();
-		if (firstLineReq.path.isEmpty())
-			throw new Exception("Empry path");
+		firstLineReq.uri = arr[1].trim();
+		if (firstLineReq.uri.isEmpty())
+			throw new Exception("Empty URI");
+
 		firstLineReq.protocol = arr[2];
 		if (!HTTP_1_1.equals(firstLineReq.protocol))
 			throw new Exception("Bad protocol");

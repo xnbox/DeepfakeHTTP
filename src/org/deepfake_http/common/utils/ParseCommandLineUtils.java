@@ -27,12 +27,12 @@ E-Mail: xnbox.team@outlook.com
 
 package org.deepfake_http.common.utils;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,18 +43,17 @@ public class ParseCommandLineUtils {
 	private static final String ARGS_NO_LISTEN_OPTION = "--no-listen"; // disable listening on dump(s) changes
 	private static final String ARGS_NO_ETAG_OPTION   = "--no-etag";   // disable ETag optimization
 
-	public static List<ReqResp> getDumpReqResp(Map<String /* dump file */, String /* dump content */ > dumps, String dumpFile) throws Throwable {
-		String        dump        = dumps.get(dumpFile);
-		List<String>  dumpLines   = ParseDumpUtils.readLines(dump);
+	public static List<ReqResp> getDumpReqResp(String dumpFile) throws Throwable {
+		String       dump      = Files.readString(new File(dumpFile).toPath());
+		List<String> dumpLines = ParseDumpUtils.readLines(dump);
 		return ParseDumpUtils.parseDump(dumpFile, dumpLines);
 	}
 
-	public static List<ReqResp> getAllReqResp(Logger logger, Map<String /* dump file */, String /* dump content */ > dumps) throws Throwable {
+	public static List<ReqResp> getAllReqResp(Logger logger, List<String /* dump file */> dumps) throws Throwable {
 		List<ReqResp> allReqResps = new ArrayList<>();
 		int           fileCount   = 0;
-		for (Map.Entry<String /* dump file */, String /* dump content */ > entry : dumps.entrySet()) {
-			String        dumpFile    = entry.getKey();
-			List<ReqResp> dumpReqResp = getDumpReqResp(dumps, dumpFile);
+		for (String dumpFile : dumps) {
+			List<ReqResp> dumpReqResp = getDumpReqResp(dumpFile);
 			if (logger != null)
 				logger.log(Level.INFO, "File: \"{0}\" ({1} entries found)", new Object[] { dumpFile, dumpReqResp.size() });
 			allReqResps.addAll(dumpReqResp);
@@ -65,7 +64,7 @@ public class ParseCommandLineUtils {
 		return allReqResps;
 	}
 
-	public static void parseCommandLineArgs(Logger logger, String[] args, Map<String /* dump file */, String /* dump content */ > dumps, boolean[] noListenArr, boolean[] noEtagArr) throws Throwable {
+	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noListenArr, boolean[] noEtagArr) throws Throwable {
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals(ARGS_NO_LISTEN_OPTION))
 				noListenArr[0] = true;
@@ -74,10 +73,9 @@ public class ParseCommandLineUtils {
 			else {
 				String fileName = args[i];
 				Path   path     = Paths.get(fileName);
-				if (Files.exists(path)) {
-					String content = Files.readString(path);
-					dumps.put(fileName, content);
-				} else {
+				if (Files.exists(path))
+					dumps.add(fileName);
+				else {
 					if (logger != null)
 						logger.log(Level.WARNING, "File \"{0}\" does not exists", fileName);
 				}

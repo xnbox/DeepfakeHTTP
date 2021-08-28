@@ -29,11 +29,12 @@ package org.deepfake_http.common;
 
 public class FirstLineReq {
 	public String method;
-	public String path;
+	public String uri;
 	public String protocol;
 
 	@Override
 	public String toString() {
-		return String.format("FirstLineReq [method=%s, path=%s, protocol=%s]", method, path, protocol);
+		// E.g.: "GET /form.html HTTP/1.1"
+		return method + ' ' + uri + ' ' + protocol;
 	}
 }

@@ -64,12 +64,14 @@ import java.util.logging.Logger;
 import javax.naming.InitialContext;
 
 import org.apache.hive.common.util.Murmur3;
+import org.deepfake_http.common.FirstLineReq;
 import org.deepfake_http.common.FirstLineResp;
 import org.deepfake_http.common.Header;
 import org.deepfake_http.common.ReqResp;
 import org.deepfake_http.common.utils.DataUriUtils;
 import org.deepfake_http.common.utils.HttpPathUtils;
 import org.deepfake_http.common.utils.JacksonUtils;
+import org.deepfake_http.common.utils.MatchUtils;
 import org.deepfake_http.common.utils.ParseCommandLineUtils;
 import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.mozilla.javascript.Context;
@@ -79,7 +81,6 @@ import org.mozilla.javascript.ScriptableObject;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
-import ij.util.WildcardMatch;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
 import jakarta.servlet.AsyncListener;
@@ -117,7 +118,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noListen = false;
 	private boolean noEtag   = false;
 
-	private Map<String /* dump file */, String /* dump content */ > dumps;
+	private List<String /* dump file */> dumps;
 
 	private Logger logger;
 
@@ -205,7 +206,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		logger = Logger.getLogger(getClass().getName());
 		logger.log(Level.INFO, "DeepfakeHTTP Logger: HELLO!");
 
-		dumps = new LinkedHashMap<>();
+		dumps = new ArrayList<>();
 		boolean[] noListenArr = new boolean[1];
 		boolean[] noEtagArr   = new boolean[1];
 
@@ -226,7 +227,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		}
 
 		String contextPath = servletConfig.getServletContext().getContextPath();
-		logger.log(Level.INFO, "Context path: {0}", contextPath);
+		logger.log(Level.INFO, "Context uri: {0}", contextPath);
 
 		freeMarkerConfiguration = new Configuration(Configuration.VERSION_2_3_31);
 		freeMarkerConfiguration.setDefaultEncoding("UTF-8");
@@ -362,18 +363,23 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					String method              = request.getMethod().trim().toUpperCase(Locale.ENGLISH);
 					String providedPath        = request.getServletPath() + request.getPathInfo();
-					String providedQueryString = HttpPathUtils.extractQueryStringFromPath(providedPath);
-					String protocol            = request.getProtocol();
+					String providedQueryString = request.getQueryString();
+					if (providedQueryString == null)
+						providedQueryString = "";
+					String protocol = request.getProtocol();
 
 					String providedFirstLineStr = method + ' ' + providedPath + ' ' + protocol;
 					String providedBody         = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
 					Map<String, List<String>> providedParams = new LinkedHashMap<>();
-					if (!providedQueryString.isEmpty())
-						HttpPathUtils.parseQueryString(providedQueryString, providedParams);
+					//					if (!providedQueryString.isEmpty())
+					//						MatchUtils.parseQuery(providedQueryString, providedParams);
+					//						HttpPathUtils.parseQueryString(providedQueryString, providedParams);
+
 					String requestHeaderContentType = request.getHeader(HTTP_HEADER_CONTENT_TYPE);
 					if (requestHeaderContentType != null && requestHeaderContentType.startsWith("application/x-www-form-urlencoded"))
-						HttpPathUtils.parseQueryString(providedBody, providedParams);
+						MatchUtils.parseQuery(providedBody, providedParams);
+					//						HttpPathUtils.parseQueryString(providedBody, providedParams);
 
 					String bodyType      = null;
 					int    requestDelay  = 0;
@@ -383,7 +389,20 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					ReqResp                   reqResp                 = null;
 					Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();
 					for (ReqResp rr : allReqResps) {
-						if (new WildcardMatch().match(providedFirstLineStr, rr.request.firstLine)) {
+						FirstLineReq firstLineReq        = ParseDumpUtils.parseFirstLineReq(rr.request.firstLine);
+						boolean      protocolOk          = firstLineReq.protocol.equals("HTTP/1.1");
+						boolean      methodOk            = firstLineReq.method.equals(method);
+						String       templatePath        = HttpPathUtils.extractPathFromUri(firstLineReq.uri);
+						boolean      pathOk              = MatchUtils.matchPath(templatePath, providedPath, providedParams);
+						String       templateQueryString = HttpPathUtils.extractQueryStringFromUri(firstLineReq.uri);
+						boolean      queryStringOk       = MatchUtils.matchQuery(templateQueryString, providedQueryString, providedParams);
+						if ( //
+						protocolOk && //
+						methodOk && //
+						pathOk && //
+						queryStringOk //
+						) {
+
 							for (String headerStr : rr.request.headers) {
 								Header header              = ParseDumpUtils.parseHeader(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
@@ -452,7 +471,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									if (providedValues == null)
 										ok = false;
 									else
-										ok = matchValue(value, providedValues);
+										ok = MatchUtils.matchHeaderValue(value, providedValues);
 									if (!ok)
 										break;
 								}
@@ -471,7 +490,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 								}
 						}
 					}
-
 					if (reqResp == null) { // request-reponse pair not found
 						if (badRequest400 == null) {
 							response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -679,7 +697,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 * {
 	 *   "request": {
 	 *     "method": "POST",
-	 *     "path": "/form.html",
+	 *     "uri": "/form.html",
 	 *     "protocol": "HTTP/1.1",
 	 *     "parameters": {
 	 *       "fname": ["John"],
@@ -721,7 +739,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		http.put("request", httpRequest);
 
 		httpRequest.put("method", requestMethod);
-		httpRequest.put("path", requestPath);
+		httpRequest.put("uri", requestPath);
 		httpRequest.put("protocol", requestProtocol);
 		httpRequest.put("parameters", requestParameters);
 		httpRequest.put("body", requestBs);
@@ -753,28 +771,14 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 	/**
 	 * 
-	 * @param value
-	 * @param providedValues
-	 * @return
-	 */
-	private boolean matchValue(String value, Collection<String> providedValues) {
-		for (String providedValue : providedValues)
-			if (new WildcardMatch().match(providedValue, value))
-				return true;
-		return false;
-	}
-
-	/**
-	 * 
 	 * @param activateDirWatchers
 	 * @throws Throwable
 	 */
 	private void reload(boolean activateDirWatchers) throws Throwable {
 		allReqResps = ParseCommandLineUtils.getAllReqResp(logger, dumps);
 
-		for (Map.Entry<String /* dump file */, String /* dump content */ > entry : dumps.entrySet()) {
-			String dumpFile = entry.getKey();
-			Path   path     = Paths.get(dumpFile);
+		for (String dumpFile : dumps) {
+			Path   path     = new File(dumpFile).toPath();
 			Path   dirPath  = path.getParent();
 			Path   filePath = path.getFileName();
 

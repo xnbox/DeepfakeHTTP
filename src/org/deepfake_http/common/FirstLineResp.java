@@ -34,6 +34,7 @@ public class FirstLineResp {
 
 	@Override
 	public String toString() {
-		return String.format("FirstLineResp [protocol=%s, status=%s, message=%s]", protocol, status, message);
+		// E.g.: "HTTP/1.1 200 OK"
+		return protocol + ' ' + Integer.toString(status) + (message == null || message.isEmpty() ? "" : ' ' + message);
 	}
 }
