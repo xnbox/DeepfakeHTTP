@@ -57,7 +57,7 @@ public class MatchUtils {
 					paramMap.put(paramName, paramValues);
 				}
 				paramValues.add(pathEl);
-			} else if (!match(templateEl, pathEl))
+			} else if (!Objects.equals(templateEl, pathEl))
 				return false;
 		}
 		return true;
@@ -87,7 +87,7 @@ public class MatchUtils {
 			for (int i = 0; i < paramValuesTemplate.size(); i++) {
 				String paramValueTemplate = paramValuesTemplate.get(i);
 				String paramValueQuery    = paramValuesQuery.get(i);
-				if (!Objects.equals(paramValueTemplate, paramValueQuery) && !match(paramValueTemplate, paramValueQuery))
+				if (!match(paramValueTemplate, paramValueQuery))
 					return false;
 				List<String> paramValues = paramMap.get(paramName);
 				if (paramValues == null) {
@@ -121,7 +121,6 @@ public class MatchUtils {
 		}
 	}
 
-
 	/**
 	 * 
 	 * @param value
@@ -136,6 +135,14 @@ public class MatchUtils {
 	}
 
 	private static boolean match(String template, String s) {
+		if (Objects.equals(template, s))
+			return true;
+		if (template == null && s != null)
+			return false;
+		if (template != null && s == null)
+			return false;
+		template = template.strip();
+		s        = s.strip();
 		try {
 			return new WildcardMatch().match(s, template);
 		} catch (Throwable e) {
