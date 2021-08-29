@@ -104,7 +104,8 @@ For more examples see <a href="#appendixdump-examples">here</a>.
 <ul>
     <li>all HTTP methods</li>
     <li>multi-line and multi-value headers</li>
-    <li>wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in request path and header values</li>
+    <li>wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in request URI and header values</li>
+    <li>OpenAPI-styled templates in request URI</li>
     <li>templates in response body</li>
     <li>response body fetching from external sources like URLs, local files, and data URI</li>
     <li>per entry user-defined request and response delays (lags)</li>
