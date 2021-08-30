@@ -250,6 +250,7 @@ Dump examples
 
 ```text
 # Comments are welcome! :)
+# Please don't miss a single carriage return between headers and body!
 
 GET /form.html HTTP/1.1
 
@@ -287,11 +288,6 @@ X-Body-Type: text/template
 <h3>Example 2.</h3>
 
 ```text
-
-# Comments are welcome! :)
-# Please don't miss a single carriage return between headers and body!
-
-
 #
 # First request-response entry
 #
@@ -325,14 +321,11 @@ Content-Type: application/json
     "id": 5,
     "name": "John Doe"
 }
-
-
 ```
 <br>
 <h3>Example 3.</h3>
 
 ```text
-
 #
 # Work with HTML forms (1)
 #
@@ -366,14 +359,11 @@ X-Body-Type: text/template
     <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
 </body>
 </html>
-
-
 ```
 <br>
 <h3>Example 4.</h3>
 
 ```text
-
 #
 # Work with HTML forms (2)
 #
@@ -412,4 +402,4 @@ X-Body-Type: text/template
     <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
 </body>
 </html>
-
+```
