@@ -65,7 +65,7 @@ java -jar df.jar MyDump.txt
 </li>
 </ol>
 
-<h2>Dump example</h2>
+<h2>Dump Example</h2>
 
 ```text
 GET /api/customers/123 HTTP/1.1
