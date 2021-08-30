@@ -76,7 +76,7 @@ Content-Type: application/json
 java -jar df.jar MyDump.txt
 ```
 </li>
-	<li>Use a browser to check whether the server is running: <code><a href="http://localhost:8080/form.html">http://localhost:8080/form.html</a></code>
+	<li>Use a browser to check whether the server is running: <code><a href="http://localhost:8080/api/customers/123">http://localhost:8080/api/customers/123</a></code>
 </li>
 </ol>
 
