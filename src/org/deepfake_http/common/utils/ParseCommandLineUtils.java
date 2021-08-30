@@ -55,12 +55,12 @@ public class ParseCommandLineUtils {
 		for (String dumpFile : dumps) {
 			List<ReqResp> dumpReqResp = getDumpReqResp(dumpFile);
 			if (logger != null)
-				logger.log(Level.INFO, "File: \"{0}\" ({1} entries found)", new Object[] { dumpFile, dumpReqResp.size() });
+				logger.log(Level.INFO, "File: \"{0}\" found {1} entries.", new Object[] { dumpFile, dumpReqResp.size() });
 			allReqResps.addAll(dumpReqResp);
 			fileCount++;
 		}
 		if (logger != null)
-			logger.log(Level.INFO, "{0} file(s) processed.{1} entries found", new Object[] { fileCount, allReqResps.size() });
+			logger.log(Level.INFO, "{0} file(s) processed. {1} entries found.", new Object[] { fileCount, allReqResps.size() });
 		return allReqResps;
 	}
 
