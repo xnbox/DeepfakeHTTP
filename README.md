@@ -24,16 +24,23 @@
 </tr>
 </table>
 
-<h2>How does it work?</h2>
-<ol>
-    <li>Got client request</li>
-    <li>Search dump entries (request-response pairs) for appropriate entry by matching all specified request parts: method, path, headers, body</li>
-    <li>If entry is found, the server sends corresponded response to the client</li>
-    <li>If entry is not found, server search dump entries for response with status <code>400</code> (Bad request).</li>
-    <li>If found, send it to the client
-    <li>If not found, sends status <code>400</code> with no body.</li>
-</ol>
-That's all.
+<h2>Command Line Interface (CLI)</h2>
+
+```text
+java -jar df.jar [options] [dump1.txt] [dump2.txt] ...
+
+Options:
+  --help         print help message
+  --port         TCP port number, default: 8080
+  --no-listen    disable listening on dump(s) changes
+  --no-etag      disable ETag optimization
+
+```
+
+<h2>Prerequisites</h2>
+<ul>
+	<li>Java 15 or above</li>
+</ul>
 
 <h2>Try it</h2>
 
@@ -89,6 +96,17 @@ X-Body-Type: text/template
 ```
 For more examples see <a href="#appendixdump-examples">here</a>.
 
+<h2>How does it work?</h2>
+<ol>
+    <li>Got client request</li>
+    <li>Search dump entries (request-response pairs) for appropriate entry by matching all specified request parts: method, path, headers, body</li>
+    <li>If entry is found, the server sends corresponded response to the client</li>
+    <li>If entry is not found, server search dump entries for response with status <code>400</code> (Bad request).</li>
+    <li>If found, send it to the client
+    <li>If not found, sends status <code>400</code> with no body.</li>
+</ol>
+That's all.
+
 <h2>Features</h2>
 <ul>
     <li>No dependencies</li>
@@ -111,25 +129,6 @@ For more examples see <a href="#appendixdump-examples">here</a>.
     <li>per entry user-defined request and response delays (optional)</li>
     <li>watching dumps for changes (optional)</li>
     <li>ETag optimization (optional)</li>
-</ul>
-
-<h2>Command Line Interface (CLI)</h2>
-
-
-```text
-java -jar df.jar [options] [dump1.txt] [dump2.txt] ...
-
-Options:
-  --help         print help message
-  --port         TCP port number, default: 8080
-  --no-listen    disable listening on dump(s) changes
-  --no-etag      disable ETag optimization
-
-```
-
-<h2>Prerequisites</h2>
-<ul>
-	<li>Java 15 or above</li>
 </ul>
 
 <h2>Optional response headers
