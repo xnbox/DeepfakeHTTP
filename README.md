@@ -5,7 +5,7 @@
 [![Version 1.0.2](https://img.shields.io/badge/version-1.0.2-4DC71F?style=flat-square)](https://github.com/xnbox/DeepfakeHTTP/releases)
 [![Powered by Tommy](https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square)](https://github.com/xnbox/tommy)
 
-<br><br><br>
+<br><br>
 <table>
 <tr>
 <td>
