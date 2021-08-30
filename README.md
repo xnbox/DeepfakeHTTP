@@ -95,7 +95,11 @@ For more examples see <a href="#appendixdump-examples">here</a>.
     <li>No installation</li>
     <li>No configuration files</li>
     <li>Single-file executable</li>
+</ul>
+
+<ul>
     <li>Fully asynchronous</li>
+    <li>Scriptable</li>
 </ul>
 
 ... also supports:
@@ -141,8 +145,8 @@ Options:
 	<tr></tr>
 	<tr><td valign="top"><code>X-Body-Type     </code></td>
 	<td>
-	<p>Tells the server what the content type (media type) of the returned content actually is. Value of this header has same rules as value of standard HTTP <code>Content-Type</code> header.</p>
-	<p>This header is useful when you want to use template or binary data as a response body.</p>
+	<p>Tells the server what the content type (media type) of the body content actually is. Value of this header has same rules as value of standard HTTP <code>Content-Type</code> header.</p>
+	<p>This header is useful when you want to use binary data, template or script as a response body.</p>
 	<i>Examples:</i>
 <br><br>
 
