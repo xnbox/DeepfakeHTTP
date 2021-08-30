@@ -145,7 +145,6 @@ APPENDIX A.
 <br>
 Optional response headers
 </h1>
-<br>
 <table>
 	<tr><th width="21%" >Header</th>                                <th>Description</th></tr>
 	<tr></tr>
@@ -258,7 +257,7 @@ X-Response-Delay: 2000
 </td></tr>
 </table>
 <strong>NOTE:</strong> Optional response headers will not be sent to clients.
-
+<br><br>
 
 <h1>
 APPENDIX B.
