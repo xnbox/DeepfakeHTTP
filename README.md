@@ -54,7 +54,7 @@ Options:
 
 <ol>
 	<li>Copy-paste the content of the <a href="#dump-example">dump example</a> to the file <code>MyDump.txt</code></li>
-	<li>Start the DeepfakeHTTP server from command line:
+	<li>Start the server from command line:
 
 ```text
 java -jar df.jar MyDump.txt
