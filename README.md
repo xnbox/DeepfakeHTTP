@@ -57,7 +57,7 @@ Options:
 	<li>Copy-paste the content of the dump example to the file <code>MyDump.txt</code>:
 
 ```text
-GET /api/customers/123 HTTP/1.1
+GET /api/customer/123 HTTP/1.1
 
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -76,11 +76,12 @@ Content-Type: application/json
 java -jar df.jar MyDump.txt
 ```
 </li>
-	<li>Use a browser to check whether the server is running: <code><a href="http://localhost:8080/api/customers/123">http://localhost:8080/api/customers/123</a></code>
+	<li>Use a browser to check whether the server is running: <code><a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a></code>
 </li>
 </ol>
 
 For more examples see: <a href="#appendix-bdump-examples">APPENDIX B.</a>
+<br>
 
 <h2>How does it work?</h2>
 <ol>
