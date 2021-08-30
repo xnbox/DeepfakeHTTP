@@ -40,8 +40,8 @@ import org.deepfake_http.common.ReqResp;
 
 public class ParseCommandLineUtils {
 	/* command line args */
-	private static final String ARGS_NO_LISTEN_OPTION = "--no-listen"; // disable listening on dump(s) changes
-	private static final String ARGS_NO_ETAG_OPTION   = "--no-etag";   // disable ETag optimization
+	private static final String ARGS_NO_WATCH_OPTION = "--no-watch"; // disable listening on dump(s) changes
+	private static final String ARGS_NO_ETAG_OPTION  = "--no-etag";  // disable ETag optimization
 
 	public static List<ReqResp> getDumpReqResp(String dumpFile) throws Throwable {
 		String       dump      = Files.readString(new File(dumpFile).toPath());
@@ -64,10 +64,10 @@ public class ParseCommandLineUtils {
 		return allReqResps;
 	}
 
-	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noListenArr, boolean[] noEtagArr) throws Throwable {
+	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noWatchArr, boolean[] noEtagArr) throws Throwable {
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals(ARGS_NO_LISTEN_OPTION))
-				noListenArr[0] = true;
+			if (args[i].equals(ARGS_NO_WATCH_OPTION))
+				noWatchArr[0] = true;
 			else if (args[i].equals(ARGS_NO_ETAG_OPTION))
 				noEtagArr[0] = true;
 			else {

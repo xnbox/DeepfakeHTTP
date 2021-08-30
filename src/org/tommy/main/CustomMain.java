@@ -69,15 +69,15 @@ public class CustomMain {
 			sb.append("\n");
 			sb.append(" Usage:\n");
 			sb.append("\n");
-			sb.append(" java -jar df.jar [options]\n");
+			sb.append(" java -jar df.jar [options] [dump1.txt] [dump2.txt] ...\n");
 			sb.append("\n");
 			sb.append(" Options:\n");
-			sb.append("  --help          print help message\n");
-			sb.append("  --port          port number, default: 8080\n");
-			sb.append("  --requests      print request line for all handled requests\n");
-			sb.append("  --info          print dump(s) info\n");
-			sb.append("  --no-listen     disable listening on dump(s) changes\n");
-			sb.append("  --no-etag       disable ETag optimization\n");
+			sb.append("          --help          print help message\n");
+			sb.append("          --info          print dump(s) statistics as JSON\n");
+			sb.append("          --requests      print dump(s) requests as JSON\n");
+			sb.append("          --port          TCP port number, default: 8080\n");
+			sb.append("          --no-watch      disable watch dump(s) for changes\n");
+			sb.append("          --no-etag       disable ETag optimization\n");
 			System.out.println(sb);
 			System.exit(0);
 		} else if (info) {

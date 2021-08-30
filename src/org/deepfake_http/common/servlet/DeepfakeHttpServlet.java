@@ -115,8 +115,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private static final String X_POWERED_BY_VALUE = "DeepfakeHTTP";
 
 	/* CLI flags */
-	private boolean noListen = false;
-	private boolean noEtag   = false;
+	private boolean noWatch = false;
+	private boolean noEtag  = false;
 
 	private List<String /* dump file */> dumps;
 
@@ -207,8 +207,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		logger.log(Level.INFO, "DeepfakeHTTP Logger: HELLO!");
 
 		dumps = new ArrayList<>();
-		boolean[] noListenArr = new boolean[1];
-		boolean[] noEtagArr   = new boolean[1];
+		boolean[] noWatchArr = new boolean[1];
+		boolean[] noEtagArr  = new boolean[1];
 
 		try {
 			InitialContext ctx = new InitialContext();
@@ -216,11 +216,11 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noListenArr, noEtagArr);
-			noListen = noListenArr[0];
-			noEtag   = noEtagArr[0];
+			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr);
+			noWatch = noWatchArr[0];
+			noEtag  = noEtagArr[0];
 
-			boolean activateDirWatchers = !noListen;
+			boolean activateDirWatchers = !noWatch;
 			reload(activateDirWatchers);
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -778,9 +778,9 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		allReqResps = ParseCommandLineUtils.getAllReqResp(logger, dumps);
 
 		for (String dumpFile : dumps) {
-			Path   path     = new File(dumpFile).toPath();
-			Path   dirPath  = path.getParent();
-			Path   filePath = path.getFileName();
+			Path path     = new File(dumpFile).toPath();
+			Path dirPath  = path.getParent();
+			Path filePath = path.getFileName();
 
 			if (activateDirWatchers) {
 				DirectoryWatcher dirWatcher = directoryWatchersMap.get(dirPath);
