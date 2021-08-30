@@ -38,8 +38,8 @@ import org.deepfake_http.common.HttpMethod;
 import org.deepfake_http.common.ReqResp;
 
 public class ParseDumpUtils {
-	private static final String HTTP_1_1     = "HTTP/1.1";
-	private static final char   COMMENT_CHAR = '#';
+	public static final String HTTP_1_1     = "HTTP/1.1";
+	private static final char  COMMENT_CHAR = '#';
 
 	/**
 	 * MIN_REQUEST_LENGTH

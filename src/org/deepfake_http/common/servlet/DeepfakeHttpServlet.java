@@ -390,7 +390,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();
 					for (ReqResp rr : allReqResps) {
 						FirstLineReq firstLineReq        = ParseDumpUtils.parseFirstLineReq(rr.request.firstLine);
-						boolean      protocolOk          = firstLineReq.protocol.equals("HTTP/1.1");
+						boolean      protocolOk          = firstLineReq.protocol.equals(ParseDumpUtils.HTTP_1_1);
 						boolean      methodOk            = firstLineReq.method.equals(method);
 						String       templatePath        = HttpPathUtils.extractPathFromUri(firstLineReq.uri);
 						boolean      pathOk              = MatchUtils.matchPath(templatePath, providedPath, providedParams);
