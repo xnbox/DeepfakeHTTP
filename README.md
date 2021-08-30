@@ -146,7 +146,6 @@ APPENDIX A.
 Optional response headers
 </h1>
 <br>
-<strong>NOTE:</strong> Optional response headers will not be sent to clients.
 <table>
 	<tr><th width="21%" >Header</th>                                <th>Description</th></tr>
 	<tr></tr>
@@ -258,6 +257,7 @@ X-Response-Delay: 2000
 
 </td></tr>
 </table>
+<strong>NOTE:</strong> Optional response headers will not be sent to clients.
 
 
 <h1>
@@ -265,7 +265,7 @@ APPENDIX B.
 <br>
 Dump examples
 </h1>
-
+<br>
 <h3>Example 1.</h3>
 
 ```text
