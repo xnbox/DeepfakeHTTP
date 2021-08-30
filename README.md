@@ -81,7 +81,7 @@ java -jar df.jar MyDump.txt
 </ol>
 
 For more examples see: <a href="#appendix-bdump-examples">APPENDIX B.</a>
-<br>
+<br><br>
 
 <h2>How does it work?</h2>
 <ol>
