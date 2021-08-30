@@ -40,8 +40,8 @@ java -jar df.jar [options] [dump1.txt] [dump2.txt] ...
 Options:
   --help         print help message
   --port         TCP port number, default: 8080
-  --no-listen    disable listening on dump(s) changes
   --no-etag      disable ETag optimization
+  --no-watch     disable watch dump(s) for changes
 
 ```
 
@@ -50,7 +50,7 @@ Options:
 	<li>Java 15 or above</li>
 </ul>
 
-<h2>Try it</h2>
+<h2>Get started</h2>
 
 <ol>
 	<li>Copy-paste the content of the <a href="#dump-example">dump example</a> to the file <code>MyDump.txt</code></li>
