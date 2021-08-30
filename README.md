@@ -94,10 +94,10 @@ For more examples see <a href="#appendixdump-examples">here</a>.
     <li>No dependencies</li>
     <li>No installation</li>
     <li>No configuration files</li>
-    <li>Single-file executable</li>
 </ul>
-
+<br>
 <ul>
+    <li>Single-file executable</li>
     <li>Fully asynchronous</li>
     <li>Scriptable</li>
 </ul>
