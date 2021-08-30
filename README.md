@@ -94,17 +94,14 @@ For more examples see <a href="#appendixdump-examples">here</a>.
     <li>No dependencies</li>
     <li>No installation</li>
     <li>No configuration files</li>
-</ul>
-<br>
-<ul>
     <li>Single-file executable</li>
-    <li>Fully asynchronous</li>
-    <li>Scriptable</li>
 </ul>
 
-... also supports:
+<h2>Also supports:</h2>
 
 <ul>
+    <li>asynchronous asynchronous requests and responses</li>
+    <li>scriptable response body</li>
     <li>all HTTP methods</li>
     <li>multi-line and multi-value headers</li>
     <li>OpenAPI-styled templates in paths</li>
@@ -114,11 +111,6 @@ For more examples see <a href="#appendixdump-examples">here</a>.
     <li>per entry user-defined request and response delays (optional)</li>
     <li>watching dumps for changes (optional)</li>
     <li>ETag optimization (optional)</li>
-</ul>
-
-<h2>Prerequisites</h2>
-<ul>
-	<li>Java 15 or above</li>
 </ul>
 
 <h2>Command Line Interface (CLI)</h2>
@@ -134,6 +126,11 @@ Options:
   --no-etag      disable ETag optimization
 
 ```
+
+<h2>Prerequisites</h2>
+<ul>
+	<li>Java 15 or above</li>
+</ul>
 
 <h2>Optional response headers
 <br>
