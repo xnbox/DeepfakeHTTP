@@ -145,7 +145,7 @@ APPENDIX A.
 <br>
 Optional response headers
 </h1>
-
+<br>
 <strong>NOTE:</strong> Optional response headers will not be sent to clients.
 <table>
 	<tr><th width="21%" >Header</th>                                <th>Description</th></tr>
