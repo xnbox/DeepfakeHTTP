@@ -109,6 +109,7 @@ For more examples see <a href="#appendixdump-examples">here</a>.
     <li>templates in response body</li>
     <li>response body fetching from external sources like URLs, local files, and data URI</li>
     <li>per entry user-defined request and response delays (lags)</li>
+    <li>watching dumps for changes</li>
 </ul>
 
 <h2>Prerequisites</h2>
