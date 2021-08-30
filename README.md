@@ -66,14 +66,14 @@ java -jar df.jar MyDump.txt
 
 <h2>Dump example</h2>
 
-```json
-GET /api/customers/1234.json HTTP/1.1
+```text
+GET /api/customers/123 HTTP/1.1
 
 HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-    "id": 1234,
+    "id": 123,
     "fname": "John",
     "lname": "Doe",
     "email": ["john@example.com", "johndoe@example.com"]
