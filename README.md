@@ -54,7 +54,7 @@ Options:
 <h2>Get started</h2>
 
 <ol>
-	<li>Copy-paste the content of the <a href="#dump-example">dump example</a> to the file <code>MyDump.txt</code></li>
+	<li>Copy-paste the content of the <a href="#sample-dump-file">dump example</a> to the file <code>MyDump.txt</code></li>
 	<li>Start the server from command line:
 
 ```text
@@ -65,7 +65,7 @@ java -jar df.jar MyDump.txt
 </li>
 </ol>
 
-<h2>Dump Example</h2>
+<h2>Sample dump file</h2>
 
 ```text
 GET /api/customers/123 HTTP/1.1
