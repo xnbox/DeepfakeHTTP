@@ -255,7 +255,7 @@ X-Response-Delay: 2000
 
 </td></tr>
 </table>
-<strong>NOTE:</strong> Optional response headers will not be sent to clients.
+<strong>NOTE:&nbsp;&nbsp;</strong>Optional response headers will <strong>not</strong> be sent to clients.
 <br><br>
 
 <h2>
