@@ -113,7 +113,7 @@ For more examples see <a href="#appendix-bdump-examples">APPENDIX B.</a>
 </ol>
 That's all.
 
-<h2>Supports:</h2>
+<h2>Supports</h2>
 
 <ul>
     <li>asynchronous asynchronous requests and responses</li>
@@ -125,7 +125,8 @@ That's all.
     <li>templates in response body</li>
     <li>response body fetching from external sources like URLs, local files, and data URI</li>
     <li>per entry user-defined request and response delays (optional)</li>
-    <li>watching dumps for changes (optional)</li>
+    <li>comments in dumps</li>
+    <li>watching dump files for changes (optional)</li>
     <li>ETag optimization (optional)</li>
 </ul>
 
