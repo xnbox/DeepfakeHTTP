@@ -106,7 +106,7 @@ For more examples see <a href="#appendix-bdump-examples">APPENDIX B.</a>
 <ol>
     <li>Got client request</li>
     <li>Search dump entries (request-response pairs) for appropriate entry by matching all specified request parts:<br>
-	method, path, headers, and body</li>
+	method, URI, headers, and body</li>
     <li>If entry is found, the server generates a corresponded response and sends it to the client</li>
     <li>If entry is not found, the server search dump entries for response with status <code>400</code> (Bad request).</li>
     <li>If entry is found, the server send entry to the client
