@@ -140,13 +140,9 @@ The <strong>DeepfakeHTTP</strong> is released under <a href="https://github.com/
 <h1></h1>
 <br><br>
 
-<h1>APPENDIX</h1>
+<h1>APPENDIX A. Optional response headers</h1>
 
-<h2>Optional response headers
-<br>
-(will not be sent to clients)
-</h2>
-
+<strong>NOTE:</strong> Optional response headers will not be sent to clients.
 <table>
 	<tr><th width="21%" >Header</th>                                <th>Description</th></tr>
 	<tr></tr>
@@ -260,7 +256,7 @@ X-Response-Delay: 2000
 </table>
 
 
-<h2>Dump examples</h2>
+<h1>APPENDIX B. Dump examples</h1>
 
 <h3>Example 1.</h3>
 
