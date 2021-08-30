@@ -107,7 +107,7 @@ For more examples see <a href="#appendixdump-examples">here</a>.
     <li>wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in query string and header values</li>
     <li>templates in response body</li>
     <li>response body fetching from external sources like URLs, local files, and data URI</li>
-    <li>per entry user-defined request and response delays (lags)</li>
+    <li>per entry user-defined request and response delays (optional)</li>
     <li>watching dumps for changes (optional)</li>
     <li>ETag optimization (optional)</li>
 </ul>
