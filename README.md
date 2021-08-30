@@ -102,7 +102,7 @@ X-Body-Type: text/template
 </html>
 
 ```
-For more examples see <a href="#dump-examples">here</a>.
+For more examples see <a href="#appendix-bdump-examples">here</a>.
 
 <h2>How does it work?</h2>
 <ol>
