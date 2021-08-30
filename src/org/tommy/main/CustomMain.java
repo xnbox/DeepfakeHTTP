@@ -28,11 +28,14 @@ E-Mail: xnbox.team@outlook.com
 package org.tommy.main;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.deepfake_http.common.FirstLineReq;
 import org.deepfake_http.common.ReqResp;
+import org.deepfake_http.common.utils.JacksonUtils;
 import org.deepfake_http.common.utils.ParseCommandLineUtils;
 import org.deepfake_http.common.utils.ParseDumpUtils;
 
@@ -87,22 +90,9 @@ public class CustomMain {
 
 			try {
 				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noListenArr, noEtagArr);
-				StringBuilder sb = new StringBuilder();
-				sb.append('[');
-				boolean first = true;
-				for (String dumpFile : dumps) {
-					List<ReqResp> dumpReqResp = ParseCommandLineUtils.getDumpReqResp(dumpFile);
-					if (first)
-						first = false;
-					else
-						sb.append(',');
-					sb.append('{');
-					sb.append("\"dumpFile\":\"" + dumpFile + "\",");
-					sb.append("\"requestCount\":" + dumpReqResp.size());
-					sb.append('}');
-				}
-				sb.append(']');
-				System.out.println(sb);
+
+				String json = serializeInfoToJson(dumps);
+				System.out.println(json);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
@@ -116,28 +106,52 @@ public class CustomMain {
 				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noListenArr, noEtagArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
-				StringBuilder sb = new StringBuilder();
-				sb.append('[');
-				boolean first = true;
-				for (ReqResp reqResp : allReqResps) {
-					if (first)
-						first = false;
-					else
-						sb.append(',');
-					sb.append('{');
-					FirstLineReq firstLineReq = ParseDumpUtils.parseFirstLineReq(reqResp.request.firstLine);
-					sb.append("\"method\":\"" + firstLineReq.method.toUpperCase(Locale.ENGLISH) + "\",");
-					sb.append("\"requestURI\":\"" + firstLineReq.uri + "\",");
-					sb.append("\"dumpFile\":\"" + reqResp.dumpFile + "\",");
-					sb.append("\"dumpFileLineNumber\":" + reqResp.request.lineNumber);
-					sb.append('}');
-				}
-				sb.append(']');
-				System.out.println(sb);
+				String json = serializeRequestsToJson(allReqResps);
+				System.out.println(json);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 			System.exit(0);
 		}
+	}
+
+	/**
+	 * Serialize info to JSON
+	 *
+	 * @param dumps
+	 * @return
+	 * @throws Throwable
+	 */
+	private static String serializeInfoToJson(List<String> dumps) throws Throwable {
+		List<Map<String, Object>> list = new ArrayList<>(dumps.size());
+		for (String dumpFile : dumps) {
+			List<ReqResp>       dumpReqResp = ParseCommandLineUtils.getDumpReqResp(dumpFile);
+			Map<String, Object> map         = new LinkedHashMap<>();
+			map.put("dumpFile", dumpFile);
+			map.put("requestCount", dumpReqResp.size());
+			list.add(map);
+		}
+		return JacksonUtils.stringifyToJson(list);
+	}
+
+	/**
+	 * Serialize requests to JSON 
+	 * 
+	 * @param allReqResps
+	 * @return
+	 * @throws Exception
+	 */
+	private static String serializeRequestsToJson(List<ReqResp> allReqResps) throws Throwable {
+		List<Map<String, Object>> list = new ArrayList<>(allReqResps.size());
+		for (ReqResp reqResp : allReqResps) {
+			Map<String, Object> map          = new LinkedHashMap<>();
+			FirstLineReq        firstLineReq = ParseDumpUtils.parseFirstLineReq(reqResp.request.firstLine);
+			map.put("method", firstLineReq.method.toUpperCase(Locale.ENGLISH));
+			map.put("requestURI", firstLineReq.uri);
+			map.put("dumpFile", reqResp.dumpFile);
+			map.put("dumpFileLineNumber", reqResp.request.lineNumber);
+			list.add(map);
+		}
+		return JacksonUtils.stringifyToJson(list);
 	}
 }
