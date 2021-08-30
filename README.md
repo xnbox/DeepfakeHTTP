@@ -37,10 +37,12 @@
 java -jar df.jar [options] [dump1.txt] [dump2.txt] ...
 
 Options:
-        --help         print help message
-        --port         TCP port number, default: 8080
-        --no-etag      disable ETag optimization
-        --no-watch     disable watch dump(s) for changes
+        --help          print help message
+        --info          print dump(s) statistics as JSON
+        --requests      print dump(s) requests as JSON
+        --port          TCP port number, default: 8080
+        --no-etag       disable ETag optimization
+        --no-watch      disable watch dump(s) for changes
 ```
 
 <h2>Prerequisites</h2>
@@ -64,40 +66,18 @@ java -jar df.jar MyDump.txt
 
 <h2>Dump example</h2>
 
-```text
-# Comments are welcome! :)
+```json
+GET /api/customers/1234.json HTTP/1.1
 
-GET /form.html HTTP/1.1
-
-# Fake HTML file :)
 HTTP/1.1 200 OK
+Content-Type: application/json
 
-<!DOCTYPE html>
-<html lang="en">
-<body>
-    <form action="/add_user.php" method="POST">
-        <label for="fname">First name:</label><input type="text" name="fname"><br><br>
-        <label for="lname">Last name: </label><input type="text" name="lname"><br><br>
-        <input type="submit" value="Submit">
-    </form>
-</body>
-</html>
-
-
-POST /add_user.php HTTP/1.1
-Content-Type: application/x-www-form-urlencoded
-
-# Fake PHP file :)
-HTTP/1.1 200 OK
-Content-Type: text/html
-X-Body-Type: text/template
-
-<!DOCTYPE html>
-<html lang="en">
-<body>
-    <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
-</body>
-</html>
+{
+    "id": 1234,
+    "fname": "John",
+    "lname": "Doe",
+    "email": ["john@example.com", "johndoe@example.com"]
+}
 ```
 For more examples see: <a href="#appendix-bdump-examples">APPENDIX B.</a>
 
@@ -267,6 +247,44 @@ Dump examples
 <h3>Example 1.</h3>
 
 ```text
+# Comments are welcome! :)
+
+GET /form.html HTTP/1.1
+
+# Fake HTML file :)
+HTTP/1.1 200 OK
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <form action="/add_user.php" method="POST">
+        <label for="fname">First name:</label><input type="text" name="fname"><br><br>
+        <label for="lname">Last name: </label><input type="text" name="lname"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
+
+POST /add_user.php HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+# Fake PHP file :)
+HTTP/1.1 200 OK
+Content-Type: text/html
+X-Body-Type: text/template
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
+</body>
+</html>
+```
+
+<h3>Example 2.</h3>
+
+```text
 
 # Comments are welcome! :)
 # Please don't miss a single carriage return between headers and body!
@@ -309,7 +327,7 @@ Content-Type: application/json
 
 ```
 
-<h3>Example 2.</h3>
+<h3>Example 3.</h3>
 
 ```text
 
@@ -350,7 +368,7 @@ X-Body-Type: text/template
 
 ```
 
-<h3>Example 3.</h3>
+<h3>Example 4.</h3>
 
 ```text
 
