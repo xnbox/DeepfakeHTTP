@@ -54,18 +54,7 @@ Options:
 <h2>Get started</h2>
 
 <ol>
-	<li>Copy-paste the content of the <a href="#sample-dump-file">dump example</a> to the file <code>MyDump.txt</code></li>
-	<li>Start the server from command line:
-
-```text
-java -jar df.jar MyDump.txt
-```
-</li>
-	<li>Use a browser to check whether the server is running: <code><a href="http://localhost:8080/form.html">http://localhost:8080/form.html</a></code>
-</li>
-</ol>
-
-<h2>Sample dump file</h2>
+	<li>Copy-paste the content of the dump example to the file <code>MyDump.txt</code>:
 
 ```text
 GET /api/customers/123 HTTP/1.1
@@ -80,6 +69,17 @@ Content-Type: application/json
     "email": ["john@example.com", "johndoe@example.com"]
 }
 ```
+</li>
+	<li>Start the server from command line:
+
+```text
+java -jar df.jar MyDump.txt
+```
+</li>
+	<li>Use a browser to check whether the server is running: <code><a href="http://localhost:8080/form.html">http://localhost:8080/form.html</a></code>
+</li>
+</ol>
+
 For more examples see: <a href="#appendix-bdump-examples">APPENDIX B.</a>
 
 <h2>How does it work?</h2>
