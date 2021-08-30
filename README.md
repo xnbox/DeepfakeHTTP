@@ -38,11 +38,10 @@
 java -jar df.jar [options] [dump1.txt] [dump2.txt] ...
 
 Options:
-  --help         print help message
-  --port         TCP port number, default: 8080
-  --no-etag      disable ETag optimization
-  --no-watch     disable watch dump(s) for changes
-
+        --help         print help message
+        --port         TCP port number, default: 8080
+        --no-etag      disable ETag optimization
+        --no-watch     disable watch dump(s) for changes
 ```
 
 <h2>Prerequisites</h2>
@@ -100,7 +99,6 @@ X-Body-Type: text/template
     <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
 </body>
 </html>
-
 ```
 For more examples see <a href="#appendix-bdump-examples">APPENDIX B.</a>
 
