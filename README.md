@@ -24,6 +24,14 @@
 </tr>
 </table>
 
+<h2>Features</h2>
+<ul>
+    <li>No dependencies</li>
+    <li>No installation</li>
+    <li>No configuration files</li>
+    <li>Single-file executable</li>
+</ul>
+
 <h2>Command Line Interface (CLI)</h2>
 
 ```text
@@ -107,15 +115,7 @@ For more examples see <a href="#appendixdump-examples">here</a>.
 </ol>
 That's all.
 
-<h2>Features</h2>
-<ul>
-    <li>No dependencies</li>
-    <li>No installation</li>
-    <li>No configuration files</li>
-    <li>Single-file executable</li>
-</ul>
-
-<h2>Also supports:</h2>
+<h2>Supports:</h2>
 
 <ul>
     <li>asynchronous asynchronous requests and responses</li>
