@@ -96,7 +96,6 @@ For more examples see <a href="#appendixdump-examples">here</a>.
     <li>No configuration files</li>
     <li>Single-file executable</li>
     <li>Fully asynchronous</li>
-    <li>ETag optimization</li>
 </ul>
 
 ... also supports:
@@ -104,12 +103,13 @@ For more examples see <a href="#appendixdump-examples">here</a>.
 <ul>
     <li>all HTTP methods</li>
     <li>multi-line and multi-value headers</li>
-    <li>OpenAPI-styled templates in URI</li>
+    <li>OpenAPI-styled templates in paths</li>
     <li>wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in query string and header values</li>
     <li>templates in response body</li>
     <li>response body fetching from external sources like URLs, local files, and data URI</li>
     <li>per entry user-defined request and response delays (lags)</li>
-    <li>watching dumps for changes</li>
+    <li>watching dumps for changes (optional)</li>
+    <li>ETag optimization (optional)</li>
 </ul>
 
 <h2>Prerequisites</h2>
