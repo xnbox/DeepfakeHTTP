@@ -283,7 +283,7 @@ X-Body-Type: text/template
 </body>
 </html>
 ```
-
+<br>
 <h3>Example 2.</h3>
 
 ```text
@@ -328,7 +328,7 @@ Content-Type: application/json
 
 
 ```
-
+<br>
 <h3>Example 3.</h3>
 
 ```text
@@ -369,7 +369,7 @@ X-Body-Type: text/template
 
 
 ```
-
+<br>
 <h3>Example 4.</h3>
 
 ```text
