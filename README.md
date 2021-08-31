@@ -54,7 +54,8 @@ Options:
 <h2>Get started</h2>
 
 <ol>
-	<li>Copy-paste the content of the dump example to the file <code>MyDump.txt</code>:
+	<li>Download the <a href="https://github.com/xnbox/DeepfakeHTTP/releases/latest">latest release</a> of <code>df.jar</code>.</li>
+	<li>Copy-paste the content of the dump example to the file <code>dump-sample.txt</code>:
 
 ```text
 GET /api/customer/123 HTTP/1.1
@@ -73,7 +74,7 @@ Content-Type: application/json
 	<li>Start the server from command line:
 
 ```text
-java -jar df.jar MyDump.txt
+java -jar df.jar dump-sample.txt
 ```
 </li>
 	<li>Use a browser to check whether the server is running: <code><a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a></code>
@@ -111,9 +112,6 @@ That's all.
     <li>watching dump files for changes (optional)</li>
     <li>ETag optimization (optional)</li>
 </ul>
-
-<h2>Download</h2>
-Latest release: <a href="https://github.com/xnbox/DeepfakeHTTP/releases/download/v1.0.2/df-1.0.2.jar">df-1.0.2.jar</a>
 
 <h2>License</h2>
 The <strong>DeepfakeHTTP</strong> is released under <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/LICENSE">MIT</a> license.
