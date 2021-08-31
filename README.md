@@ -78,9 +78,9 @@ java -jar df.jar dump-sample.txt
 ```
 </li>
 	<li>Use a browser to check whether the server is running: <a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a>
+<img src="get-started.png">
 </li>
 </ol>
-
 For more examples see: <a href="#appendix-bdump-examples">APPENDIX B.</a>
 <br><br>
 
