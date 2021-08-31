@@ -114,7 +114,7 @@ That's all.
 </ul>
 
 <h2>License</h2>
-The <strong>DeepfakeHTTP</strong> is released under <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/LICENSE">MIT</a> license.
+The <strong>DeepfakeHTTP</strong> is released under the <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/LICENSE">MIT</a> license.
 <br><br><br>
 <h1></h1>
 <br><br>
