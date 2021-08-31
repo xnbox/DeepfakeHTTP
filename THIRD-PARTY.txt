@@ -8,6 +8,12 @@ HOME PAGE  : https://hive.apache.org
 DESCRIPTION: Used for produce Murmur3 hashes (org.apache.hive.common.util.Murmur3.java)
 
 
+NAME       : Jackson
+LICENSE    : Apache License 2.0
+HOME PAGE  : https://github.com/FasterXML/jackson
+DESCRIPTION: Used as JSON parser and serializer
+
+
 NAME       : Apache FreeMarker™
 LICENSE    : Apache License 2.0
 HOME PAGE  : https://freemarker.apache.org
