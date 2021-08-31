@@ -99,7 +99,7 @@ That's all.
 <h2>Supports</h2>
 
 <ul>
-    <li>asynchronous asynchronous requests and responses</li>
+    <li>asynchronous requests and responses</li>
     <li>scriptable response body</li>
     <li>all HTTP methods</li>
     <li>multi-line and multi-value headers</li>
