@@ -76,11 +76,11 @@ public class CustomMain {
 			sb.append("\n");
 			sb.append(" Options:\n");
 			sb.append("          --help          print help message\n");
-			sb.append("          --info          print dump(s) statistics as JSON\n");
-			sb.append("          --requests      print dump(s) requests as JSON\n");
+			sb.append("          --info          print dump files statistics as JSON\n");
+			sb.append("          --requests      print dump requests as JSON\n");
 			sb.append("          --port          TCP port number, default: 8080\n");
 			sb.append("          --no-etag       disable ETag optimization\n");
-			sb.append("          --no-watch      disable watch dump(s) for changes\n");
+			sb.append("          --no-watch      disable watch dump files for changes\n");
 			System.out.println(sb);
 			System.exit(0);
 		} else if (info) {

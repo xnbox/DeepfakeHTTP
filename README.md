@@ -39,11 +39,11 @@ java -jar df.jar [options] [dump1.txt] [dump2.txt] ...
 
 Options:
         --help          print help message
-        --info          print dump(s) statistics as JSON
-        --requests      print dump(s) requests as JSON
+        --info          print dump files statistics as JSON
+        --requests      print dump requests as JSON
         --port          TCP port number, default: 8080
         --no-etag       disable ETag optimization
-        --no-watch      disable watch dump(s) for changes
+        --no-watch      disable watch dump files for changes
 ```
 
 <h2>Prerequisites</h2>
