@@ -37,6 +37,8 @@ import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,6 +61,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import javax.naming.InitialContext;
@@ -368,18 +371,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						providedQueryString = "";
 					String protocol = request.getProtocol();
 
-					String providedFirstLineStr = method + ' ' + providedPath + ' ' + protocol;
-					String providedBody         = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+					String providedFirstLineStr = method + ' ' + providedPath + (providedQueryString.isEmpty() ? "" : "?" + providedQueryString) + ' ' + protocol;
+
+					byte[] providedBodyBs = request.getInputStream().readAllBytes();
+					String providedBody   = new String(providedBodyBs, StandardCharsets.UTF_8);
 
 					Map<String, List<String>> providedParams = new LinkedHashMap<>();
-					//					if (!providedQueryString.isEmpty())
-					//						MatchUtils.parseQuery(providedQueryString, providedParams);
-					//						HttpPathUtils.parseQueryString(providedQueryString, providedParams);
 
 					String requestHeaderContentType = request.getHeader(HTTP_HEADER_CONTENT_TYPE);
 					if (requestHeaderContentType != null && requestHeaderContentType.startsWith("application/x-www-form-urlencoded"))
 						MatchUtils.parseQuery(providedBody, providedParams);
-					//						HttpPathUtils.parseQueryString(providedBody, providedParams);
 
 					String bodyType      = null;
 					int    requestDelay  = 0;
@@ -490,19 +491,21 @@ public class DeepfakeHttpServlet extends HttpServlet {
 								}
 						}
 					}
-					if (reqResp == null) { // request-reponse pair not found
-						if (badRequest400 == null) {
-							response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-							asyncContext.complete();
-							return;
-						}
+					if (reqResp == null) // request-reponse pair not found
 						reqResp = badRequest400;
-					}
+
+					if (reqResp == null)
+						reqResp = new ReqResp();
+					reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + HttpServletResponse.SC_BAD_REQUEST + ' ' + "Bad request";
 
 					String        responseFirstLineStr = reqResp.response.firstLine;
 					FirstLineResp firstLineResp        = ParseDumpUtils.parseFirstLineResp(responseFirstLineStr);
 
-					int                 status          = firstLineResp.status;
+					byte[] bs;
+					int    status = firstLineResp.status;
+					if (status == HttpServletResponse.SC_BAD_REQUEST)
+						bs = new byte[0];
+
 					String              message         = firstLineResp.message;
 					String              mime            = null;
 					String              encoding        = null;
@@ -546,7 +549,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					String body = reqResp.response.body.toString();
 
-					byte[] bs;
 					if ("text/template".equals(bodyType)) {
 						Template     freeMarkerTemplate = new Template("", new StringReader(body), freeMarkerConfiguration);
 						StringWriter writer             = new StringWriter();
@@ -639,14 +641,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						responseHeaders.put(HTTP_HEADER_CONTENT_LENGTH, Integer.toString(bs.length));
 
 					if (!noEtag) {
-						String etag = "\"" + Integer.toHexString(Murmur3.hash32(bs)) + "\""; // Murmur3 32-bit variant
+						if (status != HttpServletResponse.SC_BAD_REQUEST) {
+							String etag = "\"" + Integer.toHexString(Murmur3.hash32(bs)) + "\""; // Murmur3 32-bit variant
 
-						String  etagFromClient = request.getHeader(HTTP_HEADER_IF_NONE_MATCH);
-						boolean etagMatched    = etag.equals(etagFromClient);
-						if (etagMatched)
-							status = HttpServletResponse.SC_NOT_MODIFIED; // setting HTTP 304 and returning with empty body
-						else
-							responseHeaders.put(HTTP_HEADER_E_TAG, etag);
+							String  etagFromClient = request.getHeader(HTTP_HEADER_IF_NONE_MATCH);
+							boolean etagMatched    = etag.equals(etagFromClient);
+							if (etagMatched)
+								status = HttpServletResponse.SC_NOT_MODIFIED; // setting HTTP 304 and returning with empty body
+							else
+								responseHeaders.put(HTTP_HEADER_E_TAG, etag);
+						}
 					}
 
 					if (message == null)
@@ -656,6 +660,53 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					for (Map.Entry<String, String> entry : responseHeaders.entrySet())
 						response.setHeader(entry.getKey(), entry.getValue());
+
+					// -------------------------------------------- log -------------------------------------------- //
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+					StringBuilder reqSb = new StringBuilder();
+					reqSb.append('\n');
+					reqSb.append("# --- REQUEST ---\n");
+					reqSb.append(providedFirstLineStr + '\n');
+					/* provided headers */
+					for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
+						String headerName = headerNames.nextElement();
+						reqSb.append(headerName + ": ");
+						boolean first = true;
+						for (Enumeration<String> headerValues = request.getHeaders(headerName); headerValues.hasMoreElements();) {
+							String headerValue = headerValues.nextElement();
+							if (first)
+								first = false;
+							else
+								reqSb.append(';');
+							reqSb.append(headerValue);
+						}
+						reqSb.append('\n');
+					}
+					baos.write(reqSb.toString().getBytes(StandardCharsets.UTF_8));
+					if (providedBodyBs.length != 0) {
+						baos.write("\n".getBytes(StandardCharsets.UTF_8));
+						baos.write(providedBodyBs);
+					}
+					baos.write("\n".getBytes(StandardCharsets.UTF_8));
+
+					StringBuilder respSb = new StringBuilder();
+					respSb.append("# --- RESPONSE ---\n");
+					respSb.append(ParseDumpUtils.HTTP_1_1 + ' ' + status + (message == null ? "" : ' ' + message) + '\n');
+					/* provided headers */
+					for (Map.Entry<String, String> entry : responseHeaders.entrySet())
+						respSb.append(entry.getKey() + ": " + entry.getValue() + '\n');
+
+					baos.write(respSb.toString().getBytes(StandardCharsets.UTF_8));
+					if (bs.length != 0) {
+						baos.write("\n".getBytes(StandardCharsets.UTF_8));
+						baos.write(bs);
+					}
+					baos.write("\n".getBytes(StandardCharsets.UTF_8));
+					baos.flush();
+					byte[] logBs = baos.toByteArray();
+					logger.log(Level.INFO, new String(logBs, StandardCharsets.UTF_8));
+					// -------------------------------------------- log -------------------------------------------- //
 
 					OutputStream responseOutputStream = response.getOutputStream();
 					responseOutputStream.write(bs);
