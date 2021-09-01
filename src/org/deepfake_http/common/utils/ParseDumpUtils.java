@@ -252,17 +252,21 @@ public class ParseDumpUtils {
 	public static FirstLineResp parseFirstLineResp(String firstLine) throws Exception {
 		firstLine = firstLine.trim().replace('\t', ' ');
 		FirstLineResp firstLineResp = new FirstLineResp();
-		String[]      arr           = firstLine.split("\s");
-		firstLineResp.protocol = arr[0].strip();
+		int pos = firstLine.indexOf(' ');
+		firstLineResp.protocol = firstLine.substring(0, pos);
 		if (!HTTP_1_1.equals(firstLineResp.protocol))
 			throw new Exception("Bad protocol");
 		try {
-			firstLineResp.status = Integer.parseInt(arr[1].strip());
+			int pos2 = firstLine.indexOf(' ', pos + 1);
+			if (pos2 == -1)
+				pos2 = firstLine.length();
+			firstLineResp.status = Integer.parseInt(firstLine.substring(pos + 1, pos2));
+			firstLineResp.message = firstLine.substring(pos2 + 1).strip();
+			if (firstLineResp.message.isEmpty())
+				firstLineResp.message = null;
 		} catch (Exception e) {
 			throw new Exception("Bad HTTP status");
 		}
-		if (arr.length > 2)
-			firstLineResp.message = arr[2].strip();
 		return firstLineResp;
 	}
 
