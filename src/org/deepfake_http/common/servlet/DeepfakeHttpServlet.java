@@ -37,12 +37,10 @@ import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
@@ -61,7 +59,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import javax.naming.InitialContext;
@@ -118,8 +115,11 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private static final String X_POWERED_BY_VALUE = "DeepfakeHTTP";
 
 	/* CLI flags */
-	private boolean noWatch = false;
-	private boolean noEtag  = false;
+	private boolean noWatch;
+	private boolean noEtag;
+	private boolean noLog;
+
+	private String collectFile;
 
 	private List<String /* dump file */> dumps;
 
@@ -210,8 +210,10 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		logger.log(Level.INFO, "DeepfakeHTTP Logger: HELLO!");
 
 		dumps = new ArrayList<>();
-		boolean[] noWatchArr = new boolean[1];
-		boolean[] noEtagArr  = new boolean[1];
+		boolean[] noWatchArr     = new boolean[1];
+		boolean[] noEtagArr      = new boolean[1];
+		boolean[] noLogArr       = new boolean[1];
+		String[]  collectFileArr = new String[1];
 
 		try {
 			InitialContext ctx = new InitialContext();
@@ -219,9 +221,11 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr);
-			noWatch = noWatchArr[0];
-			noEtag  = noEtagArr[0];
+			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr);
+			noWatch     = noWatchArr[0];
+			noEtag      = noEtagArr[0];
+			noLog       = noLogArr[0];
+			collectFile = collectFileArr[0];
 
 			boolean activateDirWatchers = !noWatch;
 			reload(activateDirWatchers);
@@ -494,16 +498,20 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					if (reqResp == null) // request-reponse pair not found
 						reqResp = badRequest400;
 
-					if (reqResp == null)
-						reqResp = new ReqResp();
-					reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + HttpServletResponse.SC_BAD_REQUEST + ' ' + "Bad request";
+					boolean simpleBadRequest400;
+					if (reqResp == null) {
+						reqResp                    = new ReqResp();
+						reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + HttpServletResponse.SC_BAD_REQUEST + ' ' + "Bad request";
+						simpleBadRequest400        = true;
+					} else
+						simpleBadRequest400 = false;
 
 					String        responseFirstLineStr = reqResp.response.firstLine;
 					FirstLineResp firstLineResp        = ParseDumpUtils.parseFirstLineResp(responseFirstLineStr);
 
 					byte[] bs;
 					int    status = firstLineResp.status;
-					if (status == HttpServletResponse.SC_BAD_REQUEST)
+					if (simpleBadRequest400)
 						bs = new byte[0];
 
 					String              message         = firstLineResp.message;
@@ -662,50 +670,55 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						response.setHeader(entry.getKey(), entry.getValue());
 
 					// -------------------------------------------- log -------------------------------------------- //
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-					StringBuilder reqSb = new StringBuilder();
-					reqSb.append('\n');
-					reqSb.append("# --- REQUEST ---\n");
-					reqSb.append(providedFirstLineStr + '\n');
-					/* provided headers */
-					for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
-						String headerName = headerNames.nextElement();
-						reqSb.append(headerName + ": ");
-						boolean first = true;
-						for (Enumeration<String> headerValues = request.getHeaders(headerName); headerValues.hasMoreElements();) {
-							String headerValue = headerValues.nextElement();
-							if (first)
-								first = false;
-							else
-								reqSb.append(';');
-							reqSb.append(headerValue);
-						}
+					byte[] logBs = null;
+					try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+						StringBuilder reqSb = new StringBuilder();
 						reqSb.append('\n');
-					}
-					baos.write(reqSb.toString().getBytes(StandardCharsets.UTF_8));
-					if (providedBodyBs.length != 0) {
+						reqSb.append("# --- REQUEST --- #\n");
+						reqSb.append(providedFirstLineStr + '\n');
+						/* provided headers */
+						for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
+							String headerName = headerNames.nextElement();
+							reqSb.append(processHeaderName(headerName) + ": ");
+							boolean first = true;
+							for (Enumeration<String> headerValues = request.getHeaders(headerName); headerValues.hasMoreElements();) {
+								String headerValue = headerValues.nextElement();
+								if (first)
+									first = false;
+								else
+									reqSb.append(';');
+								reqSb.append(headerValue);
+							}
+							reqSb.append('\n');
+						}
+						baos.write(reqSb.toString().getBytes(StandardCharsets.UTF_8));
+						if (providedBodyBs.length != 0) {
+							baos.write("\n".getBytes(StandardCharsets.UTF_8));
+							baos.write(providedBodyBs);
+						}
 						baos.write("\n".getBytes(StandardCharsets.UTF_8));
-						baos.write(providedBodyBs);
-					}
-					baos.write("\n".getBytes(StandardCharsets.UTF_8));
 
-					StringBuilder respSb = new StringBuilder();
-					respSb.append("# --- RESPONSE ---\n");
-					respSb.append(ParseDumpUtils.HTTP_1_1 + ' ' + status + (message == null ? "" : ' ' + message) + '\n');
-					/* provided headers */
-					for (Map.Entry<String, String> entry : responseHeaders.entrySet())
-						respSb.append(entry.getKey() + ": " + entry.getValue() + '\n');
-
-					baos.write(respSb.toString().getBytes(StandardCharsets.UTF_8));
-					if (bs.length != 0) {
+						StringBuilder respSb = new StringBuilder();
+						respSb.append("# --- RESPONSE --- #\n");
+						respSb.append(ParseDumpUtils.HTTP_1_1 + ' ' + status + (message == null ? "" : ' ' + message) + '\n');
+						if (!simpleBadRequest400) {
+							/* provided headers */
+							for (Map.Entry<String, String> entry : responseHeaders.entrySet())
+								respSb.append(processHeaderName(entry.getKey()) + ": " + entry.getValue() + '\n');
+						}
+						baos.write(respSb.toString().getBytes(StandardCharsets.UTF_8));
+						if (bs.length != 0) {
+							baos.write("\n".getBytes(StandardCharsets.UTF_8));
+							baos.write(bs);
+						}
 						baos.write("\n".getBytes(StandardCharsets.UTF_8));
-						baos.write(bs);
+						baos.flush();
+						logBs = baos.toByteArray();
 					}
-					baos.write("\n".getBytes(StandardCharsets.UTF_8));
-					baos.flush();
-					byte[] logBs = baos.toByteArray();
-					logger.log(Level.INFO, new String(logBs, StandardCharsets.UTF_8));
+					if (!noLog)
+						logger.log(Level.INFO, '\n' + new String(logBs, StandardCharsets.UTF_8));
+					if (collectFile != null)
+						Files.write(new File(collectFile).toPath(), logBs, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 					// -------------------------------------------- log -------------------------------------------- //
 
 					OutputStream responseOutputStream = response.getOutputStream();
@@ -847,4 +860,24 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		badRequest400 = getBadRequest400(allReqResps);
 	}
 
+	/**
+	 * Process header name before output
+	 *
+	 * @param s
+	 * @return
+	 */
+	private static String processHeaderName(String s) {
+		char[] arr    = s.toCharArray();
+		int    first  = 0;
+		int    second = first + 1;
+		arr[first] = Character.toUpperCase(arr[first]);
+		for (int i = second; i < arr.length - 1; i++) {
+			char c = arr[i];
+			if (c == '-') {
+				int next = i + 1;
+				arr[next] = Character.toUpperCase(arr[next]);
+			}
+		}
+		return new String(arr);
+	}
 }

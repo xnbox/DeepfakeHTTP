@@ -84,12 +84,13 @@ public class CustomMain {
 			System.out.println(sb);
 			System.exit(0);
 		} else if (info) {
-			List<String /* dump file */> dumps       = new ArrayList<>();
-			boolean[]                    noListenArr = new boolean[1];
-			boolean[]                    noEtagArr   = new boolean[1];
-
+			List<String /* dump file */> dumps          = new ArrayList<>();
+			boolean[]                    noListenArr    = new boolean[1];
+			boolean[]                    noEtagArr      = new boolean[1];
+			boolean[]                    noLogArr       = new boolean[1];
+			String[]                     collectFileArr = new String[1];
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noListenArr, noEtagArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noListenArr, noEtagArr, noLogArr, collectFileArr);
 
 				String json = serializeInfoToJson(dumps);
 				System.out.println(json);
@@ -98,12 +99,13 @@ public class CustomMain {
 			}
 			System.exit(0);
 		} else if (requests) {
-			List<String /* dump file */ > dumps       = new ArrayList<>();
-			boolean[]                     noListenArr = new boolean[1];
-			boolean[]                     noEtagArr   = new boolean[1];
-
+			List<String /* dump file */ > dumps          = new ArrayList<>();
+			boolean[]                     noListenArr    = new boolean[1];
+			boolean[]                     noEtagArr      = new boolean[1];
+			boolean[]                     noLogArr       = new boolean[1];
+			String[]                      collectFileArr = new String[1];
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noListenArr, noEtagArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noListenArr, noEtagArr, noLogArr, collectFileArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				String json = serializeRequestsToJson(allReqResps);
