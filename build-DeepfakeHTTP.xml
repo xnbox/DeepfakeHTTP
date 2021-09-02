@@ -36,7 +36,7 @@ E-Mail: xnbox.team@outlook.com
 	</echo>
 
 	<target name="main">
-		<property name="version" value="1.0.4" />
+		<property name="version" value="1.0.5" />
 		<tstamp>
 			<format property="current.time" pattern="yyyy-MM-dd HH:mm:ss" />
 		</tstamp>
