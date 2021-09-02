@@ -42,7 +42,7 @@ Options:
         --info           print dump files statistics as JSON
         --requests       print dump requests as JSON
         --port           TCP port number, default: 8080
-        --collect <file> collect live request/response dumps to file
+        --collect <file> append live request/response dumps to file
         --no-log         disable request/response console logging
         --no-etag        disable ETag optimization
         --no-watch       disable watch dump files for changes
