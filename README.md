@@ -2,7 +2,7 @@
 
 
 [![License MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE)
-[![Version 1.0.3](https://img.shields.io/badge/version-1.0.3-4DC71F?style=flat-square)](https://github.com/xnbox/DeepfakeHTTP/releases)
+[![Version 1.0.4](https://img.shields.io/badge/version-1.0.4-4DC71F?style=flat-square)](https://github.com/xnbox/DeepfakeHTTP/releases)
 [![Powered by Tommy](https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square)](https://github.com/xnbox/tommy)
 
 <br>
@@ -38,12 +38,14 @@
 java -jar df.jar [options] [dump1.txt] [dump2.txt] ...
 
 Options:
-        --help          print help message
-        --info          print dump files statistics as JSON
-        --requests      print dump requests as JSON
-        --port          TCP port number, default: 8080
-        --no-etag       disable ETag optimization
-        --no-watch      disable watch dump files for changes
+        --help           print help message
+        --info           print dump files statistics as JSON
+        --requests       print dump requests as JSON
+        --port           TCP port number, default: 8080
+        --collect <file> collect live request/response dumps to file
+        --no-log         disable request/response console logging
+        --no-etag        disable ETag optimization
+        --no-watch       disable watch dump files for changes
 ```
 
 <h2>Prerequisites</h2>
@@ -107,10 +109,11 @@ That's all.
     <li>wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in query string and header values</li>
     <li>templates in response body</li>
     <li>response body fetching from external sources like URLs, local files, and data URI</li>
-    <li>per entry user-defined request and response delays (optional)</li>
+    <li>per entry user-defined request and response delays</li>
     <li>comments in dumps</li>
-    <li>watching dump files for changes (optional)</li>
-    <li>ETag optimization (optional)</li>
+	<li>live request/response collection</li>
+    <li>watching dump files for changes</li>
+    <li>ETag optimization</li>
 </ul>
 
 <h2>License</h2>
