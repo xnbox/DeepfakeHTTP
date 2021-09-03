@@ -98,7 +98,7 @@ For more examples see: <a href="#appendix-bdump-examples">APPENDIX B.</a>
 </ol>
 That's all.
 
-<h2>Supports</h2>
+<h2>Supports:</h2>
 
 <ul>
     <li>unlimited number of request/response pairs in the dump</li>
