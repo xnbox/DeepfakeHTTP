@@ -101,6 +101,7 @@ That's all.
 <h2>Supports</h2>
 
 <ul>
+    <li>unlimited number of request/response pairs in the dump</li>
     <li>asynchronous requests and responses</li>
     <li>scriptable response body</li>
     <li>all HTTP methods</li>
