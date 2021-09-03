@@ -57,7 +57,7 @@ Options:
 
 <ol>
 	<li>Download the <a href="https://github.com/xnbox/DeepfakeHTTP/releases/latest">latest release</a> of <code>df.jar</code></li>
-	<li>Copy-paste the content of the dump example to the file <code>dump-sample.txt</code>:
+	<li>Copy-paste the content of the dump example to the file <code>dump.txt</code>:
 
 ```text
 GET /api/customer/123 HTTP/1.1
@@ -76,7 +76,7 @@ Content-Type: application/json
 	<li>Start the server from command line:
 
 ```text
-java -jar df.jar dump-sample.txt
+java -jar df.jar dump.txt
 ```
 </li>
 	<li>Use a browser to check whether the server is running: <a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a>
