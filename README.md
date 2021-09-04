@@ -6,7 +6,7 @@
 [![Powered by Tommy](https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square)](https://github.com/xnbox/tommy)
 
 <br>
-<table>
+<table width="100%">
 <tr>
 <td>
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/image.png" height="170rem">
