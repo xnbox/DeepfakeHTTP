@@ -6,6 +6,7 @@
 [![Powered by Tommy](https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square)](https://github.com/xnbox/tommy)
 
 <br>
+<center>
 <table width="100%">
 <tr>
 <td>
@@ -23,6 +24,7 @@
 </td>
 </tr>
 </table>
+</center>
 
 <h2>Features</h2>
 <ul>
