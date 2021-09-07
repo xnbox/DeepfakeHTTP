@@ -27,14 +27,62 @@ E-Mail: xnbox.team@outlook.com
 
 package org.deepfake_http.common;
 
+import org.deepfake_http.common.utils.ParseDumpUtils;
+
 public class FirstLineResp {
-	public String protocol;
-	public int    status;
-	public String message;
+
+	private String protocol;
+	private int    status;
+	private String message;
+
+	private String firstLineRespStr;
+
+	public FirstLineResp(String firstLineRespStr) throws Exception {
+		this.firstLineRespStr = firstLineRespStr;
+
+		firstLineRespStr = firstLineRespStr.trim().replace('\t', ' ');
+		int pos = firstLineRespStr.indexOf(' ');
+		protocol = firstLineRespStr.substring(0, pos);
+		if (!ParseDumpUtils.HTTP_1_1.equals(protocol))
+			throw new Exception("Bad protocol");
+		int pos2 = firstLineRespStr.indexOf(' ', pos + 1);
+		if (pos2 == -1)
+			pos2 = firstLineRespStr.length();
+		try {
+			status = Integer.parseInt(firstLineRespStr.substring(pos + 1, pos2));
+		} catch (Exception e) {
+			throw new Exception("Bad HTTP status");
+		}
+		if (pos2 != firstLineRespStr.length())
+			message = firstLineRespStr.substring(pos2 + 1).strip();
+		if (message != null && message.isEmpty())
+			message = null;
+	}
+
+	/**
+	 * @return the protocol
+	 */
+	public String getProtocol() {
+		return protocol;
+	}
+
+	/**
+	 * @return the status
+	 */
+	public int getStatus() {
+		return status;
+	}
+
+	/**
+	 * @return the message
+	 */
+	public String getMessage() {
+		return message;
+	}
 
 	@Override
 	public String toString() {
 		// E.g.: "HTTP/1.1 200 OK"
-		return protocol + ' ' + Integer.toString(status) + (message == null || message.isEmpty() ? "" : ' ' + message);
+		return firstLineRespStr;
 	}
 }
