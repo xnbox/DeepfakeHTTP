@@ -86,7 +86,9 @@ public class MatchUtils {
 				return false;
 			for (int i = 0; i < paramValuesTemplate.size(); i++) {
 				String paramValueTemplate = paramValuesTemplate.get(i);
-				String paramValueQuery    = paramValuesQuery.get(i);
+				if ("*".equals(paramValueTemplate))
+					continue;
+				String paramValueQuery = paramValuesQuery.get(i);
 				if (!match(paramValueTemplate, paramValueQuery))
 					return false;
 				List<String> paramValues = paramMap.get(paramName);
@@ -119,6 +121,22 @@ public class MatchUtils {
 			String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8) : null;
 			list.add(value);
 		}
+	}
+
+	/**
+	 * Parse path
+	 *
+	 * @param path
+	 * @return
+	 */
+	public static List<String> extractPathParams(String path) {
+		List<String> tokens    = tokenizePath(path);
+		List<String> paramList = new ArrayList<>();
+		for (String token : tokens) {
+			if (token.startsWith("{") && token.endsWith("}"))
+				paramList.add(token.substring(1, token.length() - 1));
+		}
+		return paramList;
 	}
 
 	/**
