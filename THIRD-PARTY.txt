@@ -38,6 +38,12 @@ HOME PAGE  : https://github/xnbox/tommy
 DESCRIPTION: Used as embedded Java Application Server.
 
 
+NAME       : Swagger UI
+LICENSE    : Apache License 2.0
+HOME PAGE  : https://github.com/swagger-api/swagger-ui
+DESCRIPTION: Used as client for OpenAPI
+
+
 NAME       : Shhh (#2) image by oksmith
 LICENSE    : Public domain
 HOME PAGE  : https://openclipart.org/detail/301958/shhh-2
