@@ -31,15 +31,14 @@ E-Mail: xnbox.team@outlook.com
 -->
 
 <project default="main">
+
 	<echo>${ant.version}</echo>
 	<echo>
 	</echo>
 
 	<target name="main">
-		<property name="version" value="1.0.5" />
-		<tstamp>
-			<format property="current.time" pattern="yyyy-MM-dd HH:mm:ss" />
-		</tstamp>
+		<property name="dollar" value="$" />
+		<property name="build.version" value="1.0.5" />
 
 		<delete file="${java.io.tmpdir}/app.war" failonerror="false" />
 		<war destfile="${java.io.tmpdir}/app.war" webxml="${basedir}/WEB-INF/web.xml" manifest="${basedir}/META-INF/MANIFEST.MF">
@@ -50,10 +49,21 @@ E-Mail: xnbox.team@outlook.com
 
 		<delete dir="${java.io.tmpdir}/DeepfakeHTTP" />
 		<unzip src="${basedir}/../tommy/RELEASE/tommy-10.0.8.jar" dest="${java.io.tmpdir}/DeepfakeHTTP" />
+
+		<tstamp>
+			<format property="build.timestamp" pattern="yyyy-MM-dd HH:mm:ss" />
+		</tstamp>
+		<delete dir="${java.io.tmpdir}/DeepfakeHTTP/META-INF" />
+		<copy todir="${java.io.tmpdir}/DeepfakeHTTP/META-INF">
+			<fileset dir="${basedir}/../tommy/META-INF" />
+		</copy>
+		<replace file="${java.io.tmpdir}/DeepfakeHTTP/META-INF/MANIFEST.MF" token="${dollar}{build.version}" value="v${build.version}" />
+		<replace file="${java.io.tmpdir}/DeepfakeHTTP/META-INF/MANIFEST.MF" token="${dollar}{build.timestamp}" value="${build.timestamp}" />
+
 		<delete file="${java.io.tmpdir}/DeepfakeHTTP/org/tommy/main/CustomMain.class" />
 
-		<delete file="${basedir}/RELEASE/df-${version}.jar" failonerror="false" />
-		<zip destfile="${basedir}/RELEASE/df-${version}.jar" level="9">
+		<delete file="${basedir}/RELEASE/df-${build.version}.jar" failonerror="false" />
+		<zip destfile="${basedir}/RELEASE/df-${build.version}.jar" level="9">
 			<zipfileset prefix="" dir="${java.io.tmpdir}/DeepfakeHTTP" />
 			<zipfileset prefix="" dir="${basedir}/bin" />
 			<zipfileset prefix="" file="${java.io.tmpdir}/app.war" />
