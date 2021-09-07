@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang=en>
+<!--
+MIT License
+
+Copyright (c) 2021 xnbox team
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+HOME:   https://xnbox.github.io
+E-Mail: xnbox.team@outlook.com
+-->
+
+<head>
+
+<script type="text/javascript">
+	document.title = "${title}";
+</script>
+
+<script type="text/javascript">
+	let href = new URL(window.location.href).pathname;
+    if (!href.endsWith('/index.html')) {
+	    var baseEl = document.createElement('base');
+	    if (!href.endsWith('/'))
+		    href = href + '/';
+	    baseEl.href = href;
+	    document.getElementsByTagName('head')[0].prepend(baseEl);
+    }
+</script>
+
+<meta charset=utf-8>
+<meta name=viewport content=width=device-width, initial-scale=1, shrink-to-fit=no>
+
+<link rel="icon" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="favicon-32x32.png">
+<link rel="shortcut icon" href="favicon-32x32.png">
+
+<link rel="stylesheet" type="text/css" href="swagger-ui.css">
+
+<style>
+html {
+	box-sizing: border-box;
+	overflow: -moz-scrollbars-vertical;
+	overflow-y: scroll;
+}
+
+*, *:before, *:after {
+	box-sizing: inherit;
+}
+
+body {
+	margin: 0;
+	background: #fafafa;
+}
+
+.topbar {
+	display: none;
+}
+</style>
+<script src="swagger-ui-bundle.js" charset="UTF-8"></script>
+<script src="swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+</head>
+<body>
+	<div id="swagger-ui"></div>
+
+	<script>
+		window.onload = function() {
+	        const ui = SwaggerUIBundle({
+	            url : "openapi.json",
+	            //urls: ["http://localhost:8080/openapi.json"],
+	            showCommonExtensions : false,
+	            displayRequestDuration : true,
+	            showRequestHeaders : false,
+	            showResponseHeaders : false,
+	            dom_id : '#swagger-ui',
+	            deepLinking : true,
+	            layout : 'StandaloneLayout',
+	            validatorUrl : null,
+	            presets : [ SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset ],
+	            plugins : [ SwaggerUIBundle.plugins.DownloadUrl, SwaggerUIBundle.plugins.Topbar ],
+	        });
+	        window.ui = ui;
+        }
+	</script>
+
+</body>
+</html>
