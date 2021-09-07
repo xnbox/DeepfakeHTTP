@@ -72,6 +72,7 @@ import org.deepfake_http.common.utils.DataUriUtils;
 import org.deepfake_http.common.utils.HttpPathUtils;
 import org.deepfake_http.common.utils.JacksonUtils;
 import org.deepfake_http.common.utils.MatchUtils;
+import org.deepfake_http.common.utils.OpenApiUtils;
 import org.deepfake_http.common.utils.ParseCommandLineUtils;
 import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.mozilla.javascript.Context;
@@ -100,19 +101,27 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	public static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
+
 	private static final String HTTP_HEADER_CONNECTION     = "Connection";
 	private static final String HTTP_HEADER_CONTENT_LENGTH = "Content-Length";
-	private static final String HTTP_HEADER_CONTENT_TYPE   = "Content-Type";
 	private static final String HTTP_HEADER_IF_NONE_MATCH  = "If-None-Match";
 	private static final String HTTP_HEADER_E_TAG          = "ETag";
 	private static final String HTTP_HEADER_X_POWERED_BY   = "X-Powered-By";  // non-standard
 
 	/* internal, not sended with response  */
-	private static final String INTERNAL_HTTP_HEADER_X_SERVER_BODY_TYPE      = "X-Body-Type";     // non-standard
-	private static final String INTERNAL_HTTP_HEADER_X_SERVER_REQUEST_DELAY  = "X-Request-Delay"; // non-standard
-	private static final String INTERNAL_HTTP_HEADER_X_SERVER_RESPONSE_DELAY = "X-Response-Delay";// non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_BODY_TYPE      = "X-Body-Type";      // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_REQUEST_DELAY  = "X-Request-Delay";  // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_RESPONSE_DELAY = "X-Response-Delay"; // response non-standard
+
+	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY     = "X-OpenAPI-Summary";    // request non-standard
+	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION = "X-OpenAPI-Description";// request non-standard
+	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_TAGS        = "X-OpenAPI-Tags";       // request non-standard
 
 	private static final String X_POWERED_BY_VALUE = "DeepfakeHTTP";
+
+	private byte[] openApiJsonBs;
+	private byte[] openApiYamlBs;
 
 	/* CLI flags */
 	private boolean noWatch;
@@ -120,6 +129,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noLog;
 
 	private String collectFile;
+	private String openApiPath;
 
 	private List<String /* dump file */> dumps;
 
@@ -214,6 +224,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		boolean[] noEtagArr      = new boolean[1];
 		boolean[] noLogArr       = new boolean[1];
 		String[]  collectFileArr = new String[1];
+		String[]  openApiPathArr = new String[1];
 
 		try {
 			InitialContext ctx = new InitialContext();
@@ -221,11 +232,13 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr);
+			ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr);
+
 			noWatch     = noWatchArr[0];
 			noEtag      = noEtagArr[0];
 			noLog       = noLogArr[0];
 			collectFile = collectFileArr[0];
+			openApiPath = openApiPathArr[0];
 
 			boolean activateDirWatchers = !noWatch;
 			reload(activateDirWatchers);
@@ -367,9 +380,15 @@ public class DeepfakeHttpServlet extends HttpServlet {
 				HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
 
 				try {
+					String method       = request.getMethod().trim().toUpperCase(Locale.ENGLISH);
+					String providedPath = request.getServletPath() + request.getPathInfo();
 
-					String method              = request.getMethod().trim().toUpperCase(Locale.ENGLISH);
-					String providedPath        = request.getServletPath() + request.getPathInfo();
+					if (providedPath.equals(openApiPath) || providedPath.startsWith(openApiPath + '/')) {
+						providedPath = providedPath.substring(openApiPath.length());
+						hostOpenApiUi(asyncContext, response, providedPath);
+						return;
+					}
+
 					String providedQueryString = request.getQueryString();
 					if (providedQueryString == null)
 						providedQueryString = "";
@@ -394,12 +413,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					ReqResp                   reqResp                 = null;
 					Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();
 					for (ReqResp rr : allReqResps) {
-						FirstLineReq firstLineReq        = ParseDumpUtils.parseFirstLineReq(rr.request.firstLine);
-						boolean      protocolOk          = firstLineReq.protocol.equals(ParseDumpUtils.HTTP_1_1);
-						boolean      methodOk            = firstLineReq.method.equals(method);
-						String       templatePath        = HttpPathUtils.extractPathFromUri(firstLineReq.uri);
+						FirstLineReq firstLineReq        = new FirstLineReq(rr.request.firstLine);
+						boolean      protocolOk          = firstLineReq.getProtocol().equals(ParseDumpUtils.HTTP_1_1);
+						boolean      methodOk            = firstLineReq.getMethod().equals(method);
+						String       templatePath        = HttpPathUtils.extractPathFromUri(firstLineReq.getUri());
 						boolean      pathOk              = MatchUtils.matchPath(templatePath, providedPath, providedParams);
-						String       templateQueryString = HttpPathUtils.extractQueryStringFromUri(firstLineReq.uri);
+						String       templateQueryString = HttpPathUtils.extractQueryStringFromUri(firstLineReq.getUri());
 						boolean      queryStringOk       = MatchUtils.matchQuery(templateQueryString, providedQueryString, providedParams);
 						if ( //
 						protocolOk && //
@@ -409,13 +428,13 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						) {
 
 							for (String headerStr : rr.request.headers) {
-								Header header              = ParseDumpUtils.parseHeader(headerStr);
+								Header header              = new Header(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 								if (lowerCaseHeaderName.equals(INTERNAL_HTTP_HEADER_X_SERVER_REQUEST_DELAY.toLowerCase(Locale.ENGLISH)))
 									requestDelay = Integer.parseInt(header.value);
 							}
 							for (String headerStr : rr.response.headers) {
-								Header header              = ParseDumpUtils.parseHeader(headerStr);
+								Header header              = new Header(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 								if (INTERNAL_HTTP_HEADER_X_SERVER_BODY_TYPE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									bodyType = header.value;
@@ -428,9 +447,17 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							/* headers from file */
 							Map<String, List<String>> headerValuesMap = new LinkedHashMap<>();
 							for (String headerStr : rr.request.headers) {
-								Header       header              = ParseDumpUtils.parseHeader(headerStr);
-								String       lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
-								List<String> headerValuesList    = headerValuesMap.get(lowerCaseHeaderName);
+								Header header              = new Header(headerStr);
+								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
+								// ignore internal headers
+								if (INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									continue;
+								if (INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									continue;
+								if (INTERNAL_HTTP_HEADER_X_OPENAPI_TAGS.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									continue;
+
+								List<String> headerValuesList = headerValuesMap.get(lowerCaseHeaderName);
 								if (headerValuesList == null) {
 									headerValuesList = new ArrayList<>();
 									headerValuesMap.put(lowerCaseHeaderName, headerValuesList);
@@ -507,20 +534,20 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						simpleBadRequest400 = false;
 
 					String        responseFirstLineStr = reqResp.response.firstLine;
-					FirstLineResp firstLineResp        = ParseDumpUtils.parseFirstLineResp(responseFirstLineStr);
+					FirstLineResp firstLineResp        = new FirstLineResp(responseFirstLineStr);
 
 					byte[] bs;
-					int    status = firstLineResp.status;
+					int    status = firstLineResp.getStatus();
 					if (simpleBadRequest400)
 						bs = new byte[0];
 
-					String              message         = firstLineResp.message;
+					String              message         = firstLineResp.getMessage();
 					String              mime            = null;
 					String              encoding        = null;
 					Map<String, String> responseHeaders = new LinkedHashMap<>();
 
 					for (String headerStr : reqResp.response.headers) {
-						Header header              = ParseDumpUtils.parseHeader(headerStr);
+						Header header              = new Header(headerStr);
 						String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 
 						if (INTERNAL_HTTP_HEADER_X_SERVER_BODY_TYPE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
@@ -540,7 +567,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						Thread.sleep(requestDelay);
 
 					for (String headerStr : reqResp.request.headers) {
-						Header header              = ParseDumpUtils.parseHeader(headerStr);
+						Header header              = new Header(headerStr);
 						String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 
 						if (HTTP_HEADER_CONNECTION.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
@@ -548,7 +575,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					}
 
 					for (String headerStr : reqResp.response.headers) {
-						Header header              = ParseDumpUtils.parseHeader(headerStr);
+						Header header              = new Header(headerStr);
 						String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 
 						if (HTTP_HEADER_CONNECTION.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
@@ -571,7 +598,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						bs   = body.getBytes(StandardCharsets.UTF_8);
 					} else if ("application/x-sh".equals(bodyType)) {
 						Map<String, Object> http    = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
-						String              json    = JacksonUtils.stringifyToJson(http) + '\n';
+						String              json    = JacksonUtils.stringifyToJsonYaml(http, JacksonUtils.FORMAT_JSON, false) + '\n';
 						Path                tmpFile = Files.createTempFile("df-", "tmp");
 						Files.write(tmpFile, body.getBytes(StandardCharsets.UTF_8));
 						Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
@@ -735,6 +762,52 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						}
 				}
 			}
+
+			private void hostOpenApiUi(AsyncContext asyncContext, HttpServletResponse response, String providedPath) throws IOException {
+				byte[] bs   = null;
+				String mime = null;
+				if (providedPath.isEmpty() || "/".equals(providedPath))
+					providedPath = "/index.html";
+
+				if ("/openapi.json".equals(providedPath)) {
+					mime = "application/json";
+					bs   = openApiJsonBs;
+				} else if ("/openapi.yaml".equals(providedPath)) {
+					mime = "text/yaml";
+					bs   = openApiYamlBs;
+				} else if (providedPath.endsWith(".html")) {
+					mime = "text/html";
+					String text = new String(getFileContent(providedPath), StandardCharsets.UTF_8);
+					if (providedPath.startsWith("/index.html")) {
+						String openApiHtmlTitle = "tttttttttttttt";
+						String favicon          = "kkkkkkkkkkkkkkkkkkkkkkkkkkkkk";
+						if (openApiHtmlTitle == null)
+							openApiHtmlTitle = "";
+						text = text.replace("${title}", openApiHtmlTitle);
+						if (favicon == null)
+							favicon = "";
+						text = text.replace("${favicon}", favicon);
+					}
+					bs = text.getBytes(StandardCharsets.UTF_8);
+				} else if (providedPath.endsWith(".js")) {
+					mime = "text/javascript";
+					bs   = getFileContent(providedPath);
+				} else if (providedPath.endsWith(".png")) {
+					mime = "image/png";
+					bs   = getFileContent(providedPath);
+				} else if (providedPath.endsWith(".css")) {
+					mime = "text/css";
+					bs   = getFileContent(providedPath);
+				}
+				if (mime != null)
+					response.setContentType(mime);
+				if (bs != null) {
+					OutputStream responseOutputStream = response.getOutputStream();
+					responseOutputStream.write(bs);
+					responseOutputStream.flush();
+				}
+				asyncContext.complete();
+			}
 		});
 
 	}
@@ -826,8 +899,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 */
 	private static ReqResp getBadRequest400(List<ReqResp> reqResps) throws Exception {
 		for (ReqResp reqResp : reqResps) {
-			FirstLineResp firstLineResp = ParseDumpUtils.parseFirstLineResp(reqResp.response.firstLine);
-			if (firstLineResp.status == HttpServletResponse.SC_BAD_REQUEST)
+			FirstLineResp firstLineResp = new FirstLineResp(reqResp.response.firstLine);
+			if (firstLineResp.getStatus() == HttpServletResponse.SC_BAD_REQUEST)
 				return reqResp;
 		}
 		return null;
@@ -840,6 +913,15 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 */
 	private void reload(boolean activateDirWatchers) throws Throwable {
 		allReqResps = ParseCommandLineUtils.getAllReqResp(logger, dumps);
+
+		/* Create OpenAPI JSON */
+		Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps);
+
+		String openApiJson = JacksonUtils.stringifyToJsonYaml(openApiMap, JacksonUtils.FORMAT_JSON, true);
+		openApiJsonBs = openApiJson.getBytes(StandardCharsets.UTF_8);
+
+		String openApiYaml = JacksonUtils.stringifyToJsonYaml(openApiMap, JacksonUtils.FORMAT_YAML, true);
+		openApiYamlBs = openApiYaml.getBytes(StandardCharsets.UTF_8);
 
 		for (String dumpFile : dumps) {
 			Path path     = new File(dumpFile).toPath();
@@ -879,5 +961,13 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			}
 		}
 		return new String(arr);
+	}
+
+	private static byte[] getFileContent(String path) throws IOException {
+		try (InputStream is = DeepfakeHttpServlet.class.getResourceAsStream("/openapi" + path)) {
+			if (is == null)
+				return new byte[0];
+			return is.readAllBytes();
+		}
 	}
 }

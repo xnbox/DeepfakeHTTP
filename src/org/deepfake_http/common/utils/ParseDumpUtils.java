@@ -31,9 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.deepfake_http.common.FirstLineReq;
-import org.deepfake_http.common.FirstLineResp;
-import org.deepfake_http.common.Header;
 import org.deepfake_http.common.HttpMethod;
 import org.deepfake_http.common.ReqResp;
 
@@ -227,61 +224,6 @@ public class ParseDumpUtils {
 		if (!sb.isEmpty())
 			lines.add(sb.toString());
 		return lines;
-	}
-
-	public static FirstLineReq parseFirstLineReq(String firstLine) throws Exception {
-		firstLine = firstLine.trim();
-		FirstLineReq firstLineReq = new FirstLineReq();
-		String[]     arr          = firstLine.split("\s");
-		firstLineReq.method = arr[0];
-		try {
-			HttpMethod.valueOf(firstLineReq.method.toUpperCase(Locale.ENGLISH));
-		} catch (Exception e) {
-			throw new Exception("Bad HTTP method");
-		}
-		firstLineReq.uri = arr[1].trim();
-		if (firstLineReq.uri.isEmpty())
-			throw new Exception("Empty URI");
-
-		firstLineReq.protocol = arr[2];
-		if (!HTTP_1_1.equals(firstLineReq.protocol))
-			throw new Exception("Bad protocol");
-		return firstLineReq;
-	}
-
-	public static FirstLineResp parseFirstLineResp(String firstLine) throws Exception {
-		firstLine = firstLine.trim().replace('\t', ' ');
-		FirstLineResp firstLineResp = new FirstLineResp();
-		int pos = firstLine.indexOf(' ');
-		firstLineResp.protocol = firstLine.substring(0, pos);
-		if (!HTTP_1_1.equals(firstLineResp.protocol))
-			throw new Exception("Bad protocol");
-		try {
-			int pos2 = firstLine.indexOf(' ', pos + 1);
-			if (pos2 == -1)
-				pos2 = firstLine.length();
-			firstLineResp.status = Integer.parseInt(firstLine.substring(pos + 1, pos2));
-			firstLineResp.message = firstLine.substring(pos2 + 1).strip();
-			if (firstLineResp.message.isEmpty())
-				firstLineResp.message = null;
-		} catch (Exception e) {
-			throw new Exception("Bad HTTP status");
-		}
-		return firstLineResp;
-	}
-
-	public static Header parseHeader(String line) throws Exception {
-		int pos = line.indexOf(':');
-		if (pos == -1)
-			throw new Exception("Invalid header (missing ':')!");
-		Header header = new Header();
-		header.name = line.substring(0, pos).trim();
-		if (header.name.isEmpty())
-			throw new Exception("Invalid header (missing header name)!");
-		header.value = line.substring(pos + 1).trim();
-		if (header.value.isEmpty())
-			throw new Exception("Invalid header (missing header value)!");
-		return header;
 	}
 
 }
