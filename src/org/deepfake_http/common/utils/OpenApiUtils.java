@@ -148,7 +148,7 @@ public class OpenApiUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Map<String, Object> createOpenApiMap(List<ReqResp> allReqResps) throws Throwable {
+	public static Map<String, Object> createOpenApiMap(List<ReqResp> allReqResps, String title) throws Throwable {
 		Map<String, Object> mapPaths = new LinkedHashMap<>(allReqResps.size());
 		for (ReqResp reqResp : allReqResps) {
 			FirstLineReq  firstLineReq  = new FirstLineReq(reqResp.request.firstLine);
@@ -301,7 +301,7 @@ public class OpenApiUtils {
 		mapOpenApi.put("info", mapInfo);
 		mapOpenApi.put("paths", mapPaths);
 		mapInfo.put("version", "");
-		mapInfo.put("title", "");
+		mapInfo.put("title", title);
 		return mapOpenApi;
 	}
 }

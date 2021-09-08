@@ -130,6 +130,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 	private String collectFile;
 	private String openApiPath;
+	private String openApiTitle;
 
 	private List<String /* dump file */> dumps;
 
@@ -220,11 +221,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		logger.log(Level.INFO, "DeepfakeHTTP Logger: HELLO!");
 
 		dumps = new ArrayList<>();
-		boolean[] noWatchArr     = new boolean[1];
-		boolean[] noEtagArr      = new boolean[1];
-		boolean[] noLogArr       = new boolean[1];
-		String[]  collectFileArr = new String[1];
-		String[]  openApiPathArr = new String[1];
+		boolean[] noWatchArr      = new boolean[1];
+		boolean[] noEtagArr       = new boolean[1];
+		boolean[] noLogArr        = new boolean[1];
+		String[]  collectFileArr  = new String[1];
+		String[]  openApiPathArr  = new String[1];
+		String[]  openApiTitleArr = new String[1];
 
 		try {
 			InitialContext ctx = new InitialContext();
@@ -232,13 +234,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr);
+			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
 
-			noWatch     = noWatchArr[0];
-			noEtag      = noEtagArr[0];
-			noLog       = noLogArr[0];
-			collectFile = collectFileArr[0];
-			openApiPath = openApiPathArr[0];
+			noWatch      = noWatchArr[0];
+			noEtag       = noEtagArr[0];
+			noLog        = noLogArr[0];
+			collectFile  = collectFileArr[0];
+			openApiPath  = openApiPathArr[0];
+			openApiTitle = openApiTitleArr[0];
+			if (openApiTitle == null)
+				openApiTitle = "";
 
 			boolean activateDirWatchers = !noWatch;
 			reload(activateDirWatchers);
@@ -779,14 +784,10 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					mime = "text/html";
 					String text = new String(getFileContent(providedPath), StandardCharsets.UTF_8);
 					if (providedPath.startsWith("/index.html")) {
-						String openApiHtmlTitle = "tttttttttttttt";
-						String favicon          = "kkkkkkkkkkkkkkkkkkkkkkkkkkkkk";
+						String openApiHtmlTitle = openApiTitle;
 						if (openApiHtmlTitle == null)
 							openApiHtmlTitle = "";
 						text = text.replace("${title}", openApiHtmlTitle);
-						if (favicon == null)
-							favicon = "";
-						text = text.replace("${favicon}", favicon);
 					}
 					bs = text.getBytes(StandardCharsets.UTF_8);
 				} else if (providedPath.endsWith(".js")) {
@@ -915,7 +916,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		allReqResps = ParseCommandLineUtils.getAllReqResp(logger, dumps);
 
 		/* Create OpenAPI JSON */
-		Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps);
+		Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitle);
 
 		String openApiJson = JacksonUtils.stringifyToJsonYaml(openApiMap, JacksonUtils.FORMAT_JSON, true);
 		openApiJsonBs = openApiJson.getBytes(StandardCharsets.UTF_8);

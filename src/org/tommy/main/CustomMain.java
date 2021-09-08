@@ -45,7 +45,7 @@ public class CustomMain {
 	private static final String ARGS_PRINT_REQUESTS = "--print-requests";
 	private static final String ARGS_PRINT_OPENAPI  = "--print-openapi";
 	private static final String ARGS_FORMAT         = "--format";
-	private static final String ARGS_PRETTYPRINT    = "--prettyprint";
+	private static final String ARGS_PRETTY         = "--pretty";
 
 	/**
 	 * Custom main method (called for emmbedded web apps)
@@ -53,12 +53,12 @@ public class CustomMain {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		boolean help        = false;
-		boolean info        = false;
-		boolean requests    = false;
-		boolean openapi     = false;
-		boolean prettyprint = false;
-		String  format      = "json";
+		boolean help     = false;
+		boolean info     = false;
+		boolean requests = false;
+		boolean openapi  = false;
+		boolean pretty   = false;
+		String  format   = "json";
 
 		for (int i = 0; i < args.length; i++)
 			if (args[i].equals(ARGS_HELP_OPTION)) {
@@ -70,8 +70,8 @@ public class CustomMain {
 				requests = true;
 			else if (args[i].equals(ARGS_PRINT_OPENAPI))
 				openapi = true;
-			else if (args[i].equals(ARGS_PRETTYPRINT))
-				prettyprint = true;
+			else if (args[i].equals(ARGS_PRETTY))
+				pretty = true;
 			else if (args[i].equals(ARGS_FORMAT)) {
 				if (i < args.length - 1)
 					format = args[++i].toLowerCase(Locale.ENGLISH);
@@ -80,76 +80,86 @@ public class CustomMain {
 		if (help) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("\n");
-			sb.append(" 🟩 DeepfakeHTTP Web Server " + System.getProperty("build.version") + '\n');
-			sb.append("\n");
-			sb.append(" Usage:\n");
-			sb.append("\n");
-			sb.append(" java -jar df.jar [options] [dump1.txt] [dump2.txt] ...\n");
-			sb.append("\n");
-			sb.append(" Options:\n");
-			sb.append("   --help                print help message\n");
-			sb.append("   --print-info          print dump files statistics to stdout as JSON/YAML\n");
-			sb.append("   --print-requests      print dump requests to stdout as JSON/YAML\n");
-			sb.append("   --print-openapi       print OpenAPI specification to stdout as JSON/YAML\n");
-			sb.append("   --format <json|yaml>  output format for --print-* options, default: json\n");
-			sb.append("   --prettyprint         prettyprint for --print-* options\n");
-			sb.append("   --openapi-path <path> serve OpenAPI spec and client at specified context path\n");
-			sb.append("   --port                TCP port number, default: 8080\n");
-			sb.append("   --collect <file>      append live request/response dumps to file\n");
-			sb.append("   --no-log              disable request/response console logging\n");
-			sb.append("   --no-etag             disable ETag optimization\n");
-			sb.append("   --no-watch            disable watch dump files for changes\n");
+			sb.append("🟩 DeepfakeHTTP Web Server " + System.getProperty("build.version") + '\n');
+			sb.append("                                                                               \n");
+			sb.append("java -jar df.jar [options] <file>...                                           \n");
+			sb.append("                                                                               \n");
+			sb.append("Options:                                                                       \n");
+			sb.append("                                                                               \n");
+			sb.append("    SERVER SETTINGS:                                                           \n");
+			sb.append("                                                                               \n");
+			sb.append("    --port                 TCP port number, default: 8080                      \n");
+			sb.append("    --openapi-path <path>  serve OpenAPI client at specified context path      \n");
+			sb.append("    --openapi-title <text> provide custom OpenAPI spec title                   \n");
+			sb.append("    --collect <file>       collect live request/response to file               \n");
+			sb.append("    --no-log               disable request/response console logging            \n");
+			sb.append("    --no-etag              disable ETag optimization                           \n");
+			sb.append("    --no-watch             disable watch files for changes                     \n");
+			sb.append("                                                                               \n");
+			sb.append("                                                                               \n");
+			sb.append("    ️OTHER:                                                                     \n");
+			sb.append("                                                                               \n");
+			sb.append("    --help                 print help message                                  \n");
+			sb.append("    --print-requests       print dump requests to stdout                       \n");
+			sb.append("    --print-info           print dump files statistics to stdout               \n");
+			sb.append("    --print-openapi        print OpenAPI specification to stdout               \n");
+			sb.append("    --format <json|yaml>   set output format for print-* options, default: json\n");
+			sb.append("    --pretty               enable prettyprint for print-* options              \n");
 
 			System.out.println(sb);
 			System.exit(0);
 		} else if (info) {
-			List<String /* dump file */> dumps          = new ArrayList<>();
-			boolean[]                    noWatchArr     = new boolean[1];
-			boolean[]                    noEtagArr      = new boolean[1];
-			boolean[]                    noLogArr       = new boolean[1];
-			String[]                     collectFileArr = new String[1];
-			String[]                     openApiPathArr = new String[1];
-			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr);
+			List<String /* dump file */> dumps           = new ArrayList<>();
+			boolean[]                    noWatchArr      = new boolean[1];
+			boolean[]                    noEtagArr       = new boolean[1];
+			boolean[]                    noLogArr        = new boolean[1];
+			String[]                     collectFileArr  = new String[1];
+			String[]                     openApiPathArr  = new String[1];
+			String[]                     openApiTitleArr = new String[1];
 
-				String json = serializeInfoToJson(dumps, format, prettyprint);
+			try {
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
+
+				String json = serializeInfoToJson(dumps, format, pretty);
 				System.out.println(json);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 			System.exit(0);
 		} else if (requests) {
-			List<String /* dump file */ > dumps          = new ArrayList<>();
-			boolean[]                     noWatchArr     = new boolean[1];
-			boolean[]                     noEtagArr      = new boolean[1];
-			boolean[]                     noLogArr       = new boolean[1];
-			String[]                      collectFileArr = new String[1];
-			String[]                      openApiPathArr = new String[1];
+			List<String /* dump file */ > dumps           = new ArrayList<>();
+			boolean[]                     noWatchArr      = new boolean[1];
+			boolean[]                     noEtagArr       = new boolean[1];
+			boolean[]                     noLogArr        = new boolean[1];
+			String[]                      collectFileArr  = new String[1];
+			String[]                      openApiPathArr  = new String[1];
+			String[]                      openApiTitleArr = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
-				String json = serializeRequestsToJson(allReqResps, format, prettyprint);
+				String json = serializeRequestsToJson(allReqResps, format, pretty);
 				System.out.println(json);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 			System.exit(0);
 		} else if (openapi) {
-			List<String /* dump file */ > dumps          = new ArrayList<>();
-			boolean[]                     noWatchArr     = new boolean[1];
-			boolean[]                     noEtagArr      = new boolean[1];
-			boolean[]                     noLogArr       = new boolean[1];
-			String[]                      collectFileArr = new String[1];
-			String[]                      openApiPathArr = new String[1];
+			List<String /* dump file */ > dumps           = new ArrayList<>();
+			boolean[]                     noWatchArr      = new boolean[1];
+			boolean[]                     noEtagArr       = new boolean[1];
+			boolean[]                     noLogArr        = new boolean[1];
+			String[]                      collectFileArr  = new String[1];
+			String[]                      openApiPathArr  = new String[1];
+			String[]                      openApiTitleArr = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
-				Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps);
-				String              json       = JacksonUtils.stringifyToJsonYaml(openApiMap, format, prettyprint);
+				Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitleArr[0]);
+				String              json       = JacksonUtils.stringifyToJsonYaml(openApiMap, format, pretty);
 				System.out.println(json);
 			} catch (Throwable e) {
 				e.printStackTrace();

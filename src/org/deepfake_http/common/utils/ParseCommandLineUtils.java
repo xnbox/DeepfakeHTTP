@@ -41,12 +41,19 @@ import org.deepfake_http.common.ReqResp;
 
 public class ParseCommandLineUtils {
 	/* command line args */
-	private static final String ARGS_NO_WATCH_OPTION = "--no-watch";    // disable watch dump files for changes
-	private static final String ARGS_NO_ETAG_OPTION  = "--no-etag";     // disable ETag optimization
-	private static final String ARGS_NO_LOG_OPTION   = "--no-log";      // disable request/response console logging
-	private static final String ARGS_COLLECT_OPTION  = "--collect";     // collect live request/response dumps to file
+	private static final String ARGS_NO_WATCH_OPTION = "--no-watch";     // disable watch dump files for changes
+	private static final String ARGS_NO_ETAG_OPTION  = "--no-etag";      // disable ETag optimization
+	private static final String ARGS_NO_LOG_OPTION   = "--no-log";       // disable request/response console logging
+	private static final String ARGS_COLLECT_OPTION  = "--collect";      // collect live request/response dumps to file
 	private static final String ARGS_OPENAPI_PATH    = "--openapi-path";
+	private static final String ARGS_OPENAPI_TITLE   = "--openapi-title";
 
+	/**
+	 * 
+	 * @param dumpFile
+	 * @return
+	 * @throws Throwable
+	 */
 	public static List<ReqResp> getDumpReqResp(String dumpFile) throws Throwable {
 		String dump = Files.readString(new File(dumpFile).toPath());
 		dump = dump.stripLeading();
@@ -61,6 +68,13 @@ public class ParseCommandLineUtils {
 		return reqResps;
 	}
 
+	/**
+	 * 
+	 * @param logger
+	 * @param dumps
+	 * @return
+	 * @throws Throwable
+	 */
 	public static List<ReqResp> getAllReqResp(Logger logger, List<String /* dump file */> dumps) throws Throwable {
 		List<ReqResp> allReqResps = new ArrayList<>();
 		int           fileCount   = 0;
@@ -76,7 +90,20 @@ public class ParseCommandLineUtils {
 		return allReqResps;
 	}
 
-	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noWatchArr, boolean[] noEtagArr, boolean[] noLogArr, String[] collectFileArr, String[] openApiPathArr) throws Throwable {
+	/**
+	 * 
+	 * @param logger
+	 * @param args
+	 * @param dumps
+	 * @param noWatchArr
+	 * @param noEtagArr
+	 * @param noLogArr
+	 * @param collectFileArr
+	 * @param openApiPathArr
+	 * @param openApiTitleArr
+	 * @throws Throwable
+	 */
+	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noWatchArr, boolean[] noEtagArr, boolean[] noLogArr, String[] collectFileArr, String[] openApiPathArr, String[] openApiTitleArr) throws Throwable {
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals(ARGS_NO_WATCH_OPTION))
 				noWatchArr[0] = true;
@@ -90,6 +117,9 @@ public class ParseCommandLineUtils {
 			} else if (args[i].equals(ARGS_OPENAPI_PATH)) {
 				if (i < args.length - 1)
 					openApiPathArr[0] = args[++i];
+			} else if (args[i].equals(ARGS_OPENAPI_TITLE)) {
+				if (i < args.length - 1)
+					openApiTitleArr[0] = args[++i];
 			} else {
 				String fileName = args[i];
 				Path   path     = Paths.get(fileName);
