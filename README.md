@@ -177,7 +177,7 @@ APPENDIX A.
 Optional request headers (used in OpenAPI)
 </h2>
 <table>
-    <tr><th width="21%" >Header</th>                                <th>Description</th></tr>
+    <tr><th width="22%" >Header</th>                                <th>Description</th></tr>
     <tr></tr>
     <tr><td valign="top"><code>X-OpenAPI-Summary     </code></td>
     <td>
