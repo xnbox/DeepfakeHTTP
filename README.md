@@ -162,7 +162,7 @@ That's all.
     <li>Comments in dumps: <code> #</code></li>
     <li>Live request/response collection. See: CLI option <code>--collect</code>.</li>
     <li>Optional watching dump files for changes. See: CLI option <code>--no-watch</code>.</li>
-    <li>Optional ETag optimization (See: CLI option <code>--no-etag</code>.</li>
+    <li>Optional ETag optimization. See: CLI option <code>--no-etag</code>.</li>
     <li>Optional live request/response logging. See: CLI option <code>--no-log</code>.</li>
 </ul>
 
