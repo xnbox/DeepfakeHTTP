@@ -203,7 +203,7 @@ X-OpenAPI-Summary: Get customer information
 HTTP/1.1 200 OK
 Content-Type: application/json
 X-OpenAPI-Summary: Get customer information
-X-OpenAPI-Description: This API extracts customer information from MySql database
+X-OpenAPI-Description: This API extracts customer information from db
 
 {"id": 5, "name": "John Doe"}
 ```
@@ -219,7 +219,7 @@ X-OpenAPI-Description: This API extracts customer information from MySql databas
 HTTP/1.1 200 OK
 Content-Type: application/json
 X-OpenAPI-Summary: Get customer information
-X-OpenAPI-Description: This API extracts customer information from MySql database
+X-OpenAPI-Description: This API extracts customer information from db
 X-OpenAPI-Tags: Work with customer, Buyers, Login info
 
 {"id": 5, "name": "John Doe"}
