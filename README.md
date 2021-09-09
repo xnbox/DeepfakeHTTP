@@ -174,7 +174,7 @@ The <strong>DeepfakeHTTP</strong> is released under the <a href="https://github.
 <h2>
 APPENDIX A.
 <br>
-Optional request headers (used in OpenAPI)
+Optional request headers (OpenAPI)
 </h2>
 <table>
     <tr><th width="26%" >Header</th>                                <th>Description</th></tr>
