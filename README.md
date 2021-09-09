@@ -148,7 +148,7 @@ That's all.
 
 <ul>
     <li>HTTP message formats. See: RFC 7230.</li>
-    <li>Latest OpenAPI specification (v3.0.3) in JSON or YAML format. See: option <code>--openapi-path</code>.</li>
+    <li>Latest OpenAPI specification (v3.0.3) in JSON or YAML format. See: CLI option <code>--openapi-path</code>.</li>
     <li>Unlimited number of request/response pairs in the dump</li>
     <li>Asynchronous requests and responses</li>
     <li>Scriptable response body. See: header <code>X-Body-Type</code>.</li>
@@ -160,10 +160,10 @@ That's all.
     <li>Response body fetching from external sources like URLs, local files, and data URI. See: header <code>X-Body-Type</code></li>
     <li>Per entry user-defined request and response delays. See: headers <code>X-Request-Delay</code> and <code>X-Response-Delay</code>.</li>
     <li>Comments in dumps: <code> #</code></li>
-    <li>Live request/response collection. See: option <code>--collect</code>.</li>
-    <li>Optional watching dump files for changes. See: option <code>--no-watch</code>.</li>
-    <li>Optional ETag optimization (See: option <code>--no-etag</code>.</li>
-    <li>Optional live request/response logging. See: option <code>--no-log</code>.</li>
+    <li>Live request/response collection. See: CLI option <code>--collect</code>.</li>
+    <li>Optional watching dump files for changes. See: CLI option <code>--no-watch</code>.</li>
+    <li>Optional ETag optimization (See: CLI option <code>--no-etag</code>.</li>
+    <li>Optional live request/response logging. See: CLI option <code>--no-log</code>.</li>
 </ul>
 
 <h2>License</h2>
