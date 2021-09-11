@@ -135,7 +135,7 @@ java -jar df.jar --openapi-path /api --openapi-title 'My Killer REST API v18.2.1
     <li>If entry is found, the server send entry to the client
     <li>If entry is not found, the server sends status <code>400</code> with no body.</li>
 </ol>
-That's all. 🎉🎉🎉
+That's all.  🎉🎉🎉
 
 <h2>Features</h2>
 <ul>
