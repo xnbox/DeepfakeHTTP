@@ -76,7 +76,7 @@ FLAGS:
     --no-etag              disable ETag optimization
     --no-watch             disable watch files for changes
     --no-pretty            disable prettyprint for --print-* commands
-    --no-redirect          disable redirect HTTP to HTTPS
+    --redirect             redirect HTTP to HTTPS
 
 COMMANDS:
     --help                 print help message
@@ -85,7 +85,7 @@ COMMANDS:
     --print-openapi        print OpenAPI specification to stdout as json/yaml
                                                                               
 ️ARGS:
-   <file>...               dump text file(s) or/and OpenAPI json/yaml file(s)
+    <file>...               dump text file(s) and/or OpenAPI json/yaml file(s)
 ```
 
 <h2>Usage Exampes</h2>
