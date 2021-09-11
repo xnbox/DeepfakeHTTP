@@ -45,7 +45,7 @@ public class CustomMain {
 	private static final String ARGS_PRINT_REQUESTS = "--print-requests";
 	private static final String ARGS_PRINT_OPENAPI  = "--print-openapi";
 	private static final String ARGS_FORMAT         = "--format";
-	private static final String ARGS_PRETTY         = "--pretty";
+	private static final String ARGS_NO_PRETTY      = "--no-pretty";
 
 	/**
 	 * Custom main method (called for emmbedded web apps)
@@ -57,7 +57,7 @@ public class CustomMain {
 		boolean info     = false;
 		boolean requests = false;
 		boolean openapi  = false;
-		boolean pretty   = false;
+		boolean noPretty = false;
 		String  format   = "json";
 
 		for (int i = 0; i < args.length; i++)
@@ -70,8 +70,8 @@ public class CustomMain {
 				requests = true;
 			else if (args[i].equals(ARGS_PRINT_OPENAPI))
 				openapi = true;
-			else if (args[i].equals(ARGS_PRETTY))
-				pretty = true;
+			else if (args[i].equals(ARGS_NO_PRETTY))
+				noPretty = true;
 			else if (args[i].equals(ARGS_FORMAT)) {
 				if (i < args.length - 1)
 					format = args[++i].toLowerCase(Locale.ENGLISH);
@@ -81,30 +81,30 @@ public class CustomMain {
 			StringBuilder sb = new StringBuilder();
 			sb.append("\n");
 			sb.append("🟩 DeepfakeHTTP Web Server " + System.getProperty("build.version") + '\n');
-			sb.append("                                                                               \n");
-			sb.append("java -jar df.jar [options] <file>...                                           \n");
-			sb.append("                                                                               \n");
-			sb.append("Options:                                                                       \n");
-			sb.append("                                                                               \n");
-			sb.append("    SERVER SETTINGS:                                                           \n");
-			sb.append("                                                                               \n");
-			sb.append("    --port                 TCP port number, default: 8080                      \n");
-			sb.append("    --openapi-path <path>  serve OpenAPI client at specified context path      \n");
-			sb.append("    --openapi-title <text> provide custom OpenAPI spec title                   \n");
-			sb.append("    --collect <file>       collect live request/response to file               \n");
-			sb.append("    --no-log               disable request/response console logging            \n");
-			sb.append("    --no-etag              disable ETag optimization                           \n");
-			sb.append("    --no-watch             disable watch files for changes                     \n");
-			sb.append("                                                                               \n");
-			sb.append("                                                                               \n");
-			sb.append("    ️OTHER:                                                                     \n");
-			sb.append("                                                                               \n");
-			sb.append("    --help                 print help message                                  \n");
-			sb.append("    --print-requests       print dump requests to stdout                       \n");
-			sb.append("    --print-info           print dump files statistics to stdout               \n");
-			sb.append("    --print-openapi        print OpenAPI specification to stdout               \n");
-			sb.append("    --format <json|yaml>   set output format for print-* options, default: json\n");
-			sb.append("    --pretty               enable prettyprint for print-* options              \n");
+			sb.append("                                                                              \n");
+			sb.append("java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS] <file>...                       \n");
+			sb.append("                                                                              \n");
+			sb.append("OPTIONS:                                                                      \n");
+			sb.append("    --port <number>        TCP port number, default: 8080                     \n");
+			sb.append("    --openapi-path <path>  serve OpenAPI client at specified context path     \n");
+			sb.append("    --openapi-title <text> provide custom OpenAPI spec title                  \n");
+			sb.append("    --collect <file>       collect live request/response to file              \n");
+			sb.append("    --format <json|yaml>   output format for --print-* commands, default: json\n");
+			sb.append("                                                                              \n");
+			sb.append("FLAGS:                                                                        \n");
+			sb.append("    --no-log               disable request/response console logging           \n");
+			sb.append("    --no-etag              disable ETag optimization                          \n");
+			sb.append("    --no-watch             disable watch files for changes                    \n");
+			sb.append("    --no-pretty            disable prettyprint for --print-* commands         \n");
+			sb.append("                                                                              \n");
+			sb.append("COMMANDS:                                                                     \n");
+			sb.append("    --help                 print help message                                 \n");
+			sb.append("    --print-info           print dump files statistics to stdout as json/yaml \n");
+			sb.append("    --print-requests       print dump requests to stdout as json/yaml         \n");
+			sb.append("    --print-openapi        print OpenAPI specification to stdout as json/yaml \n");
+			sb.append("                                                                              \n");
+			sb.append("️ARGS:                                                                         \n");
+			sb.append("   <file>...               dump text file(s) or/and OpenAPI json/yaml file(s) \n");
 
 			System.out.println(sb);
 			System.exit(0);
@@ -120,7 +120,7 @@ public class CustomMain {
 			try {
 				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
 
-				String json = serializeInfoToJson(dumps, format, pretty);
+				String json = serializeInfoToJson(dumps, format, !noPretty);
 				System.out.println(json);
 			} catch (Throwable e) {
 				e.printStackTrace();
@@ -139,7 +139,7 @@ public class CustomMain {
 				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
-				String json = serializeRequestsToJson(allReqResps, format, pretty);
+				String json = serializeRequestsToJson(allReqResps, format, !noPretty);
 				System.out.println(json);
 			} catch (Throwable e) {
 				e.printStackTrace();
@@ -159,7 +159,7 @@ public class CustomMain {
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitleArr[0]);
-				String              json       = JacksonUtils.stringifyToJsonYaml(openApiMap, format, pretty);
+				String              json       = JacksonUtils.stringifyToJsonYaml(openApiMap, format, !noPretty);
 				System.out.println(json);
 			} catch (Throwable e) {
 				e.printStackTrace();
