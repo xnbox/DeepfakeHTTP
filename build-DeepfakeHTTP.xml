@@ -38,7 +38,7 @@ E-Mail: xnbox.team@outlook.com
 
 	<target name="main">
 		<property name="dollar" value="$" />
-		<property name="build.version" value="1.0.6" />
+		<property name="build.version" value="1.0.7" />
 
 		<delete file="${java.io.tmpdir}/app.war" failonerror="false" />
 		<war destfile="${java.io.tmpdir}/app.war" webxml="${basedir}/WEB-INF/web.xml" manifest="${basedir}/META-INF/MANIFEST.MF">
