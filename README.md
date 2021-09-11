@@ -66,7 +66,6 @@ java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS] <file>...
 OPTIONS:                                                           
     --port <number>        HTTP TCP port number, default: 8080
     --port-ssl <number>    HTTPS TCP port number, default: 8443
-    --port <number>        TCP port number, default: 8080
     --openapi-path <path>  serve OpenAPI client at specified context path
     --openapi-title <text> provide custom OpenAPI spec title
     --collect <file>       collect live request/response to file
