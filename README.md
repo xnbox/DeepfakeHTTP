@@ -87,7 +87,6 @@ COMMANDS:
                                                                               
 ️ARGS:
    <file>...               dump text file(s) or/and OpenAPI json/yaml file(s)
-
 ```
 
 <h2>Usage Exampes</h2>
