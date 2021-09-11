@@ -241,7 +241,7 @@ APPENDIX B.
 Optional response headers
 </h2>
 <table>
-    <tr><th width="21%" >Header</th>                                <th>Description</th></tr>
+    <tr><th xwidth="21%" >Header</th>                                <th>Description</th></tr>
     <tr></tr>
     <tr><td valign="top"><code>X-Body-Type     </code></td>
     <td>
