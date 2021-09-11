@@ -52,6 +52,7 @@ public class OpenApiUtils {
 	 * @throws Exception
 	 */
 	public static List<ReqResp> openApiMapToListReqResps(Map<String, Object> openApiMap) throws Throwable {
+		// TODO: Handle OpenAPI request examples
 		List<ReqResp>       allReqResps = new ArrayList<>();
 		Map<String, Object> mapPaths    = (Map<String, Object>) openApiMap.get("paths");
 		if (mapPaths == null)
@@ -149,6 +150,7 @@ public class OpenApiUtils {
 	 * @throws Exception
 	 */
 	public static Map<String, Object> createOpenApiMap(List<ReqResp> allReqResps, String title) throws Throwable {
+		// TODO: Handle OpenAPI request examples
 		Map<String, Object> mapPaths = new LinkedHashMap<>(allReqResps.size());
 		for (ReqResp reqResp : allReqResps) {
 			FirstLineReq  firstLineReq  = new FirstLineReq(reqResp.request.firstLine);
