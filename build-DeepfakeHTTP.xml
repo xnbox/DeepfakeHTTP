@@ -33,19 +33,20 @@ E-Mail: xnbox.team@outlook.com
 <project default="main">
 
 	<echo>${ant.version}</echo>
-	<echo>
-	</echo>
 
 	<target name="main">
 		<property name="dollar" value="$" />
 		<property name="build.version" value="1.0.7" />
+		<property name="tmpAppWar" value="${java.io.tmpdir}/app.war" />
+		<property name="tmpMetaInfDir" value="${java.io.tmpdir}/DeepfakeHTTP/META-INF" />
+		<property name="tmpManifest" value="${tmpMetaInfDir}/MANIFEST.MF" />
+		<property name="releaseJar" value="${basedir}/RELEASE/df-${build.version}.jar" />
 
-		<delete file="${java.io.tmpdir}/app.war" failonerror="false" />
-		<war destfile="${java.io.tmpdir}/app.war" webxml="${basedir}/WEB-INF/web.xml" manifest="${basedir}/META-INF/MANIFEST.MF">
+		<delete file="${tmpAppWar}" failonerror="false" />
+		<war destfile="${tmpAppWar}" webxml="${basedir}/WEB-INF/web.xml" manifest="${basedir}/META-INF/MANIFEST.MF">
 			<classes dir="${basedir}/bin" />
 			<lib dir="${basedir}/lib" />
 		</war>
-
 
 		<delete dir="${java.io.tmpdir}/DeepfakeHTTP" />
 		<unzip src="${basedir}/../tommy/RELEASE/tommy-10.0.8.jar" dest="${java.io.tmpdir}/DeepfakeHTTP" />
@@ -53,20 +54,20 @@ E-Mail: xnbox.team@outlook.com
 		<tstamp>
 			<format property="build.timestamp" pattern="yyyy-MM-dd HH:mm:ss" />
 		</tstamp>
-		<delete dir="${java.io.tmpdir}/DeepfakeHTTP/META-INF" />
-		<copy todir="${java.io.tmpdir}/DeepfakeHTTP/META-INF">
+		<delete dir="${tmpMetaInfDir}" />
+		<copy todir="${tmpMetaInfDir}">
 			<fileset dir="${basedir}/../tommy/META-INF" />
 		</copy>
-		<replace file="${java.io.tmpdir}/DeepfakeHTTP/META-INF/MANIFEST.MF" token="${dollar}{build.version}" value="v${build.version}" />
-		<replace file="${java.io.tmpdir}/DeepfakeHTTP/META-INF/MANIFEST.MF" token="${dollar}{build.timestamp}" value="${build.timestamp}" />
+		<replace file="${tmpManifest}" token="${dollar}{build.version}" value="v${build.version}" />
+		<replace file="${tmpManifest}" token="${dollar}{build.timestamp}" value="${build.timestamp}" />
 
 		<delete file="${java.io.tmpdir}/DeepfakeHTTP/org/tommy/main/CustomMain.class" />
 
-		<delete file="${basedir}/RELEASE/df-${build.version}.jar" failonerror="false" />
-		<zip destfile="${basedir}/RELEASE/df-${build.version}.jar" level="9">
+		<delete file="${releaseJar}" failonerror="false" />
+		<zip destfile="${releaseJar}" level="9">
 			<zipfileset prefix="" dir="${java.io.tmpdir}/DeepfakeHTTP" />
 			<zipfileset prefix="" dir="${basedir}/bin" />
-			<zipfileset prefix="" file="${java.io.tmpdir}/app.war" />
+			<zipfileset prefix="" file="${tmpAppWar}" />
 		</zip>
 	</target>
 </project>
