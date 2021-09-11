@@ -60,30 +60,34 @@ For more examples see: <a href="#appendix-cdump-examples">APPENDIX C.</a>
 
 <h2>Usage</h2>
 
-```text
-java -jar df.jar [options] <file>...                                           
-                                                                               
-Options:                                                                       
-                                                                               
-    SERVER SETTINGS:                                                           
-                                                                               
-    --port                 TCP port number, default: 8080                      
-    --openapi-path <path>  serve OpenAPI client at specified context path      
-    --openapi-title <text> provide custom OpenAPI spec title                   
-    --collect <file>       collect live request/response to file               
-    --no-log               disable request/response console logging            
-    --no-etag              disable ETag optimization                           
-    --no-watch             disable watch files for changes                     
-                                                                               
-                                                                               
-    ️OTHER:                                                                     
-                                                                               
-    --help                 print help message                                  
-    --print-requests       print dump requests to stdout                       
-    --print-info           print dump files statistics to stdout               
-    --print-openapi        print OpenAPI specification to stdout               
-    --format <json|yaml>   set output format for print-* options, default: json
-    --pretty               enable prettyprint for print-* options              
+```
+java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS] <file>...
+
+OPTIONS:                                                           
+    --port <number>        HTTP TCP port number, default: 8080
+    --port-ssl <number>    HTTPS TCP port number, default: 8443
+    --port <number>        TCP port number, default: 8080
+    --openapi-path <path>  serve OpenAPI client at specified context path
+    --openapi-title <text> provide custom OpenAPI spec title
+    --collect <file>       collect live request/response to file
+    --format <json|yaml>   output format for --print-* commands, default: json
+
+FLAGS:
+    --no-log               disable request/response console logging
+    --no-etag              disable ETag optimization
+    --no-watch             disable watch files for changes
+    --no-pretty            disable prettyprint for --print-* commands
+    --no-redirect          disable redirect HTTP to HTTPS
+
+COMMANDS:
+    --help                 print help message
+    --print-info           print dump files statistics to stdout as json/yaml
+    --print-requests       print dump requests to stdout as json/yaml
+    --print-openapi        print OpenAPI specification to stdout as json/yaml
+                                                                              
+️ARGS:
+   <file>...               dump text file(s) or/and OpenAPI json/yaml file(s)
+
 ```
 
 <h2>Usage Exampes</h2>
@@ -203,7 +207,7 @@ X-OpenAPI-Summary: Get customer information
 HTTP/1.1 200 OK
 Content-Type: application/json
 X-OpenAPI-Summary: Get customer information
-X-OpenAPI-Description: This API extracts customer information from db
+X-OpenAPI-Description: This API extracts customer info from db
 
 {"id": 5, "name": "John Doe"}
 ```
@@ -219,7 +223,7 @@ X-OpenAPI-Description: This API extracts customer information from db
 HTTP/1.1 200 OK
 Content-Type: application/json
 X-OpenAPI-Summary: Get customer information
-X-OpenAPI-Description: This API extracts customer information from db
+X-OpenAPI-Description: This API extracts customer info from db
 X-OpenAPI-Tags: Work with customer, Buyers, Login info
 
 {"id": 5, "name": "John Doe"}

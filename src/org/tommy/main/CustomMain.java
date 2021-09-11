@@ -38,6 +38,7 @@ import org.deepfake_http.common.ReqResp;
 import org.deepfake_http.common.utils.JacksonUtils;
 import org.deepfake_http.common.utils.OpenApiUtils;
 import org.deepfake_http.common.utils.ParseCommandLineUtils;
+import org.deepfake_http.common.utils.SystemProperties;
 
 public class CustomMain {
 	private static final String ARGS_HELP_OPTION    = "--help";
@@ -80,12 +81,18 @@ public class CustomMain {
 		if (help) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("\n");
-			sb.append("🟩 DeepfakeHTTP Web Server " + System.getProperty("build.version") + '\n');
+			sb.append("🟩 DeepfakeHTTP Web Server " + System.getProperty("build.version") + ". Build: " + System.getProperty("build.timestamp") + '\n');
+			sb.append("\n");
+			sb.append("  OS: " + SystemProperties.OS_NAME + " (" + SystemProperties.OS_ARCH + ")" + '\n');
+			sb.append(" JVM: " + SystemProperties.JAVA_JAVA_VM_NAME + " (" + SystemProperties.JAVA_JAVA_VERSION + ")\n");
+			sb.append("                                                                              \n");
+			sb.append("Usage:                                                                        \n");
 			sb.append("                                                                              \n");
 			sb.append("java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS] <file>...                       \n");
 			sb.append("                                                                              \n");
 			sb.append("OPTIONS:                                                                      \n");
-			sb.append("    --port <number>        TCP port number, default: 8080                     \n");
+			sb.append("    --port <number>        HTTP TCP port number, default: 8080                \n");
+			sb.append("    --port-ssl <number>    HTTPS TCP port number, default: 8443               \n");
 			sb.append("    --openapi-path <path>  serve OpenAPI client at specified context path     \n");
 			sb.append("    --openapi-title <text> provide custom OpenAPI spec title                  \n");
 			sb.append("    --collect <file>       collect live request/response to file              \n");
@@ -96,6 +103,7 @@ public class CustomMain {
 			sb.append("    --no-etag              disable ETag optimization                          \n");
 			sb.append("    --no-watch             disable watch files for changes                    \n");
 			sb.append("    --no-pretty            disable prettyprint for --print-* commands         \n");
+			sb.append("    --no-redirect          disable redirect HTTP to HTTPS                     \n");
 			sb.append("                                                                              \n");
 			sb.append("COMMANDS:                                                                     \n");
 			sb.append("    --help                 print help message                                 \n");
