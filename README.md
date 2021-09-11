@@ -181,11 +181,11 @@ APPENDIX A.
 Optional request headers (OpenAPI)
 </h2>
 <table>
-    <tr><th xwidth="27%" >Header</th>                                <th>Description</th></tr>
+    <tr><th>Header</th>                                <th>Description</th></tr>
     <tr></tr>
-    <tr><td valign="top"><code>X-OpenAPI-Summary     </code></td>
+    <tr><td valign="top"><code>X-OpenAPI-Summary</code></td>
     <td>
-    <p>OpenAPI request summary text</p>
+    <p>OpenAPI request summary text.</p>
     <i>Example:</i>
 
 ```
@@ -200,7 +200,7 @@ X-OpenAPI-Summary: Get customer information
 <tr></tr>
     <tr><td valign="top"><code>X-OpenAPI-Description</code></td>
     <td>
-    <p>OpenAPI request description text</p>
+    <p>OpenAPI request description text.</p>
     <i>Example:</i>
 
 ```
@@ -216,7 +216,7 @@ X-OpenAPI-Description: This API extracts customer info from db
 <tr></tr>
     <tr><td valign="top"><code>X-OpenAPI-Tags</code></td>
     <td>
-    <p>OpenAPI request comma-separated tag list</p>
+    <p>OpenAPI request comma-separated tag list.</p>
     <i>Example:</i>
 
 ```
@@ -241,7 +241,7 @@ APPENDIX B.
 Optional response headers
 </h2>
 <table>
-    <tr><th xwidth="21%" >Header</th>                                <th>Description</th></tr>
+    <tr><th width="21%" >Header</th>                                <th>Description</th></tr>
     <tr></tr>
     <tr><td valign="top"><code>X-Body-Type     </code></td>
     <td>
