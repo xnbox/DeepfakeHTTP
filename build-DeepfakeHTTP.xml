@@ -36,7 +36,7 @@ E-Mail: xnbox.team@outlook.com
 
 	<target name="main">
 		<property name="dollar" value="$" />
-		<property name="build.version" value="1.0.7" />
+		<property name="build.version" value="1.0.8" />
 		<property name="tmpAppWar" value="${java.io.tmpdir}/app.war" />
 		<property name="tmpMetaInfDir" value="${java.io.tmpdir}/DeepfakeHTTP/META-INF" />
 		<property name="tmpManifest" value="${tmpMetaInfDir}/MANIFEST.MF" />
@@ -49,7 +49,7 @@ E-Mail: xnbox.team@outlook.com
 		</war>
 
 		<delete dir="${java.io.tmpdir}/DeepfakeHTTP" />
-		<unzip src="${basedir}/../tommy/RELEASE/tommy-10.0.8.jar" dest="${java.io.tmpdir}/DeepfakeHTTP" />
+		<unzip src="${basedir}/../tommy/RELEASE/tommy-10.0.10.jar" dest="${java.io.tmpdir}/DeepfakeHTTP" />
 
 		<tstamp>
 			<format property="build.timestamp" pattern="yyyy-MM-dd HH:mm:ss" />
