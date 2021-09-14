@@ -83,12 +83,13 @@ public class ParseCommandLineUtils {
 	//@formatter:on
 
 	/* command line args */
-	private static final String ARGS_NO_WATCH_OPTION = "--no-watch";     // disable watch dump files for changes
-	private static final String ARGS_NO_ETAG_OPTION  = "--no-etag";      // disable ETag optimization
-	private static final String ARGS_NO_LOG_OPTION   = "--no-log";       // disable request/response console logging
-	private static final String ARGS_COLLECT_OPTION  = "--collect";      // collect live request/response dumps to file
-	private static final String ARGS_OPENAPI_PATH    = "--openapi-path";
-	private static final String ARGS_OPENAPI_TITLE   = "--openapi-title";
+	private static final String ARGS_NO_WATCH      = "--no-watch";     // disable watch dump files for changes
+	private static final String ARGS_NO_ETAG       = "--no-etag";      // disable ETag optimization
+	private static final String ARGS_NO_LOG        = "--no-log";       // disable request/response console logging
+	private static final String ARGS_NO_TRIM       = "--no-trim";      // disable whitespace trimming at the end of the body
+	private static final String ARGS_COLLECT       = "--collect";      // collect live request/response dumps to file
+	private static final String ARGS_OPENAPI_PATH  = "--openapi-path";
+	private static final String ARGS_OPENAPI_TITLE = "--openapi-title";
 
 	/**
 	 * 
@@ -145,7 +146,7 @@ public class ParseCommandLineUtils {
 	 * @param openApiTitleArr
 	 * @throws Throwable
 	 */
-	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noWatchArr, boolean[] noEtagArr, boolean[] noLogArr, String[] collectFileArr, String[] openApiPathArr, String[] openApiTitleArr) throws Throwable {
+	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noWatchArr, boolean[] noEtagArr, boolean[] noLogArr, boolean[] noTrimArr, String[] collectFileArr, String[] openApiPathArr, String[] openApiTitleArr) throws Throwable {
 		for (int i = 0; i < args.length; i++) {
 			/* skip original Tommy options */
 
@@ -166,13 +167,15 @@ public class ParseCommandLineUtils {
 				i++;
 			// Tommy options End
 
-			else if (args[i].equals(ARGS_NO_WATCH_OPTION))
+			else if (args[i].equals(ARGS_NO_WATCH))
 				noWatchArr[0] = true;
-			else if (args[i].equals(ARGS_NO_ETAG_OPTION))
+			else if (args[i].equals(ARGS_NO_ETAG))
 				noEtagArr[0] = true;
-			else if (args[i].equals(ARGS_NO_LOG_OPTION))
+			else if (args[i].equals(ARGS_NO_LOG))
 				noLogArr[0] = true;
-			else if (args[i].equals(ARGS_COLLECT_OPTION)) {
+			else if (args[i].equals(ARGS_NO_TRIM))
+				noTrimArr[0] = true;
+			else if (args[i].equals(ARGS_COLLECT)) {
 				if (i < args.length - 1)
 					collectFileArr[0] = args[++i];
 			} else if (args[i].equals(ARGS_OPENAPI_PATH)) {

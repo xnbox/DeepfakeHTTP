@@ -41,7 +41,7 @@ import org.deepfake_http.common.utils.ParseCommandLineUtils;
 import org.deepfake_http.common.utils.SystemProperties;
 
 public class CustomMain {
-	private static final String ARGS_HELP_OPTION    = "--help";
+	private static final String ARGS_HELP           = "--help";
 	private static final String ARGS_PRINT_INFO     = "--print-info";
 	private static final String ARGS_PRINT_REQUESTS = "--print-requests";
 	private static final String ARGS_PRINT_OPENAPI  = "--print-openapi";
@@ -62,7 +62,7 @@ public class CustomMain {
 		String  format   = "json";
 
 		for (int i = 0; i < args.length; i++)
-			if (args[i].equals(ARGS_HELP_OPTION)) {
+			if (args[i].equals(ARGS_HELP)) {
 				help = true;
 				break;
 			} else if (args[i].equals(ARGS_PRINT_INFO))
@@ -81,7 +81,7 @@ public class CustomMain {
 		if (help) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("\n");
-			sb.append(" 🟩 DeepfakeHTTP Web Server " + System.getProperty("build.version") + ". Build: " + System.getProperty("build.timestamp") + '\n');
+			sb.append(" DeepfakeHTTP Web Server " + System.getProperty("build.version") + ". Build: " + System.getProperty("build.timestamp") + '\n');
 			sb.append("\n");
 			sb.append("  OS: " + SystemProperties.OS_NAME + " (" + SystemProperties.OS_ARCH + ")" + '\n');
 			sb.append(" JVM: " + SystemProperties.JAVA_JAVA_VM_NAME + " (" + SystemProperties.JAVA_JAVA_VERSION + ")\n");
@@ -101,6 +101,7 @@ public class CustomMain {
 			sb.append(" FLAGS:                                                                        \n");
 			sb.append("     --no-log               disable request/response console logging           \n");
 			sb.append("     --no-etag              disable ETag optimization                          \n");
+			sb.append("     --no-trim              disable whitespace trimming at the end of the body \n");
 			sb.append("     --no-watch             disable watch files for changes                    \n");
 			sb.append("     --no-pretty            disable prettyprint for --print-* commands         \n");
 			sb.append("     --redirect             redirect HTTP to HTTPS                             \n");
@@ -121,12 +122,13 @@ public class CustomMain {
 			boolean[]                    noWatchArr      = new boolean[1];
 			boolean[]                    noEtagArr       = new boolean[1];
 			boolean[]                    noLogArr        = new boolean[1];
+			boolean[]                    noTrimArr       = new boolean[1];
 			String[]                     collectFileArr  = new String[1];
 			String[]                     openApiPathArr  = new String[1];
 			String[]                     openApiTitleArr = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noTrimArr, collectFileArr, openApiPathArr, openApiTitleArr);
 
 				String json = serializeInfoToJson(dumps, format, !noPretty);
 				System.out.println(json);
@@ -139,12 +141,13 @@ public class CustomMain {
 			boolean[]                     noWatchArr      = new boolean[1];
 			boolean[]                     noEtagArr       = new boolean[1];
 			boolean[]                     noLogArr        = new boolean[1];
+			boolean[]                     noTrimArr       = new boolean[1];
 			String[]                      collectFileArr  = new String[1];
 			String[]                      openApiPathArr  = new String[1];
 			String[]                      openApiTitleArr = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noTrimArr, collectFileArr, openApiPathArr, openApiTitleArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				String json = serializeRequestsToJson(allReqResps, format, !noPretty);
@@ -158,12 +161,13 @@ public class CustomMain {
 			boolean[]                     noWatchArr      = new boolean[1];
 			boolean[]                     noEtagArr       = new boolean[1];
 			boolean[]                     noLogArr        = new boolean[1];
+			boolean[]                     noTrimArr       = new boolean[1];
 			String[]                      collectFileArr  = new String[1];
 			String[]                      openApiPathArr  = new String[1];
 			String[]                      openApiTitleArr = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noTrimArr, collectFileArr, openApiPathArr, openApiTitleArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitleArr[0]);

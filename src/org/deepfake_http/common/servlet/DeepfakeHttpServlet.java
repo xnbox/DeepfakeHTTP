@@ -129,6 +129,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noWatch;
 	private boolean noEtag;
 	private boolean noLog;
+	private boolean noTrim;
 
 	private String collectFile;
 	private String openApiPath;
@@ -226,6 +227,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		boolean[] noWatchArr      = new boolean[1];
 		boolean[] noEtagArr       = new boolean[1];
 		boolean[] noLogArr        = new boolean[1];
+		boolean[] noTrimArr       = new boolean[1];
 		String[]  collectFileArr  = new String[1];
 		String[]  openApiPathArr  = new String[1];
 		String[]  openApiTitleArr = new String[1];
@@ -236,11 +238,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
+			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr, noLogArr, noTrimArr, collectFileArr, openApiPathArr, openApiTitleArr);
 
 			noWatch      = noWatchArr[0];
 			noEtag       = noEtagArr[0];
 			noLog        = noLogArr[0];
+			noTrim       = noTrimArr[0];
 			collectFile  = collectFileArr[0];
 			openApiPath  = openApiPathArr[0];
 			openApiTitle = openApiTitleArr[0];
@@ -590,7 +593,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					}
 
 					String body = reqResp.response.body.toString();
-
+					if (!noTrim)
+						body = body.stripTrailing();
 					try {
 						if (bodyType == null)
 							bs = body.getBytes(StandardCharsets.UTF_8);
