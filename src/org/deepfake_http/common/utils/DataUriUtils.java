@@ -37,12 +37,12 @@ public class DataUriUtils {
 	 * Parse data URL
 	 *
 	 * @param url
-	 * @param mediatypeSb
+	 * @param mediaTypeArr
 	 * @param encodingSb
 	 * @return
 	 * @throws IOException
 	 */
-	public static byte[] parseDataUri(String url, StringBuilder mediatypeSb, StringBuilder encodingSb) throws IOException {
+	public static byte[] parseDataUri(String url, String[] mediaTypeArr, String[] encodingArr) throws IOException {
 		// data:[<mediatype>][;base64],<data>
 		String mediatype;
 		String encoding;
@@ -56,7 +56,7 @@ public class DataUriUtils {
 			mediatype = "";
 		else
 			mediatype = s.substring(0, pos);
-		mediatypeSb.append(mediatype);
+		mediaTypeArr[0] = mediatype;
 		int posComa = s.indexOf(',');
 		if (posSemi == -1)
 			encoding = "";
@@ -66,7 +66,7 @@ public class DataUriUtils {
 		if ("base64".equals(encoding))
 			return Base64.getMimeDecoder().decode(data);
 		else {
-			encodingSb.append(encoding);
+			encodingArr[0] = encoding;
 			return data.getBytes(StandardCharsets.UTF_8);
 		}
 	}
