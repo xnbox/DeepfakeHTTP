@@ -47,6 +47,7 @@ import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.PosixFilePermission;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -81,6 +82,7 @@ import org.mozilla.javascript.ScriptableObject;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
@@ -589,88 +591,36 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					String body = reqResp.response.body.toString();
 
-					if ("text/template".equals(bodyType)) {
-						Template     freeMarkerTemplate = new Template("", new StringReader(body), freeMarkerConfiguration);
-						StringWriter writer             = new StringWriter();
-						try {
-							freeMarkerTemplate.process(providedParams, writer);
-						} catch (Exception e) {
-							status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR; // setting HTTP 500 and returning with empty body
-							bs     = new byte[0];
-							e.printStackTrace();
-						}
-						body = writer.toString();
-						bs   = body.getBytes(StandardCharsets.UTF_8);
-					} else if ("application/x-sh".equals(bodyType)) {
-						Map<String, Object> http    = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
-						String              json    = JacksonUtils.stringifyToJsonYaml(http, JacksonUtils.FORMAT_JSON, false) + '\n';
-						Path                tmpFile = Files.createTempFile("df-", "tmp");
-						Files.write(tmpFile, body.getBytes(StandardCharsets.UTF_8));
-						Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
-						Files.setPosixFilePermissions(tmpFile, perms);
-						ProcessBuilder pb = new ProcessBuilder() //
-								.directory(new File(System.getProperty("user.home"))) //
-								.command(new String[] { "sh", "-c", tmpFile.toString() }); //
-
-						Process process = pb.start();
-
-						try (InputStream is = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)); OutputStream po = process.getOutputStream()) {
-							is.transferTo(po);
-						}
-						try (InputStream is = process.getInputStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
-							is.transferTo(baos);
-							bs = baos.toByteArray();
-						}
-						int exitCode = process.waitFor();
-						Files.deleteIfExists(tmpFile);
-						logger.log(exitCode == 0 ? Level.INFO : Level.WARNING, "Exit code: {0}", exitCode);
-						process.destroy();
-					} else if ("application/javascript".equals(bodyType)) {
-						Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
-						try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); PrintStream ps = new PrintStream(baos);) {
-							PrintStream stdout = System.out;
-							System.setOut(ps);
-							Context cx = Context.enter();
-							cx.setLanguageVersion(Context.VERSION_1_8);
-							cx.setOptimizationLevel(9);
-							cx.getWrapFactory().setJavaPrimitiveWrap(true);
-							ScriptableObject scope = new ImporterTopLevel(cx);
-							scope = (ScriptableObject) cx.initStandardObjects(scope);
-							Object obj = Context.javaToJS(http, scope);
-							ScriptableObject.putProperty(scope, "http", obj);
-							cx.evaluateString(scope, body, providedFirstLineStr, 0, null);
-							bs = baos.toByteArray();
-							System.setOut(stdout);
-						} catch (Throwable e) {
-							status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR; // setting HTTP 500 and returning with empty body
-							bs     = new byte[0];
-							e.printStackTrace();
-						} finally {
-							Context.exit();
-						}
-					} else if ("text/uri-list".equals(bodyType)) {
-						if (body.startsWith("file:") || body.startsWith("https:") || body.startsWith("http:")) {
-							InputStream is = new URL(body).openStream();
-							bs = is.readAllBytes();
-							is.close();
-						} else if (body.startsWith("data:")) { // data URI
-							StringBuilder mediatypeSb = new StringBuilder();
-							StringBuilder encodingSb  = new StringBuilder();
-							bs = DataUriUtils.parseDataUri(body, mediatypeSb, encodingSb);
-							String mimeStr = mediatypeSb.toString().strip();
-							if (!mimeStr.isEmpty())
-								mime = mimeStr;
-							String encodingStr = encodingSb.toString().strip();
-							if (!encodingStr.isEmpty())
-								encoding = encodingStr;
-						} else { // fallback to ignored bodyType
-							logger.log(Level.WARNING, "\"X-Body-Type: {0}\", but body content is not valid URL or URL protocol is not supported. Ignored. Valid URL protocols: file, http, https, data", bodyType);
+					try {
+						if (bodyType == null)
 							bs = body.getBytes(StandardCharsets.UTF_8);
-						}
-					} else { // Unknown or null bodyType
-						bs = body.getBytes(StandardCharsets.UTF_8);
-						if (bodyType != null) // Unknown bodyType
-							logger.log(Level.WARNING, "\"X-Body-Type: {0}\" is not supported. Ignored.", bodyType);
+						else if ("text/plain".equals(bodyType))
+							bs = body.getBytes(StandardCharsets.UTF_8);
+						else if ("text/html".equals(bodyType))
+							bs = body.getBytes(StandardCharsets.UTF_8);
+						else if ("application/pdf".equals(bodyType))
+							bs = body.getBytes(StandardCharsets.UTF_8);
+						else if ("text/template".equals(bodyType))
+							bs = getnerateOutFromTemplate(body, providedParams);
+						else if ("application/x-sh".equals(bodyType)) {
+							Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
+							String              json = JacksonUtils.stringifyToJsonYaml(http, JacksonUtils.FORMAT_JSON, false) + '\n';
+							bs = getnerateOutFromSh(body, json);
+						} else if ("application/javascript".equals(bodyType)) {
+							Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
+							bs = getnerateOutFromJs(body, providedFirstLineStr, http);
+						} else if ("text/uri-list".equals(bodyType)) {
+							String[] mimeArr     = new String[1];
+							String[] encodingArr = new String[1];
+							bs       = getnerateOutFromUrl(body, mimeArr, encodingArr);
+							mime     = mimeArr[0];
+							encoding = encodingArr[0];
+						} else // Unknown bodyType
+							throw new IllegalArgumentException(MessageFormat.format("\"X-Body-Type: {0}\" is not supported.", bodyType));
+					} catch (Exception e) {
+						bs      = new byte[0];
+						status  = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;                                                                                                                             // 500
+						message = MessageFormat.format("Error while generating response body. Dump file: {0}, Line number: {1}, Message: ", reqResp.dumpFile, reqResp.response.lineNumber + e.getMessage());
 					}
 					if (responseDelay != 0)
 						Thread.sleep(responseDelay);
@@ -811,6 +761,81 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			}
 		});
 
+	}
+
+	private byte[] getnerateOutFromTemplate(String body, Map<String, List<String>> providedParams) throws IOException, TemplateException {
+		Template     freeMarkerTemplate = new Template("", new StringReader(body), freeMarkerConfiguration);
+		StringWriter writer             = new StringWriter();
+		freeMarkerTemplate.process(providedParams, writer);
+		body = writer.toString();
+		return body.getBytes(StandardCharsets.UTF_8);
+	}
+
+	private byte[] getnerateOutFromSh(String body, String json) throws InterruptedException, IOException {
+		Path tmpFile = Files.createTempFile("df-", "tmp");
+		Files.write(tmpFile, body.getBytes(StandardCharsets.UTF_8));
+		Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
+		Files.setPosixFilePermissions(tmpFile, perms);
+		ProcessBuilder pb = new ProcessBuilder() //
+				.directory(new File(System.getProperty("user.home"))) //
+				.command(new String[] { "sh", "-c", tmpFile.toString() }); //
+
+		Process process = pb.start();
+
+		try (InputStream is = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)); OutputStream po = process.getOutputStream()) {
+			is.transferTo(po);
+		}
+		try (InputStream is = process.getInputStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
+			is.transferTo(baos);
+			byte[] bs       = baos.toByteArray();
+			int    exitCode = process.waitFor();
+			Files.deleteIfExists(tmpFile);
+			logger.log(exitCode == 0 ? Level.INFO : Level.WARNING, "Exit code: {0}", exitCode);
+			return bs;
+		} finally {
+			process.destroy();
+		}
+	}
+
+	private byte[] getnerateOutFromJs(String body, String providedFirstLineStr, Map<String, Object> http) throws IOException {
+		PrintStream stdout = System.out;
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); PrintStream ps = new PrintStream(baos);) {
+			System.setOut(ps);
+			Context cx = Context.enter();
+			cx.setLanguageVersion(Context.VERSION_1_8);
+			cx.setOptimizationLevel(9);
+			cx.getWrapFactory().setJavaPrimitiveWrap(true);
+			ScriptableObject scope = new ImporterTopLevel(cx);
+			scope = (ScriptableObject) cx.initStandardObjects(scope);
+			Object obj = Context.javaToJS(http, scope);
+			ScriptableObject.putProperty(scope, "http", obj);
+			cx.evaluateString(scope, body, providedFirstLineStr, 0, null);
+			return baos.toByteArray();
+		} finally {
+			Context.exit();
+			System.setOut(stdout);
+		}
+	}
+
+	private byte[] getnerateOutFromUrl(String body, String[] mimeArr, String[] encodingArr) throws IOException {
+		if (body.startsWith("file:") || body.startsWith("https:") || body.startsWith("http:")) {
+			try (InputStream is = new URL(body).openStream()) {
+				return is.readAllBytes();
+			}
+		} else if (body.startsWith("data:")) { // data URI
+			StringBuilder mediatypeSb = new StringBuilder();
+			StringBuilder encodingSb  = new StringBuilder();
+			String        mimeStr     = mediatypeSb.toString().strip();
+			if (!mimeStr.isEmpty())
+				mimeArr[0] = mimeStr;
+			String encodingStr = encodingSb.toString().strip();
+			if (!encodingStr.isEmpty())
+				encodingArr[0] = encodingStr;
+			return DataUriUtils.parseDataUri(body, mimeArr, encodingArr);
+		} else { // fallback to ignored bodyType
+			logger.log(Level.WARNING, "\"X-Body-Type: text/uri-list\", but body content is not valid URL or URL protocol is not supported. Ignored. Valid URL protocols: file, http, https, data");
+			throw new IllegalArgumentException();
+		}
 	}
 
 	/**
