@@ -40,6 +40,48 @@ import java.util.logging.Logger;
 import org.deepfake_http.common.ReqResp;
 
 public class ParseCommandLineUtils {
+	/*
+	 * Original Tommy command line options
+	 */
+
+	//@formatter:off
+
+	/**
+	 * print help message
+	 */
+	private static final String ARGS_HELP_OPTION         = "--help";
+
+	/**
+	 * run app from ZIP or WAR archive, directory or URL
+	 */
+	private static final String ARGS_APP_OPTION          = "--app";
+
+	/**
+	 * HTTP TCP port number, default: 8080
+	 */
+	private static final String ARGS_PORT_OPTION         = "--port";
+	/**
+	 * HTTPS TCP port number, default: 8443
+	 */
+	private static final String ARGS_PORT_SSL_OPTION     = "--port-ssl";
+
+	/**
+	 * redirect HTTP to HTTPS
+	 */
+	private static final String ARGS_REDIRECT_OPTION     = "--redirect";
+
+	/**
+	 * context path, default: /
+	 */
+	private static final String ARGS_CONTEXT_PATH_OPTION = "--context-path";
+
+	/**
+	 * provide password for encrypted ZIP or WAR archive
+	 */
+	private static final String ARGS_PASSWORD_OPTION     = "--password";
+
+	//@formatter:on
+
 	/* command line args */
 	private static final String ARGS_NO_WATCH_OPTION = "--no-watch";     // disable watch dump files for changes
 	private static final String ARGS_NO_ETAG_OPTION  = "--no-etag";      // disable ETag optimization
@@ -105,7 +147,26 @@ public class ParseCommandLineUtils {
 	 */
 	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noWatchArr, boolean[] noEtagArr, boolean[] noLogArr, String[] collectFileArr, String[] openApiPathArr, String[] openApiTitleArr) throws Throwable {
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals(ARGS_NO_WATCH_OPTION))
+			/* skip original Tommy options */
+
+			// Tommy options Start
+			if (args[i].equals(ARGS_HELP_OPTION))
+				i++;
+			else if (args[i].equals(ARGS_APP_OPTION))
+				i++;
+			else if (args[i].equals(ARGS_PORT_OPTION))
+				i++;
+			else if (args[i].equals(ARGS_PORT_SSL_OPTION))
+				i++;
+			else if (args[i].equals(ARGS_REDIRECT_OPTION))
+				i++;
+			else if (args[i].equals(ARGS_CONTEXT_PATH_OPTION))
+				i++;
+			else if (args[i].equals(ARGS_PASSWORD_OPTION))
+				i++;
+			// Tommy options End
+
+			else if (args[i].equals(ARGS_NO_WATCH_OPTION))
 				noWatchArr[0] = true;
 			else if (args[i].equals(ARGS_NO_ETAG_OPTION))
 				noEtagArr[0] = true;
