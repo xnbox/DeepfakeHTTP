@@ -113,8 +113,12 @@ public class ParseDumpUtils {
 					throw new Exception("Request without response! Line: " + requestLineNo);
 				if (first)
 					first = false;
-				else
+				else {
+					trimLastLineBreak(reqResp.request.body);
+					trimLastLineBreak(reqResp.response.body);
 					list.add(reqResp);
+				}
+
 				requestLineNo = lineNo;
 
 				reqResp                    = new ReqResp();
@@ -172,6 +176,15 @@ public class ParseDumpUtils {
 			list.add(reqResp);
 
 		return list;
+	}
+
+	private static void trimLastLineBreak(StringBuilder sb) {
+		int len = sb.length();
+		if (len == 0)
+			return;
+		int lastPos = len - 1;
+		if (sb.charAt(lastPos) == '\n' || sb.charAt(lastPos) == '\r')
+			sb.setLength(lastPos);
 	}
 
 	/**
