@@ -55,7 +55,7 @@ java -jar df.jar dump.txt
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/get-started.png">
 </li>
 </ol>
-For more examples see: <a href="#appendix-cdump-examples">APPENDIX C.</a>
+That's it! For more examples see: <a href="#appendix-cdump-examples">APPENDIX C.</a>
 <br><br>
 
 <h2>Usage</h2>
