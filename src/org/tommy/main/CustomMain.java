@@ -101,7 +101,6 @@ public class CustomMain {
 			sb.append(" FLAGS:                                                                        \n");
 			sb.append("     --no-log               disable request/response console logging           \n");
 			sb.append("     --no-etag              disable ETag optimization                          \n");
-			sb.append("     --no-trim              disable whitespace trimming at the end of the body \n");
 			sb.append("     --no-watch             disable watch files for changes                    \n");
 			sb.append("     --no-pretty            disable prettyprint for --print-* commands         \n");
 			sb.append("     --redirect             redirect HTTP to HTTPS                             \n");
@@ -122,13 +121,12 @@ public class CustomMain {
 			boolean[]                    noWatchArr      = new boolean[1];
 			boolean[]                    noEtagArr       = new boolean[1];
 			boolean[]                    noLogArr        = new boolean[1];
-			boolean[]                    noTrimArr       = new boolean[1];
 			String[]                     collectFileArr  = new String[1];
 			String[]                     openApiPathArr  = new String[1];
 			String[]                     openApiTitleArr = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noTrimArr, collectFileArr, openApiPathArr, openApiTitleArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
 
 				String json = serializeInfoToJson(dumps, format, !noPretty);
 				System.out.println(json);
@@ -141,13 +139,12 @@ public class CustomMain {
 			boolean[]                     noWatchArr      = new boolean[1];
 			boolean[]                     noEtagArr       = new boolean[1];
 			boolean[]                     noLogArr        = new boolean[1];
-			boolean[]                     noTrimArr       = new boolean[1];
 			String[]                      collectFileArr  = new String[1];
 			String[]                      openApiPathArr  = new String[1];
 			String[]                      openApiTitleArr = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noTrimArr, collectFileArr, openApiPathArr, openApiTitleArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				String json = serializeRequestsToJson(allReqResps, format, !noPretty);
@@ -161,13 +158,12 @@ public class CustomMain {
 			boolean[]                     noWatchArr      = new boolean[1];
 			boolean[]                     noEtagArr       = new boolean[1];
 			boolean[]                     noLogArr        = new boolean[1];
-			boolean[]                     noTrimArr       = new boolean[1];
 			String[]                      collectFileArr  = new String[1];
 			String[]                      openApiPathArr  = new String[1];
 			String[]                      openApiTitleArr = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noTrimArr, collectFileArr, openApiPathArr, openApiTitleArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitleArr[0]);
