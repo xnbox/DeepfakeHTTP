@@ -35,8 +35,9 @@ import org.deepfake_http.common.HttpMethod;
 import org.deepfake_http.common.ReqResp;
 
 public class ParseDumpUtils {
-	public static final String HTTP_1_1     = "HTTP/1.1";
-	private static final char  COMMENT_CHAR = '#';
+	public static final String  HTTP_1_1           = "HTTP/1.1";
+	private static final char   COMMENT_CHAR       = '#';
+	private static final String END_OF_BODY_MARKER = ".";
 
 	/**
 	 * MIN_REQUEST_LENGTH
@@ -78,8 +79,9 @@ public class ParseDumpUtils {
 		for (String line : lines) {
 			lineNo++;
 
-			if (line.stripLeading().indexOf(COMMENT_CHAR) == 0)
-				continue;
+			if (!inBody)
+				if (line.stripLeading().indexOf(COMMENT_CHAR) == 0)
+					continue;
 
 			String   firstLineCandidate    = line.strip().toUpperCase(Locale.ENGLISH).replace('\t', ' ');
 			String[] firstLineCandidateArr = firstLineCandidate.split("\s");
@@ -141,6 +143,10 @@ public class ParseDumpUtils {
 				inResponse = true;
 			} else {
 				if (inBody) {
+					if (END_OF_BODY_MARKER.equals(line.stripTrailing())) {
+						inBody = false;
+						continue;
+					}
 					if (inRequest)
 						reqResp.request.body.append(line);
 					else if (inResponse)
