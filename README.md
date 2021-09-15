@@ -368,6 +368,7 @@ Dump examples
 
 GET /form.html HTTP/1.1
 
+.
 # Fake HTML file :)
 HTTP/1.1 200 OK
 
@@ -381,11 +382,12 @@ HTTP/1.1 200 OK
     </form>
 </body>
 </html>
-
+.
 
 POST /add_user.php HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
 
+.
 # Fake PHP file :)
 HTTP/1.1 200 OK
 Content-Type: text/html
@@ -411,6 +413,7 @@ X-Body-Type: text/template
 GET /api/customer/5 HTTP/1.1
 Accept-Language: ru;*
 
+.
 # Server response
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -419,7 +422,7 @@ Content-Type: application/json
     "id": 5,
     "name": "Джон Доу"
 }
-
+.
 
 #
 # Second request-response entry
@@ -428,6 +431,7 @@ Content-Type: application/json
 # Client request
 GET /api/customer/5 HTTP/1.1
 
+.
 # Server response
 HTTP/1.1 200 OK
 Content-Type: application/json
