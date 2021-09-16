@@ -41,19 +41,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchEvent.Kind;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
 import java.nio.file.attribute.PosixFilePermission;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -69,6 +62,7 @@ import org.deepfake_http.common.FirstLineReq;
 import org.deepfake_http.common.FirstLineResp;
 import org.deepfake_http.common.Header;
 import org.deepfake_http.common.ReqResp;
+import org.deepfake_http.common.dir_watcher.DirectoryWatcher;
 import org.deepfake_http.common.utils.DataUriUtils;
 import org.deepfake_http.common.utils.HttpPathUtils;
 import org.deepfake_http.common.utils.JacksonUtils;
@@ -133,6 +127,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private String collectFile;
 	private String openApiPath;
 	private String openApiTitle;
+	private String dataFile;
 
 	private List<String /* dump file */> dumps;
 
@@ -144,60 +139,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private ReqResp       badRequest400;
 
 	private Configuration freeMarkerConfiguration;
-
-	private class DirectoryWatcher implements Runnable {
-
-		private Path             dirPath;
-		private Collection<Path> filePaths = new HashSet<>();
-
-		public DirectoryWatcher(Path dirPath) {
-			this.dirPath = dirPath;
-		}
-
-		public void addFile(Path filePath) {
-			filePaths.add(filePath);
-		}
-
-		private void printEvent(WatchEvent<?> event) {
-			Kind<?> kind = event.kind();
-			Path    path = (Path) event.context();
-
-			for (Path filePath : filePaths) {
-				if (filePath.equals(path)) {
-					logger.log(Level.INFO, "File \"{0}\" was changed. Kind: {1}.", new Object[] { dirPath.resolve(filePath), kind });
-					try {
-						reload(false);
-					} catch (Throwable e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-
-		@Override
-		public void run() {
-			try {
-				WatchService watchService = dirPath.getFileSystem().newWatchService();
-				dirPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
-
-				while (true) {
-					WatchKey watchKey;
-					watchKey = watchService.take();
-
-					for (final WatchEvent<?> event : watchKey.pollEvents())
-						printEvent(event);
-
-					if (!watchKey.reset()) {
-						watchKey.cancel();
-						watchService.close();
-						break;
-					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
 
 	/**
 	 * Called by the servlet container to indicate to a servlet that the 
@@ -229,6 +170,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		String[]  collectFileArr  = new String[1];
 		String[]  openApiPathArr  = new String[1];
 		String[]  openApiTitleArr = new String[1];
+		String[]  dataFileArr     = new String[1];
 
 		try {
 			InitialContext ctx = new InitialContext();
@@ -236,7 +178,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
+			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 
 			noWatch      = noWatchArr[0];
 			noEtag       = noEtagArr[0];
@@ -244,6 +186,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			collectFile  = collectFileArr[0];
 			openApiPath  = openApiPathArr[0];
 			openApiTitle = openApiTitleArr[0];
+			dataFile     = dataFileArr[0];
+
 			if (openApiTitle == null)
 				openApiTitle = "";
 
@@ -956,7 +900,17 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			if (activateDirWatchers) {
 				DirectoryWatcher dirWatcher = directoryWatchersMap.get(dirPath);
 				if (dirWatcher == null) {
-					dirWatcher = new DirectoryWatcher(dirPath);
+					dirWatcher = new DirectoryWatcher(logger, dirPath, new Runnable() {
+
+						@Override
+						public void run() {
+							try {
+								reload(false);
+							} catch (Throwable e) {
+								e.printStackTrace();
+							}
+						}
+					});
 					Thread dirWatcherThread = new Thread(dirWatcher);
 					dirWatcherThread.start();
 					directoryWatchersMap.put(dirPath, dirWatcher);
