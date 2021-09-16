@@ -145,6 +145,10 @@ public class ParseDumpUtils {
 				if (inBody) {
 					if (END_OF_BODY_MARKER.equals(line.stripTrailing())) {
 						inBody = false;
+						if (inRequest)
+							inRequest = false;
+						else if (inResponse)
+							inResponse = false;
 						continue;
 					}
 					if (inRequest)
