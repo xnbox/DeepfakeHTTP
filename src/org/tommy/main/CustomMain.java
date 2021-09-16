@@ -124,9 +124,10 @@ public class CustomMain {
 			String[]                     collectFileArr  = new String[1];
 			String[]                     openApiPathArr  = new String[1];
 			String[]                     openApiTitleArr = new String[1];
+			String[]                     dataFileArr     = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 
 				String json = serializeInfoToJson(dumps, format, !noPretty);
 				System.out.println(json);
@@ -142,9 +143,10 @@ public class CustomMain {
 			String[]                      collectFileArr  = new String[1];
 			String[]                      openApiPathArr  = new String[1];
 			String[]                      openApiTitleArr = new String[1];
+			String[]                      dataFileArr     = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				String json = serializeRequestsToJson(allReqResps, format, !noPretty);
@@ -161,9 +163,10 @@ public class CustomMain {
 			String[]                      collectFileArr  = new String[1];
 			String[]                      openApiPathArr  = new String[1];
 			String[]                      openApiTitleArr = new String[1];
+			String[]                      dataFileArr     = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitleArr[0]);

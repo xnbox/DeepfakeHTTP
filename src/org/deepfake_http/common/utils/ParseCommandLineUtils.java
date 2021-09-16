@@ -89,6 +89,7 @@ public class ParseCommandLineUtils {
 	private static final String ARGS_COLLECT       = "--collect";      // collect live request/response dumps to file
 	private static final String ARGS_OPENAPI_PATH  = "--openapi-path";
 	private static final String ARGS_OPENAPI_TITLE = "--openapi-title";
+	private static final String ARGS_DATA          = "--data";
 
 	/**
 	 * 
@@ -145,7 +146,7 @@ public class ParseCommandLineUtils {
 	 * @param openApiTitleArr
 	 * @throws Throwable
 	 */
-	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noWatchArr, boolean[] noEtagArr, boolean[] noLogArr, String[] collectFileArr, String[] openApiPathArr, String[] openApiTitleArr) throws Throwable {
+	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noWatchArr, boolean[] noEtagArr, boolean[] noLogArr, String[] collectFileArr, String[] openApiPathArr, String[] openApiTitleArr, String[] dataFileArr) throws Throwable {
 		for (int i = 0; i < args.length; i++) {
 			/* skip original Tommy options */
 
@@ -181,6 +182,9 @@ public class ParseCommandLineUtils {
 			} else if (args[i].equals(ARGS_OPENAPI_TITLE)) {
 				if (i < args.length - 1)
 					openApiTitleArr[0] = args[++i];
+			} else if (args[i].equals(ARGS_DATA)) {
+				if (i < args.length - 1)
+					dataFileArr[0] = args[++i];
 			} else {
 				String fileName = args[i];
 				Path   path     = Paths.get(fileName);
