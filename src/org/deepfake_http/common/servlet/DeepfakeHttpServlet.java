@@ -134,6 +134,9 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private Logger logger;
 
 	private Map<Path /* dirPath */, DirectoryWatcher> directoryWatchersMap = new HashMap<>();
+	private DirectoryWatcher                          dataFileDirectoryWatcher;
+
+	private Map<String, Object> dataMap = new HashMap<>();
 
 	private List<ReqResp> allReqResps;
 	private ReqResp       badRequest400;
@@ -191,6 +194,22 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			if (openApiTitle == null)
 				openApiTitle = "";
 
+			if (dataFile != null) {
+				Path dataFilePath = new File(dataFile).toPath();
+				dataFileDirectoryWatcher = new DirectoryWatcher(logger, dataFilePath.getParent(), new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							reloadDataFile(dataFilePath);
+						} catch (Throwable e) {
+							e.printStackTrace();
+						}
+					}
+				});
+				dataFileDirectoryWatcher.addFile(dataFilePath);
+				reloadDataFile(dataFilePath);
+			}
 			boolean activateDirWatchers = !noWatch;
 			reload(activateDirWatchers);
 		} catch (Throwable e) {
@@ -709,7 +728,10 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private byte[] getnerateOutFromTemplate(String body, Map<String, List<String>> providedParams) throws IOException, TemplateException {
 		Template     freeMarkerTemplate = new Template("", new StringReader(body), freeMarkerConfiguration);
 		StringWriter writer             = new StringWriter();
-		freeMarkerTemplate.process(providedParams, writer);
+		Map<String, Object> tmpDataMap = new HashMap<>();
+		tmpDataMap.putAll(dataMap);
+		tmpDataMap.putAll(providedParams);
+		freeMarkerTemplate.process(tmpDataMap, writer);
 		body = writer.toString();
 		return body.getBytes(StandardCharsets.UTF_8);
 	}
@@ -873,6 +895,11 @@ public class DeepfakeHttpServlet extends HttpServlet {
 				return reqResp;
 		}
 		return null;
+	}
+
+	private void reloadDataFile(Path dataFilePath) throws IOException {
+		String data = Files.readString(dataFilePath, StandardCharsets.UTF_8); // JSON or YAML
+		dataMap = JacksonUtils.parseJsonYamlToMap(data);
 	}
 
 	/**
