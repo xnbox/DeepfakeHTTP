@@ -86,8 +86,9 @@ public class MatchUtils {
 				return false;
 			for (int i = 0; i < paramValuesTemplate.size(); i++) {
 				String paramValueTemplate = paramValuesTemplate.get(i);
-				if ("*".equals(paramValueTemplate))
-					continue;
+				//				if ("*".equals(paramValueTemplate)) {
+				//					continue;
+				//				}
 				String paramValueQuery = paramValuesQuery.get(i);
 				if (!match(paramValueTemplate, paramValueQuery))
 					return false;
@@ -118,7 +119,7 @@ public class MatchUtils {
 				list = new ArrayList<>();
 				paramMap.put(key, list);
 			}
-			String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8) : null;
+			String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8) : "";
 			list.add(value);
 		}
 	}
@@ -154,6 +155,8 @@ public class MatchUtils {
 
 	private static boolean match(String template, String s) {
 		if (Objects.equals(template, s))
+			return true;
+		if ("*".equals(template) && s != null)
 			return true;
 		if (template == null && s != null)
 			return false;
