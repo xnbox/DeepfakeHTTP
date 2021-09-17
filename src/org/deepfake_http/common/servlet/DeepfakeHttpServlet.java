@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -136,7 +137,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private Map<Path /* dirPath */, DirectoryWatcher> directoryWatchersMap = new HashMap<>();
 	private DirectoryWatcher                          dataFileDirectoryWatcher;
 
-	private Map<String, Object> dataMap = new HashMap<>();
+	private String              dataJson = "{}";
+	private Map<String, Object> dataMap  = new HashMap<>();
 
 	private List<ReqResp> allReqResps;
 	private ReqResp       badRequest400;
@@ -194,23 +196,31 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			if (openApiTitle == null)
 				openApiTitle = "";
 
-			if (dataFile != null) {
-				Path dataFilePath = new File(dataFile).toPath();
-				dataFileDirectoryWatcher = new DirectoryWatcher(logger, dataFilePath.getParent(), new Runnable() {
-
-					@Override
-					public void run() {
-						try {
-							reloadDataFile(dataFilePath);
-						} catch (Throwable e) {
-							e.printStackTrace();
-						}
-					}
-				});
-				dataFileDirectoryWatcher.addFile(dataFilePath);
-				reloadDataFile(dataFilePath);
-			}
 			boolean activateDirWatchers = !noWatch;
+
+			if (dataFile != null) {
+				Path path     = new File(dataFile).toPath();
+				Path dirPath  = path.getParent();
+				Path filePath = path.getFileName();
+
+				if (activateDirWatchers) {
+					dataFileDirectoryWatcher = new DirectoryWatcher(logger, dirPath, new Runnable() {
+
+						@Override
+						public void run() {
+							try {
+								reloadDataFile(path);
+							} catch (Throwable e) {
+								e.printStackTrace();
+							}
+						}
+					});
+					dataFileDirectoryWatcher.addFile(filePath);
+					Thread dirWatcherThread = new Thread(dataFileDirectoryWatcher);
+					dirWatcherThread.start();
+				}
+				reloadDataFile(path);
+			}
 			reload(activateDirWatchers);
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -221,6 +231,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 		freeMarkerConfiguration = new Configuration(Configuration.VERSION_2_3_31);
 		freeMarkerConfiguration.setDefaultEncoding("UTF-8");
+		freeMarkerConfiguration.setNumberFormat("computer");
+		freeMarkerConfiguration.setBooleanFormat("c");
 		freeMarkerConfiguration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 		freeMarkerConfiguration.setLogTemplateExceptions(false);
 		freeMarkerConfiguration.setWrapUncheckedExceptions(true);
@@ -726,9 +738,18 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	}
 
 	private byte[] getnerateOutFromTemplate(String body, Map<String, List<String>> providedParams) throws IOException, TemplateException {
-		Template     freeMarkerTemplate = new Template("", new StringReader(body), freeMarkerConfiguration);
-		StringWriter writer             = new StringWriter();
-		Map<String, Object> tmpDataMap = new HashMap<>();
+		while (true) {
+			String newBody = replaceRandomInTemplate(dataJson, body, dataMap);
+			if (newBody == null)
+				break;
+			else
+				body = newBody;
+		}
+
+		System.out.println(body);
+		Template            freeMarkerTemplate = new Template("", new StringReader(body), freeMarkerConfiguration);
+		StringWriter        writer             = new StringWriter();
+		Map<String, Object> tmpDataMap         = new HashMap<>();
 		tmpDataMap.putAll(dataMap);
 		tmpDataMap.putAll(providedParams);
 		freeMarkerTemplate.process(tmpDataMap, writer);
@@ -898,8 +919,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	}
 
 	private void reloadDataFile(Path dataFilePath) throws IOException {
-		String data = Files.readString(dataFilePath, StandardCharsets.UTF_8); // JSON or YAML
-		dataMap = JacksonUtils.parseJsonYamlToMap(data);
+		dataJson = Files.readString(dataFilePath, StandardCharsets.UTF_8); // JSON or YAML
+		dataMap  = JacksonUtils.parseJsonYamlToMap(dataJson);
 	}
 
 	/**
@@ -976,4 +997,57 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			return is.readAllBytes();
 		}
 	}
+
+	private static String replaceRandomInTemplate(String dataJson, String s, Map<String, Object> map) throws IOException {
+		int pos = s.indexOf("${");
+		if (pos == -1)
+			return null;
+		int pos2 = s.indexOf("}", pos);
+		if (pos2 == -1)
+			return null;
+		int pos3 = s.indexOf("[", pos);
+		if (pos3 == -1)
+			return null;
+		if (pos3 > pos2)
+			return null;
+		int pos4 = s.indexOf("]", pos3);
+		if (pos4 == -1)
+			return null;
+		if (pos4 > pos2)
+			return null;
+		int pos5 = s.indexOf("$", pos3);
+		if (pos5 == -1)
+			return null;
+		if (pos5 > pos4)
+			return null;
+		//
+		String name   = s.substring(pos + 2, pos3);
+		Object object = getObject(dataJson, name);
+		if (object instanceof List) {
+			List   list  = (List) object;
+			int    len   = list.size();
+			int    rnd   = ThreadLocalRandom.current().nextInt(0, len);
+			String left  = s.substring(0, pos5);
+			String right = s.substring(pos5 + 1);
+			return left + Integer.toString(rnd) + right;
+		}
+		return null;
+	}
+
+	private static Object getObject(String json, String var) throws IOException {
+		String s = "r=" + json + '.' + var;
+		try {
+			Context cx = Context.enter();
+			cx.setLanguageVersion(Context.VERSION_1_8);
+			cx.setOptimizationLevel(9);
+			cx.getWrapFactory().setJavaPrimitiveWrap(true);
+			ScriptableObject scope = new ImporterTopLevel(cx);
+			scope = (ScriptableObject) cx.initStandardObjects(scope);
+			Object result = cx.evaluateString(scope, s, "", 0, null);
+			return result;
+		} finally {
+			Context.exit();
+		}
+	}
+
 }

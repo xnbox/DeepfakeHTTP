@@ -1,5 +1,6 @@
 package org.deepfake_http.common.dir_watcher;
 
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
@@ -48,7 +49,7 @@ public class DirectoryWatcher implements Runnable {
 	@Override
 	public void run() {
 		try {
-			WatchService watchService = dirPath.getFileSystem().newWatchService();
+			WatchService watchService = FileSystems.getDefault().newWatchService();
 			dirPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
 
 			while (true) {
