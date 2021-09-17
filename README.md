@@ -176,7 +176,7 @@ That's all. &nbsp;🎉🎉🎉
 <h2>LEGAL</h2>
 <ul>
 <li>The DeepfakeHTTP is released under the <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/LICENSE">MIT</a> license.</li>
-<li>Third-party product licenses: <a href="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/THIRD-PARTY">THIRD-PARTY</a></li>
+<li>Third-party products: <a href="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/THIRD-PARTY">THIRD-PARTY</a></li>
 </ul>
 <br><br>
 <h1></h1>
