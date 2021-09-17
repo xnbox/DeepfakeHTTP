@@ -116,9 +116,35 @@ Start server on mix of dump and OpenAPI files:
 <pre>
 java -jar df.jar dump1.txt openapi2.json dump3.txt openapi4.yaml
 </pre>
-Provide custom OpenAPI spec title:
+Serve built-in OpenAPI client:
 <pre>
 java -jar df.jar --openapi-path /api --openapi-title 'My Killer REST API v18.2.1' dump.txt
+</pre>
+</details>
+<details>
+<summary>
+	even more examples&hellip;
+</summary>
+<br>
+Collect live request/response to file:
+<pre>
+java -jar df.jar --collect /home/john/live.txt dump.txt
+</pre>
+Specify json data file to populate templates:
+<pre>
+java -jar df.jar --data /home/john/data.json dump.txt
+</pre>
+Print dump files statistics to stdout as json:
+<pre>
+java -jar df.jar --print-info dump.txt
+</pre>
+Print dump requests to stdout as json:
+<pre>
+java -jar df.jar --print-requests dump.txt
+</pre>
+Print OpenAPI specification to stdout as json:
+<pre>
+java -jar df.jar --print-openapi dump.txt
 </pre>
 </details>
 
