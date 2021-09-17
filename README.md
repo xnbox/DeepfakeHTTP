@@ -9,7 +9,7 @@ Your 100% static dynamic backend</h1>
 <table width="100%">
 <tr>
 <td>
-<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/image.png" height="170rem">
+<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/image.png" height="170rem">
 </td>
 <td>
 <strong>What are people using it for?</strong>
@@ -52,7 +52,7 @@ java -jar df.jar dump.txt
 </pre>
 </li>
     <li>Use a browser to check whether the server is running: <a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a>
-<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/get-started.png">
+<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/get-started.png">
 </li>
 </ol>
 That's it! For more examples see: <a href="#appendix-cdump-examples">APPENDIX C.</a>
