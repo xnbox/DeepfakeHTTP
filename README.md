@@ -134,15 +134,15 @@ Specify json data file to populate templates:
 <pre>
 java -jar df.jar --data /home/john/data.json dump.txt
 </pre>
-Print dump files statistics to stdout as json:
+Print dump files statistics to stdout as JSON:
 <pre>
 java -jar df.jar --print-info dump.txt
 </pre>
-Print dump requests to stdout as json:
+Print dump requests to stdout as JSON:
 <pre>
 java -jar df.jar --print-requests dump.txt
 </pre>
-Print OpenAPI specification to stdout as json:
+Print OpenAPI specification to stdout as JSON:
 <pre>
 java -jar df.jar --print-openapi dump.txt
 </pre>
