@@ -116,7 +116,7 @@ Start server on mix of dump and OpenAPI files:
 <pre>
 java -jar df.jar dump1.txt openapi2.json dump3.txt openapi4.yaml
 </pre>
-Serve built-in OpenAPI client:
+Start server with built-in OpenAPI client with custom title:
 <pre>
 java -jar df.jar --openapi-path /api --openapi-title 'My Killer REST API v18.2.1' dump.txt
 </pre>
