@@ -83,13 +83,13 @@ public class ParseCommandLineUtils {
 	//@formatter:on
 
 	/* command line args */
-	private static final String ARGS_NO_WATCH      = "--no-watch";     // disable watch dump files for changes
-	private static final String ARGS_NO_ETAG       = "--no-etag";      // disable ETag optimization
-	private static final String ARGS_NO_LOG        = "--no-log";       // disable request/response console logging
-	private static final String ARGS_COLLECT       = "--collect";      // collect live request/response dumps to file
-	private static final String ARGS_OPENAPI_PATH  = "--openapi-path";
-	private static final String ARGS_OPENAPI_TITLE = "--openapi-title";
-	private static final String ARGS_DATA          = "--data";
+	private static final String ARGS_NO_WATCH      = "--no-watch";      // disable watch dump files for changes
+	private static final String ARGS_NO_ETAG       = "--no-etag";       // disable ETag optimization
+	private static final String ARGS_NO_LOG        = "--no-log";        // disable request/response console logging
+	private static final String ARGS_COLLECT       = "--collect";       // collect live request/response dumps to file
+	private static final String ARGS_OPENAPI_PATH  = "--openapi-path";  // serve OpenAPI client at specified context path
+	private static final String ARGS_OPENAPI_TITLE = "--openapi-title"; // provide custom OpenAPI spec title             
+	private static final String ARGS_DATA          = "--data";          // specify json/yaml data file to populate templates
 
 	/**
 	 * 

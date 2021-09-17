@@ -96,6 +96,7 @@ public class CustomMain {
 			sb.append("     --openapi-path <path>  serve OpenAPI client at specified context path     \n");
 			sb.append("     --openapi-title <text> provide custom OpenAPI spec title                  \n");
 			sb.append("     --collect <file>       collect live request/response to file              \n");
+			sb.append("     --data <file>          specify json/yaml data file to populate templates  \n");
 			sb.append("     --format <json|yaml>   output format for --print-* commands, default: json\n");
 			sb.append("                                                                               \n");
 			sb.append(" FLAGS:                                                                        \n");
