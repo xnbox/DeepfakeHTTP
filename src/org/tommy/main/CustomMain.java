@@ -47,6 +47,7 @@ public class CustomMain {
 	private static final String ARGS_PRINT_OPENAPI  = "--print-openapi";
 	private static final String ARGS_FORMAT         = "--format";
 	private static final String ARGS_NO_PRETTY      = "--no-pretty";
+	private static final String ARGS_NO_COLOR       = "--no-color";
 
 	/**
 	 * Custom main method (called for emmbedded web apps)
@@ -59,7 +60,9 @@ public class CustomMain {
 		boolean requests = false;
 		boolean openapi  = false;
 		boolean noPretty = false;
-		String  format   = "json";
+		boolean noColor  = false;
+
+		String format = "json";
 
 		for (int i = 0; i < args.length; i++)
 			if (args[i].equals(ARGS_HELP)) {
@@ -73,6 +76,8 @@ public class CustomMain {
 				openapi = true;
 			else if (args[i].equals(ARGS_NO_PRETTY))
 				noPretty = true;
+			else if (args[i].equals(ARGS_NO_COLOR))
+				noColor = true;
 			else if (args[i].equals(ARGS_FORMAT)) {
 				if (i < args.length - 1)
 					format = args[++i].toLowerCase(Locale.ENGLISH);
@@ -103,6 +108,7 @@ public class CustomMain {
 			sb.append("     --no-log               disable request/response console logging           \n");
 			sb.append("     --no-etag              disable ETag optimization                          \n");
 			sb.append("     --no-watch             disable watch files for changes                    \n");
+			sb.append("     --no-color             disable ANSI color output for --print-* commands   \n");
 			sb.append("     --no-pretty            disable prettyprint for --print-* commands         \n");
 			sb.append("     --redirect             redirect HTTP to HTTPS                             \n");
 			sb.append("                                                                               \n");
@@ -130,7 +136,7 @@ public class CustomMain {
 			try {
 				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 
-				String json = serializeInfoToJson(dumps, format, !noPretty);
+				String json = serializeInfoToJson(dumps, format, !noPretty, !noColor);
 				System.out.println(json);
 			} catch (Throwable e) {
 				e.printStackTrace();
@@ -150,7 +156,7 @@ public class CustomMain {
 				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
-				String json = serializeRequestsToJson(allReqResps, format, !noPretty);
+				String json = serializeRequestsToJson(allReqResps, format, !noPretty, !noColor);
 				System.out.println(json);
 			} catch (Throwable e) {
 				e.printStackTrace();
@@ -171,7 +177,7 @@ public class CustomMain {
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitleArr[0]);
-				String              json       = JacksonUtils.stringifyToJsonYaml(openApiMap, format, !noPretty);
+				String              json       = JacksonUtils.stringifyToJsonYaml(openApiMap, format, !noPretty, !noColor);
 				System.out.println(json);
 			} catch (Throwable e) {
 				e.printStackTrace();
@@ -187,7 +193,7 @@ public class CustomMain {
 	 * @return
 	 * @throws Throwable
 	 */
-	private static String serializeInfoToJson(List<String> dumps, String format, boolean prettyprint) throws Throwable {
+	private static String serializeInfoToJson(List<String> dumps, String format, boolean prettyprint, boolean color) throws Throwable {
 		List<Map<String, Object>> list = new ArrayList<>(dumps.size());
 		for (String dumpFile : dumps) {
 			List<ReqResp>       dumpReqResp = ParseCommandLineUtils.getDumpReqResp(dumpFile);
@@ -196,7 +202,7 @@ public class CustomMain {
 			map.put("requestCount", dumpReqResp.size());
 			list.add(map);
 		}
-		return JacksonUtils.stringifyToJsonYaml(list, format, prettyprint);
+		return JacksonUtils.stringifyToJsonYaml(list, format, prettyprint, color);
 	}
 
 	/**
@@ -206,7 +212,7 @@ public class CustomMain {
 	 * @return
 	 * @throws Exception
 	 */
-	private static String serializeRequestsToJson(List<ReqResp> allReqResps, String format, boolean prettyprint) throws Throwable {
+	private static String serializeRequestsToJson(List<ReqResp> allReqResps, String format, boolean prettyprint, boolean color) throws Throwable {
 		List<Map<String, Object>> list = new ArrayList<>(allReqResps.size());
 		for (ReqResp reqResp : allReqResps) {
 			Map<String, Object> map          = new LinkedHashMap<>();
@@ -217,7 +223,7 @@ public class CustomMain {
 			map.put("dumpFileLineNumber", reqResp.request.lineNumber);
 			list.add(map);
 		}
-		return JacksonUtils.stringifyToJsonYaml(list, format, prettyprint);
+		return JacksonUtils.stringifyToJsonYaml(list, format, prettyprint, color);
 	}
 
 }

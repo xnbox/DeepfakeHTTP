@@ -578,7 +578,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							bs = getnerateOutFromTemplate(body, providedParams);
 						else if ("application/x-sh".equals(bodyType)) {
 							Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
-							String              json = JacksonUtils.stringifyToJsonYaml(http, JacksonUtils.FORMAT_JSON, false) + '\n';
+							String              json = JacksonUtils.stringifyToJsonYaml(http, JacksonUtils.FORMAT_JSON, false, false) + '\n';
 							bs = getnerateOutFromSh(body, json);
 						} else if ("application/javascript".equals(bodyType)) {
 							Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
@@ -934,10 +934,10 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		/* Create OpenAPI JSON */
 		Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitle);
 
-		String openApiJson = JacksonUtils.stringifyToJsonYaml(openApiMap, JacksonUtils.FORMAT_JSON, true);
+		String openApiJson = JacksonUtils.stringifyToJsonYaml(openApiMap, JacksonUtils.FORMAT_JSON, true, false);
 		openApiJsonBs = openApiJson.getBytes(StandardCharsets.UTF_8);
 
-		String openApiYaml = JacksonUtils.stringifyToJsonYaml(openApiMap, JacksonUtils.FORMAT_YAML, true);
+		String openApiYaml = JacksonUtils.stringifyToJsonYaml(openApiMap, JacksonUtils.FORMAT_YAML, true, false);
 		openApiYamlBs = openApiYaml.getBytes(StandardCharsets.UTF_8);
 
 		for (String dumpFile : dumps) {

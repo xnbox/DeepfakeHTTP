@@ -76,6 +76,7 @@ FLAGS:
     --no-log               disable request/response console logging
     --no-etag              disable ETag optimization
     --no-watch             disable watch files for changes
+    --no-color             disable ANSI color output for --print-* commands
     --no-pretty            disable prettyprint for --print-* commands
     --redirect             redirect HTTP to HTTPS
 

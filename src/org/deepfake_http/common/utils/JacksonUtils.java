@@ -27,10 +27,13 @@ E-Mail: xnbox.team@outlook.com
 
 package org.deepfake_http.common.utils;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Locale;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TSFBuilder;
@@ -38,6 +41,10 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.github.skjolber.jackson.jsh.AnsiSyntaxHighlight;
+import com.github.skjolber.jackson.jsh.DefaultSyntaxHighlighter;
+import com.github.skjolber.jackson.jsh.SyntaxHighlighter;
+import com.github.skjolber.jackson.jsh.SyntaxHighlightingJsonGenerator;
 
 public class JacksonUtils {
 
@@ -50,10 +57,11 @@ public class JacksonUtils {
 	 * @param obj
 	 * @param format
 	 * @param prettyprint
+	 * @param color
 	 * @return
-	 * @throws JsonProcessingException
+	 * @throws IOException
 	 */
-	public static String stringifyToJsonYaml(Object obj, String format, boolean prettyprint) throws JsonProcessingException {
+	public static String stringifyToJsonYaml(Object obj, String format, boolean prettyprint, boolean color) throws IOException {
 		format = format.toLowerCase(Locale.ENGLISH);
 		JsonFactory jsonFactory;
 		if (FORMAT_JSON.equals(format))
@@ -64,9 +72,31 @@ public class JacksonUtils {
 			throw new IllegalArgumentException(format);
 
 		ObjectMapper om = new ObjectMapper(jsonFactory);
-
 		om.configure(SerializationFeature.INDENT_OUTPUT, prettyprint);
-		return om.writeValueAsString(obj);
+		try (StringWriter sw = new StringWriter(); JsonGenerator delegate = om.createGenerator(sw)) {
+			if (color) {
+				SyntaxHighlighter highlighter   = DefaultSyntaxHighlighter.newBuilder()                                   //
+
+						.withCurlyBrackets(AnsiSyntaxHighlight.YELLOW, AnsiSyntaxHighlight.LOW_INTENSITY)                 //
+						.withSquareBrackets(AnsiSyntaxHighlight.YELLOW, AnsiSyntaxHighlight.LOW_INTENSITY)                //
+						.withColon(AnsiSyntaxHighlight.YELLOW, AnsiSyntaxHighlight.LOW_INTENSITY)                         //
+						.withComma(AnsiSyntaxHighlight.YELLOW, AnsiSyntaxHighlight.LOW_INTENSITY)                         //
+
+						.withField(AnsiSyntaxHighlight.WHITE, AnsiSyntaxHighlight.LOW_INTENSITY)                          //
+
+						.withBoolean(AnsiSyntaxHighlight.MAGENTA, AnsiSyntaxHighlight.HIGH_INTENSITY)                     //
+						.withNull(AnsiSyntaxHighlight.CYAN, AnsiSyntaxHighlight.HIGH_INTENSITY)                           //
+						.withNumber(AnsiSyntaxHighlight.BLUE, AnsiSyntaxHighlight.HIGH_INTENSITY)                         //
+						.withString(AnsiSyntaxHighlight.GREEN)                                                            //
+
+						.build();
+				JsonGenerator     jsonGenerator = new SyntaxHighlightingJsonGenerator(delegate, highlighter, prettyprint);
+				jsonGenerator.writeObject(obj);
+				jsonGenerator.close();
+			} else
+				delegate.writeObject(obj);
+			return sw.toString();
+		}
 	}
 
 	/**
