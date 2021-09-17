@@ -130,7 +130,7 @@ Collect live request/response to file:
 <pre>
 java -jar df.jar --collect /home/john/live.txt dump.txt
 </pre>
-Specify json data file to populate templates:
+Specify JSON data file to populate templates:
 <pre>
 java -jar df.jar --data /home/john/data.json dump.txt
 </pre>
