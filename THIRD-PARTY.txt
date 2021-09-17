@@ -32,10 +32,16 @@ HOME PAGE  : https://imagej.nih.gov/ij
 DESCRIPTION: Used for matching strings by wildcards (ij.util.WildcardMatch.java)
 
 
+NAME       : Apache Tomcat
+LICENSE    : Apache License 2.0
+HOME PAGE  : https://tomcat.apache.org
+DESCRIPTION: Used as embedded Java Application Server
+
+
 NAME       : Tommy
 LICENSE    : MIT License
 HOME PAGE  : https://github/xnbox/tommy
-DESCRIPTION: Used as embedded Java Application Server.
+DESCRIPTION: Used as single-file embedded Apache Tomcat
 
 
 NAME       : Swagger UI
