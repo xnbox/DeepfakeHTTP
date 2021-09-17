@@ -50,17 +50,23 @@ public class CustomMain {
 	private static final String ARGS_NO_COLOR       = "--no-color";
 
 	/**
+	 * https://no-color.org
+	 */
+	private static final String NO_COLOR = System.getenv("NO_COLOR");
+
+	/**
 	 * Custom main method (called for emmbedded web apps)
 	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {
+
 		boolean help     = false;
 		boolean info     = false;
 		boolean requests = false;
 		boolean openapi  = false;
 		boolean noPretty = false;
-		boolean noColor  = false;
+		boolean noColor  = NO_COLOR != null;
 
 		String format = "json";
 

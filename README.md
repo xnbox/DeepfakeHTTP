@@ -170,6 +170,7 @@ That's all. &nbsp;🎉🎉🎉
     <li>TLS(SSL) connections and HTTP to HTTPS redirect</li>
     <li>Customizable OpenAPI client path</li>
     <li>Latest OpenAPI specification (v3.0.3) in JSON and YAML format</li>
+    <li>Disabling color via NO_COLOR environment variable</li>
 </ul>
 
 <h2>License</h2>
