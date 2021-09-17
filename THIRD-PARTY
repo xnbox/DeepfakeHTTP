@@ -14,6 +14,12 @@ HOME PAGE  : https://github.com/FasterXML/jackson
 DESCRIPTION: Used as JSON parser and serializer
 
 
+NAME       : jackson-syntax-highlight
+LICENSE    : Apache License 2.0
+HOME PAGE  : https://github.com/skjolber/jackson-syntax-highlight
+DESCRIPTION: Used as syntax highlighter for JSON ANSI color output
+
+
 NAME       : Apache FreeMarker™
 LICENSE    : Apache License 2.0
 HOME PAGE  : https://freemarker.apache.org
