@@ -2,7 +2,7 @@
 Your 100% static dynamic backend</h1>
 
 <a title="License MIT" href="https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
-<a title="Release 1.0.11" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-1.0.11-4DC71F?style=flat-square"></a>
+<a title="Release 1.0.12" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-1.0.12-4DC71F?style=flat-square"></a>
 <a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
 
 <p align="center">
@@ -69,6 +69,7 @@ OPTIONS:
     --openapi-path <path>  serve OpenAPI client at specified context path
     --openapi-title <text> provide custom OpenAPI spec title
     --collect <file>       collect live request/response to file
+    --data <file>          specify json/yaml data file to populate templates
     --format <json|yaml>   output format for --print-* commands, default: json
 
 FLAGS:
