@@ -41,13 +41,14 @@ import org.deepfake_http.common.utils.ParseCommandLineUtils;
 import org.deepfake_http.common.utils.SystemProperties;
 
 public class CustomMain {
+	/* formatter settings */
 	private static final String ARGS_HELP           = "--help";
 	private static final String ARGS_PRINT_INFO     = "--print-info";
 	private static final String ARGS_PRINT_REQUESTS = "--print-requests";
 	private static final String ARGS_PRINT_OPENAPI  = "--print-openapi";
 	private static final String ARGS_FORMAT         = "--format";
 	private static final String ARGS_NO_PRETTY      = "--no-pretty";
-	private static final String ARGS_NO_COLOR       = "--no-color";
+	public static final String  ARGS_NO_COLOR       = "--no-color";
 
 	/**
 	 * https://no-color.org
@@ -134,13 +135,14 @@ public class CustomMain {
 			boolean[]                    noWatchArr      = new boolean[1];
 			boolean[]                    noEtagArr       = new boolean[1];
 			boolean[]                    noLogArr        = new boolean[1];
+			boolean[]                    noColorArr      = new boolean[1];
 			String[]                     collectFileArr  = new String[1];
 			String[]                     openApiPathArr  = new String[1];
 			String[]                     openApiTitleArr = new String[1];
 			String[]                     dataFileArr     = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 
 				String json = serializeInfoToJson(dumps, format, !noPretty, !noColor);
 				System.out.println(json);
@@ -153,13 +155,14 @@ public class CustomMain {
 			boolean[]                     noWatchArr      = new boolean[1];
 			boolean[]                     noEtagArr       = new boolean[1];
 			boolean[]                     noLogArr        = new boolean[1];
+			boolean[]                     noColorArr      = new boolean[1];
 			String[]                      collectFileArr  = new String[1];
 			String[]                      openApiPathArr  = new String[1];
 			String[]                      openApiTitleArr = new String[1];
 			String[]                      dataFileArr     = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				String json = serializeRequestsToJson(allReqResps, format, !noPretty, !noColor);
@@ -173,13 +176,14 @@ public class CustomMain {
 			boolean[]                     noWatchArr      = new boolean[1];
 			boolean[]                     noEtagArr       = new boolean[1];
 			boolean[]                     noLogArr        = new boolean[1];
+			boolean[]                     noColorArr      = new boolean[1];
 			String[]                      collectFileArr  = new String[1];
 			String[]                      openApiPathArr  = new String[1];
 			String[]                      openApiTitleArr = new String[1];
 			String[]                      dataFileArr     = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitleArr[0]);

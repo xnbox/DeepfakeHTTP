@@ -38,6 +38,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.deepfake_http.common.ReqResp;
+import org.tommy.main.CustomMain;
 
 public class ParseCommandLineUtils {
 	/*
@@ -146,7 +147,7 @@ public class ParseCommandLineUtils {
 	 * @param openApiTitleArr
 	 * @throws Throwable
 	 */
-	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noWatchArr, boolean[] noEtagArr, boolean[] noLogArr, String[] collectFileArr, String[] openApiPathArr, String[] openApiTitleArr, String[] dataFileArr) throws Throwable {
+	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noWatchArr, boolean[] noEtagArr, boolean[] noLogArr, boolean[] noColorArr, String[] collectFileArr, String[] openApiPathArr, String[] openApiTitleArr, String[] dataFileArr) throws Throwable {
 		for (int i = 0; i < args.length; i++) {
 			/* skip original Tommy options */
 
@@ -173,6 +174,8 @@ public class ParseCommandLineUtils {
 				noEtagArr[0] = true;
 			else if (args[i].equals(ARGS_NO_LOG))
 				noLogArr[0] = true;
+			else if (args[i].equals(CustomMain.ARGS_NO_COLOR))
+				noColorArr[0] = true;
 			else if (args[i].equals(ARGS_COLLECT)) {
 				if (i < args.length - 1)
 					collectFileArr[0] = args[++i];

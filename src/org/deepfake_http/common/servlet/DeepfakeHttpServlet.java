@@ -55,6 +55,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import javax.naming.InitialContext;
 
@@ -66,6 +67,7 @@ import org.deepfake_http.common.ReqResp;
 import org.deepfake_http.common.dir_watcher.DirectoryWatcher;
 import org.deepfake_http.common.utils.DataUriUtils;
 import org.deepfake_http.common.utils.HttpPathUtils;
+import org.deepfake_http.common.utils.IAnsi;
 import org.deepfake_http.common.utils.JacksonUtils;
 import org.deepfake_http.common.utils.MatchUtils;
 import org.deepfake_http.common.utils.OpenApiUtils;
@@ -124,6 +126,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noWatch;
 	private boolean noEtag;
 	private boolean noLog;
+	private boolean noColor;
 
 	private String collectFile;
 	private String openApiPath;
@@ -172,6 +175,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		boolean[] noWatchArr      = new boolean[1];
 		boolean[] noEtagArr       = new boolean[1];
 		boolean[] noLogArr        = new boolean[1];
+		boolean[] noColorArr      = new boolean[1];
 		String[]  collectFileArr  = new String[1];
 		String[]  openApiPathArr  = new String[1];
 		String[]  openApiTitleArr = new String[1];
@@ -183,11 +187,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr, noLogArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
+			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 
 			noWatch      = noWatchArr[0];
 			noEtag       = noEtagArr[0];
 			noLog        = noLogArr[0];
+			noColor      = noColorArr[0];
 			collectFile  = collectFileArr[0];
 			openApiPath  = openApiPathArr[0];
 			openApiTitle = openApiTitleArr[0];
@@ -226,9 +231,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 
-		String contextPath = servletConfig.getServletContext().getContextPath();
-		logger.log(Level.INFO, "Context uri: {0}", contextPath);
-
 		freeMarkerConfiguration = new Configuration(Configuration.VERSION_2_3_31);
 		freeMarkerConfiguration.setDefaultEncoding("UTF-8");
 		freeMarkerConfiguration.setNumberFormat("computer");
@@ -237,6 +239,11 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		freeMarkerConfiguration.setLogTemplateExceptions(false);
 		freeMarkerConfiguration.setWrapUncheckedExceptions(true);
 		freeMarkerConfiguration.setFallbackOnNullLoopVariable(false);
+
+		System.setProperty("java.util.logging.SimpleFormatter.format", "%5$s%6$s%n");
+		SimpleFormatter formatter = new SimpleFormatter();
+		logger.getParent().getHandlers()[0].setFormatter(formatter);
+		logger.log(Level.INFO, "DeepfakeHTTP started.");
 	}
 
 	/**
@@ -625,57 +632,10 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					for (Map.Entry<String, String> entry : responseHeaders.entrySet())
 						response.setHeader(entry.getKey(), entry.getValue());
 
-					// -------------------------------------------- log -------------------------------------------- //
-					byte[] logBs = null;
-					try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-						StringBuilder reqSb = new StringBuilder();
-						reqSb.append('\n');
-						reqSb.append("# --- REQUEST --- #\n");
-						reqSb.append(providedFirstLineStr + '\n');
-						/* provided headers */
-						for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
-							String headerName = headerNames.nextElement();
-							reqSb.append(processHeaderName(headerName) + ": ");
-							boolean first = true;
-							for (Enumeration<String> headerValues = request.getHeaders(headerName); headerValues.hasMoreElements();) {
-								String headerValue = headerValues.nextElement();
-								if (first)
-									first = false;
-								else
-									reqSb.append(';');
-								reqSb.append(headerValue);
-							}
-							reqSb.append('\n');
-						}
-						baos.write(reqSb.toString().getBytes(StandardCharsets.UTF_8));
-						if (providedBodyBs.length != 0) {
-							baos.write("\n".getBytes(StandardCharsets.UTF_8));
-							baos.write(providedBodyBs);
-						}
-						baos.write("\n".getBytes(StandardCharsets.UTF_8));
-
-						StringBuilder respSb = new StringBuilder();
-						respSb.append("# --- RESPONSE --- #\n");
-						respSb.append(ParseDumpUtils.HTTP_1_1 + ' ' + status + (message == null ? "" : ' ' + message) + '\n');
-						if (!simpleBadRequest400) {
-							/* provided headers */
-							for (Map.Entry<String, String> entry : responseHeaders.entrySet())
-								respSb.append(processHeaderName(entry.getKey()) + ": " + entry.getValue() + '\n');
-						}
-						baos.write(respSb.toString().getBytes(StandardCharsets.UTF_8));
-						if (bs.length != 0) {
-							baos.write("\n".getBytes(StandardCharsets.UTF_8));
-							baos.write(bs);
-						}
-						baos.write("\n".getBytes(StandardCharsets.UTF_8));
-						baos.flush();
-						logBs = baos.toByteArray();
-					}
-					if (!noLog)
-						logger.log(Level.INFO, '\n' + new String(logBs, StandardCharsets.UTF_8));
 					if (collectFile != null)
-						Files.write(new File(collectFile).toPath(), logBs, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-					// -------------------------------------------- log -------------------------------------------- //
+						logReqRespToFile(request, providedFirstLineStr, providedBodyBs, simpleBadRequest400, bs, status, message, responseHeaders);
+					if (!noLog)
+						logReqRespToConsole(request, providedFirstLineStr, providedBodyBs, simpleBadRequest400, bs, status, message, responseHeaders, !noColor);
 
 					OutputStream responseOutputStream = response.getOutputStream();
 					responseOutputStream.write(bs);
@@ -691,50 +651,195 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						}
 				}
 			}
-
-			private void hostOpenApiUi(AsyncContext asyncContext, HttpServletResponse response, String providedPath) throws IOException {
-				byte[] bs   = null;
-				String mime = null;
-				if (providedPath.isEmpty() || "/".equals(providedPath))
-					providedPath = "/index.html";
-
-				if ("/openapi.json".equals(providedPath)) {
-					mime = "application/json";
-					bs   = openApiJsonBs;
-				} else if ("/openapi.yaml".equals(providedPath)) {
-					mime = "text/yaml";
-					bs   = openApiYamlBs;
-				} else if (providedPath.endsWith(".html")) {
-					mime = "text/html";
-					String text = new String(getFileContent(providedPath), StandardCharsets.UTF_8);
-					if (providedPath.startsWith("/index.html")) {
-						String openApiHtmlTitle = openApiTitle;
-						if (openApiHtmlTitle == null)
-							openApiHtmlTitle = "";
-						text = text.replace("${title}", openApiHtmlTitle);
-					}
-					bs = text.getBytes(StandardCharsets.UTF_8);
-				} else if (providedPath.endsWith(".js")) {
-					mime = "text/javascript";
-					bs   = getFileContent(providedPath);
-				} else if (providedPath.endsWith(".png")) {
-					mime = "image/png";
-					bs   = getFileContent(providedPath);
-				} else if (providedPath.endsWith(".css")) {
-					mime = "text/css";
-					bs   = getFileContent(providedPath);
-				}
-				if (mime != null)
-					response.setContentType(mime);
-				if (bs != null) {
-					OutputStream responseOutputStream = response.getOutputStream();
-					responseOutputStream.write(bs);
-					responseOutputStream.flush();
-				}
-				asyncContext.complete();
-			}
 		});
 
+	}
+
+	private void logReqRespToFile(HttpServletRequest request, String providedFirstLineStr, byte[] providedBodyBs, boolean simpleBadRequest400, byte[] bs, int status, String message, Map<String, String> responseHeaders) throws IOException {
+		byte[] logBs = null;
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			baos.write(providedFirstLineStr.getBytes(StandardCharsets.UTF_8));
+			baos.write('\n');
+			/* provided headers */
+			for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
+				String headerName = headerNames.nextElement();
+				baos.write(processHeaderName(headerName).getBytes(StandardCharsets.UTF_8));
+				baos.write(':');
+				baos.write(' ');
+				boolean first = true;
+				for (Enumeration<String> headerValues = request.getHeaders(headerName); headerValues.hasMoreElements();) {
+					String headerValue = headerValues.nextElement();
+					if (first)
+						first = false;
+					else
+						baos.write(';');
+					baos.write(headerValue.getBytes(StandardCharsets.UTF_8));
+				}
+				baos.write('\n');
+			}
+			if (providedBodyBs.length != 0) {
+				baos.write('\n');
+				baos.write(providedBodyBs);
+			}
+			baos.write('\n');
+
+			String firstLineRespStr = ParseDumpUtils.HTTP_1_1 + ' ' + Integer.toString(status) + (message == null ? "" : ' ' + message);
+			baos.write(firstLineRespStr.getBytes(StandardCharsets.UTF_8));
+			baos.write('\n');
+			if (!simpleBadRequest400) {
+				/* provided headers */
+				for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
+					String headerStr = processHeaderName(entry.getKey()) + ": " + entry.getValue();
+					baos.write(headerStr.getBytes(StandardCharsets.UTF_8));
+					baos.write('\n');
+				}
+			}
+			if (bs.length != 0) {
+				baos.write('\n');
+				baos.write(bs);
+			}
+			baos.write('\n');
+
+			baos.flush();
+			logBs = baos.toByteArray();
+		}
+		Files.write(new File(collectFile).toPath(), logBs, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+	}
+
+	private void logReqRespToConsole(HttpServletRequest request, String providedFirstLineStr, byte[] providedBodyBs, boolean simpleBadRequest400, byte[] bs, int status, String message, Map<String, String> responseHeaders, boolean color) throws IOException {
+		byte[] logBs = null;
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			String titleBgColor   = IAnsi.BLACK_BRIGHT;
+			String firstLineColor;
+			String headersColor;
+			String contentColor;
+
+			if (status == HttpServletResponse.SC_BAD_REQUEST) {
+				firstLineColor = IAnsi.CYAN_BOLD_BRIGHT;
+				headersColor   = IAnsi.CYAN;
+				contentColor   = IAnsi.CYAN_BRIGHT;
+			} else {
+				firstLineColor = IAnsi.CYAN_BOLD_BRIGHT;
+				headersColor   = IAnsi.CYAN;
+				contentColor   = IAnsi.CYAN_BRIGHT;
+			}
+			StringBuilder reqSb = new StringBuilder();
+			if (color)
+				reqSb.append(IAnsi.RESET + titleBgColor);
+			reqSb.append("--------------------------------------------------------------------------------");
+			if (color)
+				reqSb.append(IAnsi.RESET + firstLineColor);
+			reqSb.append('\n');
+			reqSb.append(providedFirstLineStr);
+			if (color)
+				reqSb.append(IAnsi.RESET + headersColor);
+			reqSb.append('\n');
+			/* provided headers */
+			for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
+				String headerName = headerNames.nextElement();
+				reqSb.append(processHeaderName(headerName) + ": ");
+				boolean first = true;
+				for (Enumeration<String> headerValues = request.getHeaders(headerName); headerValues.hasMoreElements();) {
+					String headerValue = headerValues.nextElement();
+					if (first)
+						first = false;
+					else
+						reqSb.append(';');
+					reqSb.append(headerValue);
+				}
+				reqSb.append('\n');
+			}
+			if (color)
+				reqSb.append(IAnsi.RESET + contentColor);
+			baos.write(reqSb.toString().getBytes(StandardCharsets.UTF_8));
+			if (providedBodyBs.length != 0) {
+				baos.write('\n');
+				baos.write(providedBodyBs);
+			}
+			baos.write('\n');
+			if (color)
+				baos.write(IAnsi.RESET.getBytes(StandardCharsets.UTF_8));
+
+			if (status == HttpServletResponse.SC_BAD_REQUEST) {
+				firstLineColor = IAnsi.RED_BOLD_BRIGHT;
+				headersColor   = IAnsi.PURPLE;
+				contentColor   = IAnsi.PURPLE_BRIGHT;
+			} else {
+				firstLineColor = IAnsi.PURPLE_BOLD_BRIGHT;
+				headersColor   = IAnsi.PURPLE;
+				contentColor   = IAnsi.PURPLE_BRIGHT;
+			}
+
+			StringBuilder respSb = new StringBuilder();
+			if (color)
+				respSb.append(IAnsi.RESET + firstLineColor);
+			String firstLineRespStr = ParseDumpUtils.HTTP_1_1 + ' ' + Integer.toString(status) + (message == null ? "" : ' ' + message);
+			respSb.append(firstLineRespStr);
+			if (color)
+				respSb.append(IAnsi.RESET + headersColor);
+			respSb.append('\n');
+			if (!simpleBadRequest400) {
+				/* provided headers */
+				for (Map.Entry<String, String> entry : responseHeaders.entrySet())
+					respSb.append(processHeaderName(entry.getKey()) + ": " + entry.getValue() + '\n');
+			}
+			if (color)
+				respSb.append(IAnsi.RESET + contentColor);
+			baos.write(respSb.toString().getBytes(StandardCharsets.UTF_8));
+			if (bs.length != 0) {
+				baos.write('\n');
+				baos.write(bs);
+			}
+			if (color)
+				baos.write(IAnsi.RESET.getBytes(StandardCharsets.UTF_8));
+
+			baos.flush();
+			logBs = baos.toByteArray();
+		}
+
+		logger.log(Level.INFO, new String(logBs, StandardCharsets.UTF_8));
+	}
+
+	private void hostOpenApiUi(AsyncContext asyncContext, HttpServletResponse response, String providedPath) throws IOException {
+		byte[] bs   = null;
+		String mime = null;
+		if (providedPath.isEmpty() || "/".equals(providedPath))
+			providedPath = "/index.html";
+
+		if ("/openapi.json".equals(providedPath)) {
+			mime = "application/json";
+			bs   = openApiJsonBs;
+		} else if ("/openapi.yaml".equals(providedPath)) {
+			mime = "text/yaml";
+			bs   = openApiYamlBs;
+		} else if (providedPath.endsWith(".html")) {
+			mime = "text/html";
+			String text = new String(getFileContent(providedPath), StandardCharsets.UTF_8);
+			if (providedPath.startsWith("/index.html")) {
+				String openApiHtmlTitle = openApiTitle;
+				if (openApiHtmlTitle == null)
+					openApiHtmlTitle = "";
+				text = text.replace("${title}", openApiHtmlTitle);
+			}
+			bs = text.getBytes(StandardCharsets.UTF_8);
+		} else if (providedPath.endsWith(".js")) {
+			mime = "text/javascript";
+			bs   = getFileContent(providedPath);
+		} else if (providedPath.endsWith(".png")) {
+			mime = "image/png";
+			bs   = getFileContent(providedPath);
+		} else if (providedPath.endsWith(".css")) {
+			mime = "text/css";
+			bs   = getFileContent(providedPath);
+		}
+		if (mime != null)
+			response.setContentType(mime);
+		if (bs != null) {
+			OutputStream responseOutputStream = response.getOutputStream();
+			responseOutputStream.write(bs);
+			responseOutputStream.flush();
+		}
+		asyncContext.complete();
 	}
 
 	private byte[] getnerateOutFromTemplate(String body, Map<String, List<String>> providedParams) throws IOException, TemplateException {
