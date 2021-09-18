@@ -709,7 +709,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private void logReqRespToConsole(HttpServletRequest request, String providedFirstLineStr, byte[] providedBodyBs, boolean simpleBadRequest400, byte[] bs, int status, String message, Map<String, String> responseHeaders, boolean color) throws IOException {
 		byte[] logBs = null;
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-			String titleBgColor   = IAnsi.BLACK_BRIGHT;
+			String titleBgColor = IAnsi.BLACK_BRIGHT;
 			String firstLineColor;
 			String headersColor;
 			String contentColor;
@@ -851,7 +851,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 				body = newBody;
 		}
 
-		System.out.println(body);
 		Template            freeMarkerTemplate = new Template("", new StringReader(body), freeMarkerConfiguration);
 		StringWriter        writer             = new StringWriter();
 		Map<String, Object> tmpDataMap         = new HashMap<>();
@@ -1095,6 +1094,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		return new String(arr);
 	}
 
+	/**
+	 * 
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 */
 	private static byte[] getFileContent(String path) throws IOException {
 		try (InputStream is = DeepfakeHttpServlet.class.getResourceAsStream("/openapi" + path)) {
 			if (is == null)
@@ -1103,40 +1108,51 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		}
 	}
 
+	/**
+	 * 
+	 * @param dataJson
+	 * @param s
+	 * @param map
+	 * @return
+	 * @throws IOException
+	 */
 	private static String replaceRandomInTemplate(String dataJson, String s, Map<String, Object> map) throws IOException {
-		int pos = s.indexOf("${");
-		if (pos == -1)
-			return null;
-		int pos2 = s.indexOf("}", pos);
-		if (pos2 == -1)
-			return null;
-		int pos3 = s.indexOf("[", pos);
-		if (pos3 == -1)
-			return null;
-		if (pos3 > pos2)
-			return null;
-		int pos4 = s.indexOf("]", pos3);
-		if (pos4 == -1)
-			return null;
-		if (pos4 > pos2)
-			return null;
-		int pos5 = s.indexOf("$", pos3);
-		if (pos5 == -1)
-			return null;
-		if (pos5 > pos4)
-			return null;
-		//
-		String name   = s.substring(pos + 2, pos3);
-		Object object = getObject(dataJson, name);
-		if (object instanceof List) {
-			List   list  = (List) object;
-			int    len   = list.size();
-			int    rnd   = ThreadLocalRandom.current().nextInt(0, len);
-			String left  = s.substring(0, pos5);
-			String right = s.substring(pos5 + 1);
-			return left + Integer.toString(rnd) + right;
+		int z = 0;
+		while (true) {
+			int pos = s.indexOf("${", z);
+			if (pos == -1)
+				return null;
+			int pos2 = s.indexOf("}", pos);
+			if (pos2 == -1)
+				return null;
+			z = pos2;
+			int pos3 = s.indexOf("[", pos);
+			if (pos3 == -1)
+				continue;
+			if (pos3 > pos2)
+				continue;
+			int pos4 = s.indexOf("]", pos3);
+			if (pos4 == -1)
+				continue;
+			if (pos4 > pos2)
+				continue;
+			int pos5 = s.indexOf("$", pos3);
+			if (pos5 == -1)
+				continue;
+			if (pos5 > pos4)
+				continue;
+
+			String name   = s.substring(pos + 2, pos3);
+			Object object = getObject(dataJson, name);
+			if (object instanceof List) {
+				List   list  = (List) object;
+				int    len   = list.size();
+				int    rnd   = ThreadLocalRandom.current().nextInt(0, len);
+				String left  = s.substring(0, pos5);
+				String right = s.substring(pos5 + 1);
+				return left + Integer.toString(rnd) + right;
+			}
 		}
-		return null;
 	}
 
 	private static Object getObject(String json, String var) throws IOException {
