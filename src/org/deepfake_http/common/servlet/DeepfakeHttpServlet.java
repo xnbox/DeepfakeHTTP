@@ -34,8 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -52,7 +50,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -73,12 +70,12 @@ import org.deepfake_http.common.utils.MatchUtils;
 import org.deepfake_http.common.utils.OpenApiUtils;
 import org.deepfake_http.common.utils.ParseCommandLineUtils;
 import org.deepfake_http.common.utils.ParseDumpUtils;
+import org.deepfake_http.common.utils.TemplateUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.ScriptableObject;
 
 import freemarker.template.Configuration;
-import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import jakarta.servlet.AsyncContext;
@@ -581,9 +578,14 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							bs = body.getBytes(StandardCharsets.UTF_8);
 						else if ("application/pdf".equals(bodyType))
 							bs = body.getBytes(StandardCharsets.UTF_8);
-						else if ("text/template".equals(bodyType))
-							bs = getnerateOutFromTemplate(body, providedParams);
-						else if ("application/x-sh".equals(bodyType)) {
+						else if ("text/template".equals(bodyType)) {
+							Map<String, Object> tmpDataMap = new LinkedHashMap<>(dataMap);
+							tmpDataMap.put("parameters", providedParams);
+
+							String tmpDataJson = JacksonUtils.stringifyToJsonYaml(tmpDataMap, JacksonUtils.FORMAT_JSON, false, false);
+
+							bs = getnerateOutFromTemplate(body, tmpDataJson, tmpDataMap);
+						} else if ("application/x-sh".equals(bodyType)) {
 							Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
 							String              json = JacksonUtils.stringifyToJsonYaml(http, JacksonUtils.FORMAT_JSON, false, false) + '\n';
 							bs = getnerateOutFromSh(body, json);
@@ -805,7 +807,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		String mime = null;
 		if (providedPath.isEmpty() || "/".equals(providedPath))
 			providedPath = "/index.html";
-
+		String resourcePath = "/openapi" + providedPath;
 		if ("/openapi.json".equals(providedPath)) {
 			mime = "application/json";
 			bs   = openApiJsonBs;
@@ -814,23 +816,24 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			bs   = openApiYamlBs;
 		} else if (providedPath.endsWith(".html")) {
 			mime = "text/html";
-			String text = new String(getFileContent(providedPath), StandardCharsets.UTF_8);
 			if (providedPath.startsWith("/index.html")) {
+				String text = readResourceAsString(resourcePath);
 				String openApiHtmlTitle = openApiTitle;
 				if (openApiHtmlTitle == null)
 					openApiHtmlTitle = "";
 				text = text.replace("${title}", openApiHtmlTitle);
-			}
-			bs = text.getBytes(StandardCharsets.UTF_8);
+				bs = text.getBytes(StandardCharsets.UTF_8);
+			} else
+				bs = readResourceAsBytes(resourcePath);
 		} else if (providedPath.endsWith(".js")) {
 			mime = "text/javascript";
-			bs   = getFileContent(providedPath);
+			bs   = readResourceAsBytes(resourcePath);
 		} else if (providedPath.endsWith(".png")) {
 			mime = "image/png";
-			bs   = getFileContent(providedPath);
+			bs   = readResourceAsBytes(resourcePath);
 		} else if (providedPath.endsWith(".css")) {
 			mime = "text/css";
-			bs   = getFileContent(providedPath);
+			bs   = readResourceAsBytes(resourcePath);
 		}
 		if (mime != null)
 			response.setContentType(mime);
@@ -842,23 +845,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		asyncContext.complete();
 	}
 
-	private byte[] getnerateOutFromTemplate(String body, Map<String, List<String>> providedParams) throws IOException, TemplateException {
-		while (true) {
-			String newBody = replaceRandomInTemplate(dataJson, body, dataMap);
-			if (newBody == null)
-				break;
-			else
-				body = newBody;
-		}
-
-		Template            freeMarkerTemplate = new Template("", new StringReader(body), freeMarkerConfiguration);
-		StringWriter        writer             = new StringWriter();
-		Map<String, Object> tmpDataMap         = new HashMap<>();
-		tmpDataMap.putAll(dataMap);
-		tmpDataMap.putAll(providedParams);
-		freeMarkerTemplate.process(tmpDataMap, writer);
-		body = writer.toString();
-		return body.getBytes(StandardCharsets.UTF_8);
+	private byte[] getnerateOutFromTemplate(String s, String dataJson, Map<String, Object> dataMap) throws IOException, TemplateException {
+		return TemplateUtils.processTemplate(freeMarkerConfiguration, s, dataJson, dataMap).getBytes(StandardCharsets.UTF_8);
 	}
 
 	private byte[] getnerateOutFromSh(String body, String json) throws InterruptedException, IOException {
@@ -1023,7 +1011,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	}
 
 	private void reloadDataFile(Path dataFilePath) throws IOException {
-		dataJson = Files.readString(dataFilePath, StandardCharsets.UTF_8); // JSON or YAML
+		dataJson = Files.readString(dataFilePath, StandardCharsets.UTF_8).strip(); // JSON or YAML
 		dataMap  = JacksonUtils.parseJsonYamlToMap(dataJson);
 	}
 
@@ -1096,12 +1084,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 	/**
 	 * 
-	 * @param path
+	 * @param resourcePath
 	 * @return
 	 * @throws IOException
 	 */
-	private static byte[] getFileContent(String path) throws IOException {
-		try (InputStream is = DeepfakeHttpServlet.class.getResourceAsStream("/openapi" + path)) {
+	private static byte[] readResourceAsBytes(String resourcePath) throws IOException {
+		try (InputStream is = DeepfakeHttpServlet.class.getResourceAsStream(resourcePath)) {
 			if (is == null)
 				return new byte[0];
 			return is.readAllBytes();
@@ -1110,65 +1098,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 	/**
 	 * 
-	 * @param dataJson
-	 * @param s
-	 * @param map
+	 * @param path
 	 * @return
 	 * @throws IOException
 	 */
-	private static String replaceRandomInTemplate(String dataJson, String s, Map<String, Object> map) throws IOException {
-		int z = 0;
-		while (true) {
-			int pos = s.indexOf("${", z);
-			if (pos == -1)
-				return null;
-			int pos2 = s.indexOf("}", pos);
-			if (pos2 == -1)
-				return null;
-			z = pos2;
-			int pos3 = s.indexOf("[", pos);
-			if (pos3 == -1)
-				continue;
-			if (pos3 > pos2)
-				continue;
-			int pos4 = s.indexOf("]", pos3);
-			if (pos4 == -1)
-				continue;
-			if (pos4 > pos2)
-				continue;
-			int pos5 = s.indexOf("$", pos3);
-			if (pos5 == -1)
-				continue;
-			if (pos5 > pos4)
-				continue;
-
-			String name   = s.substring(pos + 2, pos3);
-			Object object = getObject(dataJson, name);
-			if (object instanceof List) {
-				List   list  = (List) object;
-				int    len   = list.size();
-				int    rnd   = ThreadLocalRandom.current().nextInt(0, len);
-				String left  = s.substring(0, pos5);
-				String right = s.substring(pos5 + 1);
-				return left + Integer.toString(rnd) + right;
-			}
-		}
-	}
-
-	private static Object getObject(String json, String var) throws IOException {
-		String s = "r=" + json + '.' + var;
-		try {
-			Context cx = Context.enter();
-			cx.setLanguageVersion(Context.VERSION_1_8);
-			cx.setOptimizationLevel(9);
-			cx.getWrapFactory().setJavaPrimitiveWrap(true);
-			ScriptableObject scope = new ImporterTopLevel(cx);
-			scope = (ScriptableObject) cx.initStandardObjects(scope);
-			Object result = cx.evaluateString(scope, s, "", 0, null);
-			return result;
-		} finally {
-			Context.exit();
-		}
+	private static String readResourceAsString(String path) throws IOException {
+		return new String(readResourceAsBytes(path), StandardCharsets.UTF_8);
 	}
 
 }
