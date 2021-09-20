@@ -404,8 +404,13 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						boolean      protocolOk          = firstLineReq.getProtocol().equals(ParseDumpUtils.HTTP_1_1);
 						boolean      methodOk            = firstLineReq.getMethod().equals(method);
 						String       templatePath        = HttpPathUtils.extractPathFromUri(firstLineReq.getUri());
+						templatePath = TemplateUtils.processTemplate(freeMarkerConfiguration, templatePath, dataJson, dataMap);
+
 						boolean      pathOk              = MatchUtils.matchPath(templatePath, providedPath, providedParams);
+
 						String       templateQueryString = HttpPathUtils.extractQueryStringFromUri(firstLineReq.getUri());
+						templateQueryString = TemplateUtils.processTemplate(freeMarkerConfiguration, templateQueryString, dataJson, dataMap);
+
 						boolean      queryStringOk       = MatchUtils.matchQuery(templateQueryString, providedQueryString, providedParams);
 						if ( //
 						protocolOk && //
@@ -497,16 +502,19 @@ public class DeepfakeHttpServlet extends HttpServlet {
 								if (!ok)
 									break;
 							}
-							if (ok)
-								if (rr.request.body.toString().strip().isEmpty()) {
+							if (ok) {
+								String templateBody = rr.request.body.toString().strip();
+								if (templateBody.isEmpty()) {
 									reqResp = rr;
 									break;
 								} else {
-									if (rr.request.body.toString().strip().equals(providedBody.strip())) {
+									templateBody = TemplateUtils.processTemplate(freeMarkerConfiguration, templateBody, dataJson, dataMap);
+									if (templateBody.equals(providedBody.strip())) {
 										reqResp = rr;
 										break;
 									}
 								}
+							}
 						}
 					}
 					if (reqResp == null) // request-reponse pair not found
@@ -582,10 +590,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						else if ("text/template".equals(bodyType)) {
 							Map<String, Object> tmpDataMap = new LinkedHashMap<>(dataMap);
 							tmpDataMap.put("parameters", providedParams);
-
 							String tmpDataJson = JacksonUtils.stringifyToJsonYaml(tmpDataMap, JacksonUtils.FORMAT_JSON, false, false);
-
-							bs = getnerateOutFromTemplate(body, tmpDataJson, tmpDataMap);
+							bs = TemplateUtils.processTemplate(freeMarkerConfiguration, body, tmpDataJson, tmpDataMap).getBytes(StandardCharsets.UTF_8);
 						} else if ("application/x-sh".equals(bodyType)) {
 							Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
 							String              json = JacksonUtils.stringifyToJsonYaml(http, JacksonUtils.FORMAT_JSON, false, false) + '\n';
@@ -844,10 +850,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			responseOutputStream.flush();
 		}
 		asyncContext.complete();
-	}
-
-	private byte[] getnerateOutFromTemplate(String s, String dataJson, Map<String, Object> dataMap) throws IOException, TemplateException {
-		return TemplateUtils.processTemplate(freeMarkerConfiguration, s, dataJson, dataMap).getBytes(StandardCharsets.UTF_8);
 	}
 
 	private byte[] getnerateOutFromSh(String body, String json) throws InterruptedException, IOException {
