@@ -126,11 +126,10 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noLog;
 	private boolean noColor;
 
-	private String collectFile;
-	private String openApiPath;
-	private String openApiTitle;
-	private String dataFile;
-
+	private String                       collectFile;
+	private String                       openApiPath;
+	private String                       openApiTitle;
+	private Path                         dataFilePath;
 	private List<String /* dump file */> dumps;
 
 	private Logger logger;
@@ -139,7 +138,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private DirectoryWatcher                          dataFileDirectoryWatcher;
 
 	private String              dataJson = "{}";
-	private Map<String, Object> dataMap  = new HashMap<>();
+	private Map<String, Object> dataMap  = new HashMap<>(0);
 
 	private List<ReqResp> allReqResps;
 	private ReqResp       badRequest400;
@@ -194,7 +193,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			collectFile  = collectFileArr[0];
 			openApiPath  = openApiPathArr[0];
 			openApiTitle = openApiTitleArr[0];
-			dataFile     = dataFileArr[0];
+			String dataFile = dataFileArr[0];
 
 			if (openApiTitle == null)
 				openApiTitle = "";
@@ -202,9 +201,9 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			boolean activateDirWatchers = !noWatch;
 
 			if (dataFile != null) {
-				Path path     = new File(dataFile).toPath();
-				Path dirPath  = path.getParent();
-				Path filePath = path.getFileName();
+				dataFilePath = new File(dataFile).toPath();
+				Path dirPath  = dataFilePath.getParent();
+				Path filePath = dataFilePath.getFileName();
 
 				if (activateDirWatchers) {
 					dataFileDirectoryWatcher = new DirectoryWatcher(logger, dirPath, new Runnable() {
@@ -212,7 +211,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						@Override
 						public void run() {
 							try {
-								reloadDataFile(path);
+								reload(false);
 							} catch (Throwable e) {
 								e.printStackTrace();
 							}
@@ -222,7 +221,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					Thread dirWatcherThread = new Thread(dataFileDirectoryWatcher);
 					dirWatcherThread.start();
 				}
-				reloadDataFile(path);
+				//				reloadDataFile(path);
 			}
 			reload(activateDirWatchers);
 		} catch (Throwable e) {
@@ -400,32 +399,32 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					ReqResp                   reqResp                 = null;
 					Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();
 					for (ReqResp rr : allReqResps) {
-						FirstLineReq firstLineReq        = new FirstLineReq(rr.request.firstLine);
-						boolean      protocolOk          = firstLineReq.getProtocol().equals(ParseDumpUtils.HTTP_1_1);
-						boolean      methodOk            = firstLineReq.getMethod().equals(method);
-						String       templatePath        = HttpPathUtils.extractPathFromUri(firstLineReq.getUri());
-						templatePath = TemplateUtils.processTemplate(freeMarkerConfiguration, templatePath, dataJson, dataMap);
 
-						boolean      pathOk              = MatchUtils.matchPath(templatePath, providedPath, providedParams);
+						ReqResp crr = cloneReqResp(rr);
 
-						String       templateQueryString = HttpPathUtils.extractQueryStringFromUri(firstLineReq.getUri());
-						templateQueryString = TemplateUtils.processTemplate(freeMarkerConfiguration, templateQueryString, dataJson, dataMap);
+						FirstLineReq firstLineReq = new FirstLineReq(crr.request.firstLine);
+						boolean      protocolOk   = firstLineReq.getProtocol().equals(ParseDumpUtils.HTTP_1_1);
+						boolean      methodOk     = firstLineReq.getMethod().equals(method);
+						String       templatePath = HttpPathUtils.extractPathFromUri(firstLineReq.getUri());
 
-						boolean      queryStringOk       = MatchUtils.matchQuery(templateQueryString, providedQueryString, providedParams);
+						boolean pathOk = MatchUtils.matchPath(templatePath, providedPath, providedParams);
+
+						String templateQueryString = HttpPathUtils.extractQueryStringFromUri(firstLineReq.getUri());
+
+						boolean queryStringOk = MatchUtils.matchQuery(templateQueryString, providedQueryString, providedParams);
 						if ( //
 						protocolOk && //
 						methodOk && //
 						pathOk && //
 						queryStringOk //
 						) {
-
-							for (String headerStr : rr.request.headers) {
+							for (String headerStr : crr.request.headers) {
 								Header header              = new Header(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 								if (lowerCaseHeaderName.equals(INTERNAL_HTTP_HEADER_X_SERVER_REQUEST_DELAY.toLowerCase(Locale.ENGLISH)))
 									requestDelay = Integer.parseInt(header.value);
 							}
-							for (String headerStr : rr.response.headers) {
+							for (String headerStr : crr.response.headers) {
 								Header header              = new Header(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 								if (INTERNAL_HTTP_HEADER_X_SERVER_BODY_TYPE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
@@ -438,7 +437,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 							/* headers from file */
 							Map<String, List<String>> headerValuesMap = new LinkedHashMap<>();
-							for (String headerStr : rr.request.headers) {
+							for (String headerStr : crr.request.headers) {
 								Header header              = new Header(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 								// ignore internal headers
@@ -503,14 +502,13 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									break;
 							}
 							if (ok) {
-								String templateBody = rr.request.body.toString().strip();
+								String templateBody = crr.request.body.toString().strip();
 								if (templateBody.isEmpty()) {
-									reqResp = rr;
+									reqResp = crr;
 									break;
 								} else {
-									templateBody = TemplateUtils.processTemplate(freeMarkerConfiguration, templateBody, dataJson, dataMap);
 									if (templateBody.equals(providedBody.strip())) {
-										reqResp = rr;
+										reqResp = crr;
 										break;
 									}
 								}
@@ -518,7 +516,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						}
 					}
 					if (reqResp == null) // request-reponse pair not found
-						reqResp = badRequest400;
+						reqResp = badRequest400; // may be null
 
 					boolean simpleBadRequest400;
 					if (reqResp == null) {
@@ -527,6 +525,15 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						simpleBadRequest400        = true;
 					} else
 						simpleBadRequest400 = false;
+
+					if (dataFilePath != null || !providedParams.isEmpty()) {
+						Map<String, Object> tmpDataMap = new LinkedHashMap<>(dataMap);
+						tmpDataMap.put("parameters", providedParams);
+						String tmpDataJson = JacksonUtils.stringifyToJsonYaml(tmpDataMap, JacksonUtils.FORMAT_JSON, false, false);
+
+						if (dataFilePath != null)
+							processResp(freeMarkerConfiguration, reqResp, tmpDataJson, tmpDataMap);
+					}
 
 					String        responseFirstLineStr = reqResp.response.firstLine;
 					FirstLineResp firstLineResp        = new FirstLineResp(responseFirstLineStr);
@@ -581,18 +588,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					try {
 						if (bodyType == null)
 							bs = body.getBytes(StandardCharsets.UTF_8);
-						else if ("text/plain".equals(bodyType))
-							bs = body.getBytes(StandardCharsets.UTF_8);
-						else if ("text/html".equals(bodyType))
-							bs = body.getBytes(StandardCharsets.UTF_8);
-						else if ("application/pdf".equals(bodyType))
-							bs = body.getBytes(StandardCharsets.UTF_8);
-						else if ("text/template".equals(bodyType)) {
-							Map<String, Object> tmpDataMap = new LinkedHashMap<>(dataMap);
-							tmpDataMap.put("parameters", providedParams);
-							String tmpDataJson = JacksonUtils.stringifyToJsonYaml(tmpDataMap, JacksonUtils.FORMAT_JSON, false, false);
-							bs = TemplateUtils.processTemplate(freeMarkerConfiguration, body, tmpDataJson, tmpDataMap).getBytes(StandardCharsets.UTF_8);
-						} else if ("application/x-sh".equals(bodyType)) {
+						else if ("application/x-sh".equals(bodyType)) {
 							Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
 							String              json = JacksonUtils.stringifyToJsonYaml(http, JacksonUtils.FORMAT_JSON, false, false) + '\n';
 							bs = getnerateOutFromSh(body, json);
@@ -1013,18 +1009,23 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		return null;
 	}
 
-	private void reloadDataFile(Path dataFilePath) throws IOException {
-		dataJson = Files.readString(dataFilePath, StandardCharsets.UTF_8).strip(); // JSON or YAML
-		dataMap  = JacksonUtils.parseJsonYamlToMap(dataJson);
-	}
-
 	/**
 	 * 
 	 * @param activateDirWatchers
 	 * @throws Throwable
 	 */
 	private void reload(boolean activateDirWatchers) throws Throwable {
+		/* reload data file */
+		if (dataFilePath != null) {
+			dataJson = Files.readString(dataFilePath, StandardCharsets.UTF_8).strip(); // JSON or YAML
+			dataMap  = JacksonUtils.parseJsonYamlToMap(dataJson);
+		}
+
 		allReqResps = ParseCommandLineUtils.getAllReqResp(logger, dumps);
+
+		if (dataFilePath != null)
+			for (ReqResp reqResp : allReqResps)
+				processReq(freeMarkerConfiguration, reqResp, dataJson, dataMap);
 
 		/* Create OpenAPI JSON */
 		Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitle);
@@ -1083,6 +1084,45 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			}
 		}
 		return new String(arr);
+	}
+
+	private static ReqResp cloneReqResp(ReqResp reqResp) {
+		ReqResp rr = new ReqResp();
+		rr.request.firstLine = reqResp.request.firstLine;
+		for (int i = 0; i < reqResp.request.headers.size(); i++) {
+			String headerStr = reqResp.request.headers.get(i);
+			rr.request.headers.add(headerStr);
+		}
+		rr.request.body = reqResp.request.body;
+
+		rr.response.firstLine = reqResp.response.firstLine;
+		for (int i = 0; i < reqResp.response.headers.size(); i++) {
+			String headerStr = reqResp.response.headers.get(i);
+			rr.response.headers.add(headerStr);
+		}
+		rr.response.body = reqResp.response.body;
+
+		return rr;
+	}
+
+	private static void processReq(Configuration freeMarkerConfiguration, ReqResp reqResp, String dataJson, Map<String, Object> dataMap) throws IOException, TemplateException {
+		reqResp.request.firstLine = TemplateUtils.processTemplate(freeMarkerConfiguration, reqResp.request.firstLine, dataJson, dataMap);
+		for (int i = 0; i < reqResp.request.headers.size(); i++) {
+			String headerStr = reqResp.request.headers.get(i);
+			headerStr = TemplateUtils.processTemplate(freeMarkerConfiguration, headerStr, dataJson, dataMap);
+			reqResp.request.headers.set(i, headerStr);
+		}
+		reqResp.request.body = TemplateUtils.processTemplate(freeMarkerConfiguration, reqResp.request.body, dataJson, dataMap);
+	}
+
+	private static void processResp(Configuration freeMarkerConfiguration, ReqResp reqResp, String dataJson, Map<String, Object> dataMap) throws IOException, TemplateException {
+		reqResp.response.firstLine = TemplateUtils.processTemplate(freeMarkerConfiguration, reqResp.response.firstLine, dataJson, dataMap);
+		for (int i = 0; i < reqResp.response.headers.size(); i++) {
+			String headerStr = reqResp.response.headers.get(i);
+			headerStr = TemplateUtils.processTemplate(freeMarkerConfiguration, headerStr, dataJson, dataMap);
+			reqResp.response.headers.set(i, headerStr);
+		}
+		reqResp.response.body = TemplateUtils.processTemplate(freeMarkerConfiguration, reqResp.response.body, dataJson, dataMap);
 	}
 
 }

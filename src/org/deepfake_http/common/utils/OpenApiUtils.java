@@ -136,7 +136,7 @@ public class OpenApiUtils {
 			reqResp.request.firstLine  = method.toUpperCase(Locale.ENGLISH) + ' ' + path + (queryString.isEmpty() ? "" : '?' + queryString) + ' ' + ParseDumpUtils.HTTP_1_1;
 			reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + statusStr;
 			reqResp.response.headers.add(DeepfakeHttpServlet.HTTP_HEADER_CONTENT_TYPE + ": " + contentType);
-			reqResp.response.body.append(example);
+			reqResp.response.body = example;
 			allReqResps.add(reqResp);
 		}
 		return allReqResps;

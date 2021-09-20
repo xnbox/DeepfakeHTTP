@@ -116,8 +116,8 @@ public class ParseDumpUtils {
 				if (first)
 					first = false;
 				else {
-					trimLastLineBreak(reqResp.request.body);
-					trimLastLineBreak(reqResp.response.body);
+					reqResp.request.body = trimLastLineBreak(reqResp.request.body);
+					reqResp.response.body = trimLastLineBreak(reqResp.response.body);
 					list.add(reqResp);
 				}
 
@@ -152,9 +152,9 @@ public class ParseDumpUtils {
 						continue;
 					}
 					if (inRequest)
-						reqResp.request.body.append(line);
+						reqResp.request.body += line;
 					else if (inResponse)
-						reqResp.response.body.append(line);
+						reqResp.response.body += line;
 				} else {
 					if (line.strip().isEmpty())
 						inBody = true;
@@ -188,13 +188,15 @@ public class ParseDumpUtils {
 		return list;
 	}
 
-	private static void trimLastLineBreak(StringBuilder sb) {
-		int len = sb.length();
+	private static String trimLastLineBreak(String s) {
+		StringBuilder sb  = new StringBuilder(s);
+		int           len = sb.length();
 		if (len == 0)
-			return;
+			return s;
 		int lastPos = len - 1;
 		if (sb.charAt(lastPos) == '\n' || sb.charAt(lastPos) == '\r')
 			sb.setLength(lastPos);
+		return sb.toString();
 	}
 
 	/**
