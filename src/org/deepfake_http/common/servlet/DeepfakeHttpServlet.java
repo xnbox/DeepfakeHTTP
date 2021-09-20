@@ -70,6 +70,7 @@ import org.deepfake_http.common.utils.MatchUtils;
 import org.deepfake_http.common.utils.OpenApiUtils;
 import org.deepfake_http.common.utils.ParseCommandLineUtils;
 import org.deepfake_http.common.utils.ParseDumpUtils;
+import org.deepfake_http.common.utils.ResourceUtils;
 import org.deepfake_http.common.utils.TemplateUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
@@ -817,23 +818,23 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		} else if (providedPath.endsWith(".html")) {
 			mime = "text/html";
 			if (providedPath.startsWith("/index.html")) {
-				String text = readResourceAsString(resourcePath);
+				String text             = ResourceUtils.readResourceAsString(resourcePath);
 				String openApiHtmlTitle = openApiTitle;
 				if (openApiHtmlTitle == null)
 					openApiHtmlTitle = "";
 				text = text.replace("${title}", openApiHtmlTitle);
-				bs = text.getBytes(StandardCharsets.UTF_8);
+				bs   = text.getBytes(StandardCharsets.UTF_8);
 			} else
-				bs = readResourceAsBytes(resourcePath);
+				bs = ResourceUtils.readResourceAsBytes(resourcePath);
 		} else if (providedPath.endsWith(".js")) {
 			mime = "text/javascript";
-			bs   = readResourceAsBytes(resourcePath);
+			bs   = ResourceUtils.readResourceAsBytes(resourcePath);
 		} else if (providedPath.endsWith(".png")) {
 			mime = "image/png";
-			bs   = readResourceAsBytes(resourcePath);
+			bs   = ResourceUtils.readResourceAsBytes(resourcePath);
 		} else if (providedPath.endsWith(".css")) {
 			mime = "text/css";
-			bs   = readResourceAsBytes(resourcePath);
+			bs   = ResourceUtils.readResourceAsBytes(resourcePath);
 		}
 		if (mime != null)
 			response.setContentType(mime);
@@ -1080,30 +1081,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			}
 		}
 		return new String(arr);
-	}
-
-	/**
-	 * 
-	 * @param resourcePath
-	 * @return
-	 * @throws IOException
-	 */
-	private static byte[] readResourceAsBytes(String resourcePath) throws IOException {
-		try (InputStream is = DeepfakeHttpServlet.class.getResourceAsStream(resourcePath)) {
-			if (is == null)
-				return new byte[0];
-			return is.readAllBytes();
-		}
-	}
-
-	/**
-	 * 
-	 * @param path
-	 * @return
-	 * @throws IOException
-	 */
-	private static String readResourceAsString(String path) throws IOException {
-		return new String(readResourceAsBytes(path), StandardCharsets.UTF_8);
 	}
 
 }
