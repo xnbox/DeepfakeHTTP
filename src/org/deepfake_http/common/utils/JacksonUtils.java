@@ -91,7 +91,24 @@ public class JacksonUtils {
 
 						.build();
 				JsonGenerator     jsonGenerator = new SyntaxHighlightingJsonGenerator(delegate, highlighter, prettyprint);
-				jsonGenerator.writeObject(obj);
+				if (obj == null)
+					jsonGenerator.writeNull();
+				else if (obj instanceof String)
+					jsonGenerator.writeString((String) obj);
+				else if (obj instanceof Boolean)
+					jsonGenerator.writeBoolean((Boolean) obj);
+				else if (obj instanceof Integer)
+					jsonGenerator.writeNumber((Integer) obj);
+				else if (obj instanceof Long)
+					jsonGenerator.writeNumber((Long) obj);
+				else if (obj instanceof Float)
+					jsonGenerator.writeNumber((Float) obj);
+				else if (obj instanceof Float)
+					jsonGenerator.writeNumber((Double) obj);
+				else if (obj instanceof Short)
+					jsonGenerator.writeNumber((Short) obj);
+				else
+					jsonGenerator.writeObject(obj);
 				jsonGenerator.close();
 			} else
 				delegate.writeObject(obj);
