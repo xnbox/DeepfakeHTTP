@@ -76,6 +76,10 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.ScriptableObject;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
+
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
@@ -102,9 +106,10 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 	private static final String HTTP_HEADER_CONNECTION     = "Connection";
 	private static final String HTTP_HEADER_CONTENT_LENGTH = "Content-Length";
-	private static final String HTTP_HEADER_IF_NONE_MATCH  = "If-None-Match";
-	private static final String HTTP_HEADER_E_TAG          = "ETag";
-	private static final String HTTP_HEADER_X_POWERED_BY   = "X-Powered-By";  // non-standard
+
+	private static final String HTTP_HEADER_IF_NONE_MATCH = "If-None-Match";
+	private static final String HTTP_HEADER_E_TAG         = "ETag";
+	private static final String HTTP_HEADER_X_POWERED_BY  = "X-Powered-By"; // non-standard
 
 	/* internal, not sended with response  */
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_BODY_TYPE      = "X-Body-Type";      // response non-standard
@@ -507,6 +512,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									reqResp = crr;
 									break;
 								} else {
+									boolean jsonContent = requestHeaderContentType != null && requestHeaderContentType.startsWith("application/json");
+									// TODO Add CLI option --no-strict
+									if (jsonContent) {
+										Map<String, Object> mapTemplate = JacksonUtils.parseJsonYamlToMap(templateBody);
+										Map<String, Object> mapPovided = JacksonUtils.parseJsonYamlToMap(providedBody.strip());
+										MapDifference<String, Object> md = Maps.difference(mapTemplate, mapPovided);
+										if (md.entriesOnlyOnRight().isEmpty())
+											reqResp = crr;
+											break;
+									}
 									if (templateBody.equals(providedBody.strip())) {
 										reqResp = crr;
 										break;
@@ -646,7 +661,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					responseOutputStream.flush();
 				} catch (Throwable e) {
 					e.printStackTrace();
-					String message = MessageFormat.format("Error while generating response body. Dump file: {0}. Line number: {1}. Message: ", reqResp.dumpFile, reqResp.response.lineNumber + e.getMessage());
+					String       message = MessageFormat.format("Error while generating response body. Dump file: {0}. Line number: {1}. Message: ", reqResp.dumpFile, reqResp.response.lineNumber + e.getMessage());
 					OutputStream responseOutputStream;
 					try {
 						response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message); //TODO
@@ -1098,7 +1113,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		ReqResp rr = new ReqResp();
 		rr.dumpFile = reqResp.dumpFile;
 
-		rr.request.firstLine = reqResp.request.firstLine;
+		rr.request.firstLine  = reqResp.request.firstLine;
 		rr.request.lineNumber = reqResp.request.lineNumber;
 		for (int i = 0; i < reqResp.request.headers.size(); i++) {
 			String headerStr = reqResp.request.headers.get(i);
@@ -1106,7 +1121,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		}
 		rr.request.body = reqResp.request.body;
 
-		rr.response.firstLine = reqResp.response.firstLine;
+		rr.response.firstLine  = reqResp.response.firstLine;
 		rr.response.lineNumber = reqResp.response.lineNumber;
 		for (int i = 0; i < reqResp.response.headers.size(); i++) {
 			String headerStr = reqResp.response.headers.get(i);
