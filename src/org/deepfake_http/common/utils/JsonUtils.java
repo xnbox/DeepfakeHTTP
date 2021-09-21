@@ -28,33 +28,32 @@ E-Mail: xnbox.team@outlook.com
 package org.deepfake_http.common.utils;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Map;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.ScriptableObject;
 
-public class TemplateUtils {
-	private static final String TEMPLATE_RANDOM_FUNCTION_NAME = "$";
-
+public class JsonUtils {
 	/**
 	 * 
-	 * @param freeMarkerConfiguration
-	 * @param s
-	 * @param dataJson
-	 * @param dataMap
+	 * @param json
+	 * @param var
 	 * @return
 	 * @throws IOException
-	 * @throws TemplateException
 	 */
-	public static String processTemplate(Configuration freeMarkerConfiguration, String s, String dataJson, Map<String, Object> dataMap) throws IOException, TemplateException {
-		dataMap.put(TEMPLATE_RANDOM_FUNCTION_NAME, new RandomMethod());
-		Template freeMarkerTemplate = new Template("", new StringReader(s), freeMarkerConfiguration);
-		try (StringWriter writer = new StringWriter()) {
-			freeMarkerTemplate.process(dataMap, writer);
-			return writer.toString();
+
+	/* NOT IN USE */
+	public static Object getObject(String json, String var) throws IOException {
+		try {
+			Context cx = Context.enter();
+			cx.setLanguageVersion(Context.VERSION_1_8);
+			cx.setOptimizationLevel(9);
+			cx.getWrapFactory().setJavaPrimitiveWrap(true);
+			ScriptableObject scope = new ImporterTopLevel(cx);
+			scope = (ScriptableObject) cx.initStandardObjects(scope);
+			return cx.evaluateString(scope, "r=" + json + '.' + var, "", 0, null);
+		} finally {
+			Context.exit();
 		}
 	}
 

@@ -365,6 +365,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 				HttpServletRequest  request  = (HttpServletRequest) asyncContext.getRequest();
 				HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
 
+				ReqResp reqResp = null;
 				try {
 					String method       = request.getMethod().trim().toUpperCase(Locale.ENGLISH);
 					String providedPath = request.getServletPath() + request.getPathInfo();
@@ -396,7 +397,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					int    responseDelay = 0;
 
 					/* search for request-reponse pair */
-					ReqResp                   reqResp                 = null;
 					Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();
 					for (ReqResp rr : allReqResps) {
 
@@ -531,8 +531,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						tmpDataMap.put("parameters", providedParams);
 						String tmpDataJson = JacksonUtils.stringifyToJsonYaml(tmpDataMap, JacksonUtils.FORMAT_JSON, false, false);
 
-						if (dataFilePath != null)
-							processResp(freeMarkerConfiguration, reqResp, tmpDataJson, tmpDataMap);
+						processResp(freeMarkerConfiguration, reqResp, tmpDataJson, tmpDataMap);
 					}
 
 					String        responseFirstLineStr = reqResp.response.firstLine;
@@ -647,6 +646,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					responseOutputStream.flush();
 				} catch (Throwable e) {
 					e.printStackTrace();
+					String message = MessageFormat.format("Error while generating response body. Dump file: {0}. Line number: {1}. Message: ", reqResp.dumpFile, reqResp.response.lineNumber + e.getMessage());
+					OutputStream responseOutputStream;
+					try {
+						response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message); //TODO
+						responseOutputStream = response.getOutputStream();
+						responseOutputStream.write(message.getBytes(StandardCharsets.UTF_8));
+						responseOutputStream.flush();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				} finally {
 					if (!connectionKeepAlive)
 						try {
@@ -714,7 +723,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private void logReqRespToConsole(HttpServletRequest request, String providedFirstLineStr, byte[] providedBodyBs, boolean simpleBadRequest400, byte[] bs, int status, String message, Map<String, String> responseHeaders, boolean color) throws IOException {
 		byte[] logBs = null;
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-			String titleBgColor = IAnsi.BLACK_BRIGHT;
 			String firstLineColor;
 			String headersColor;
 			String contentColor;
@@ -730,7 +738,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			}
 			StringBuilder reqSb = new StringBuilder();
 			if (color)
-				reqSb.append(IAnsi.RESET + titleBgColor);
+				reqSb.append(IAnsi.RESET + IAnsi.BLACK_BRIGHT);
 			reqSb.append("--------------------------------------------------------------------------------");
 			if (color)
 				reqSb.append(IAnsi.RESET + firstLineColor);
@@ -1088,7 +1096,10 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 	private static ReqResp cloneReqResp(ReqResp reqResp) {
 		ReqResp rr = new ReqResp();
+		rr.dumpFile = reqResp.dumpFile;
+
 		rr.request.firstLine = reqResp.request.firstLine;
+		rr.request.lineNumber = reqResp.request.lineNumber;
 		for (int i = 0; i < reqResp.request.headers.size(); i++) {
 			String headerStr = reqResp.request.headers.get(i);
 			rr.request.headers.add(headerStr);
@@ -1096,6 +1107,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		rr.request.body = reqResp.request.body;
 
 		rr.response.firstLine = reqResp.response.firstLine;
+		rr.response.lineNumber = reqResp.response.lineNumber;
 		for (int i = 0; i < reqResp.response.headers.size(); i++) {
 			String headerStr = reqResp.response.headers.get(i);
 			rr.response.headers.add(headerStr);
