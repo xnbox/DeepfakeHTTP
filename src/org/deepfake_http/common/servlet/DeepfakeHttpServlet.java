@@ -75,6 +75,7 @@ import org.deepfake_http.common.utils.TemplateUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.ScriptableObject;
+import org.tommy.main.CustomMain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -128,12 +129,14 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noWatch;
 	private boolean noEtag;
 	private boolean noLog;
+	private boolean noCors;
 	private boolean noColor;
 	private boolean strictJson;
 
 	private String                       collectFile;
 	private String                       openApiPath;
 	private String                       openApiTitle;
+	private String                       dataFile;
 	private Path                         dataFilePath;
 	private List<String /* dump file */> dumps;
 
@@ -174,15 +177,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		logger.log(Level.INFO, "DeepfakeHTTP Logger: HELLO!");
 
 		dumps = new ArrayList<>();
-		boolean[] noWatchArr      = new boolean[1];
-		boolean[] noEtagArr       = new boolean[1];
-		boolean[] noLogArr        = new boolean[1];
-		boolean[] noColorArr      = new boolean[1];
-		boolean[] strictJsonArr   = new boolean[1];
-		String[]  collectFileArr  = new String[1];
-		String[]  openApiPathArr  = new String[1];
-		String[]  openApiTitleArr = new String[1];
-		String[]  dataFileArr     = new String[1];
 
 		try {
 			InitialContext ctx = new InitialContext();
@@ -190,16 +184,17 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, strictJsonArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
-			noWatch      = noWatchArr[0];
-			noEtag       = noEtagArr[0];
-			noLog        = noLogArr[0];
-			noColor      = noColorArr[0];
-			strictJson   = strictJsonArr[0];
-			collectFile  = collectFileArr[0];
-			openApiPath  = openApiPathArr[0];
-			openApiTitle = openApiTitleArr[0];
-			String dataFile = dataFileArr[0];
+			Map<String, Object> paramMap = ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps);
+			noWatch      = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_WATCH);
+			noEtag       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_ETAG);
+			noLog        = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG);
+			noCors       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_CORS);
+			noColor      = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_COLOR);
+			strictJson   = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_STRICT_JSON);
+			collectFile  = (String) paramMap.get(ParseCommandLineUtils.ARGS_COLLECT);
+			openApiPath  = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_PATH);
+			openApiTitle = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_TITLE);
+			String dataFile = (String) paramMap.get(ParseCommandLineUtils.ARGS_DATA);
 
 			if (openApiTitle == null)
 				openApiTitle = "";
@@ -227,7 +222,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					Thread dirWatcherThread = new Thread(dataFileDirectoryWatcher);
 					dirWatcherThread.start();
 				}
-				//				reloadDataFile(path);
 			}
 			reload(activateDirWatchers);
 		} catch (Throwable e) {
@@ -270,16 +264,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO --no-cors
-		/* https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin */
-		response.addHeader("Access-Control-Allow-Origin", "*");
+		if (!noCors) {
+			/* https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin */
+			response.addHeader("Access-Control-Allow-Origin", "*");
 
-		/* https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Methods */
-		response.addHeader("Access-Control-Allow-Methods", "*");
+			/* https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Methods */
+			response.addHeader("Access-Control-Allow-Methods", "*");
 
-		/* https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers */
-		response.addHeader("Access-Control-Allow-Headers", "*");
-
+			/* https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers */
+			response.addHeader("Access-Control-Allow-Headers", "*");
+		}
 		if (request.getMethod().equalsIgnoreCase("PATCH"))
 			doPatch(request, response);
 		else
@@ -1053,7 +1047,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			dataMap  = JacksonUtils.parseJsonYamlToMap(dataJson);
 		}
 
-		allReqResps = ParseCommandLineUtils.getAllReqResp(logger, dumps);
+		allReqResps = CustomMain.getAllReqResp(logger, dumps);
 
 		if (dataFilePath != null)
 			for (ReqResp reqResp : allReqResps)

@@ -27,20 +27,22 @@ E-Mail: xnbox.team@outlook.com
 
 package org.deepfake_http.common.utils;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.deepfake_http.common.ReqResp;
-import org.tommy.main.CustomMain;
-
 public class ParseCommandLineUtils {
+	/**
+	 * https://no-color.org
+	 */
+	private static final String NO_COLOR = System.getenv("NO_COLOR");
+
 	/*
 	 * Original Tommy command line options
 	 */
@@ -50,7 +52,7 @@ public class ParseCommandLineUtils {
 	/**
 	 * print help message
 	 */
-	private static final String ARGS_HELP_OPTION         = "--help";
+	public  static final String ARGS_HELP_OPTION         = "--help";
 
 	/**
 	 * run app from ZIP or WAR archive, directory or URL
@@ -84,89 +86,60 @@ public class ParseCommandLineUtils {
 	//@formatter:on
 
 	/* command line args */
-	private static final String ARGS_NO_WATCH      = "--no-watch";      // disable watch dump files for changes
-	private static final String ARGS_NO_ETAG       = "--no-etag";       // disable ETag optimization
-	private static final String ARGS_NO_LOG        = "--no-log";        // disable request/response console logging
-	private static final String ARGS_STRICT_JSON   = "--strict-json";   // disable request/response console logging
-	private static final String ARGS_COLLECT       = "--collect";       // collect live request/response dumps to file
-	private static final String ARGS_OPENAPI_PATH  = "--openapi-path";  // serve OpenAPI client at specified context path
-	private static final String ARGS_OPENAPI_TITLE = "--openapi-title"; // provide custom OpenAPI spec title             
-	private static final String ARGS_DATA          = "--data";          // specify json/yaml data file to populate templates
+	public static final String ARGS_NO_WATCH      = "--no-watch";      // disable watch dump files for changes
+	public static final String ARGS_NO_ETAG       = "--no-etag";       // disable ETag optimization
+	public static final String ARGS_NO_LOG        = "--no-log";        // disable request/response console logging
+	public static final String ARGS_NO_CORS       = "--no-cors";       // disable CORS headers
+	public static final String ARGS_STRICT_JSON   = "--strict-json";   // enable strict JSON comparison
+	public static final String ARGS_COLLECT       = "--collect";       // collect live request/response dumps to file
+	public static final String ARGS_OPENAPI_PATH  = "--openapi-path";  // serve OpenAPI client at specified context path
+	public static final String ARGS_OPENAPI_TITLE = "--openapi-title"; // provide custom OpenAPI spec title             
+	public static final String ARGS_DATA          = "--data";          // specify json/yaml data file to populate templates
 
-	/**
-	 * 
-	 * @param dumpFile
-	 * @return
-	 * @throws Throwable
-	 */
-	public static List<ReqResp> getDumpReqResp(String dumpFile) throws Throwable {
-		String dump = Files.readString(new File(dumpFile).toPath());
-		dump = dump.stripLeading();
-		List<ReqResp> reqResps;
-		if (dump.startsWith("{") || dump.startsWith("---")) {
-			Map<String, Object> openApiMap = JacksonUtils.parseJsonYamlToMap(dump);
-			reqResps = OpenApiUtils.openApiMapToListReqResps(openApiMap);
-		} else {
-			List<String> dumpLines = ParseDumpUtils.readLines(dump);
-			reqResps = ParseDumpUtils.parseDump(dumpFile, dumpLines);
-		}
-		return reqResps;
-	}
-
-	/**
-	 * 
-	 * @param logger
-	 * @param dumps
-	 * @return
-	 * @throws Throwable
-	 */
-	public static List<ReqResp> getAllReqResp(Logger logger, List<String /* dump file */> dumps) throws Throwable {
-		List<ReqResp> allReqResps = new ArrayList<>();
-		int           fileCount   = 0;
-		for (String dumpFile : dumps) {
-			List<ReqResp> dumpReqResp = getDumpReqResp(dumpFile);
-			if (logger != null)
-				logger.log(Level.INFO, "File: \"{0}\" found {1} entries.", new Object[] { dumpFile, dumpReqResp.size() });
-			allReqResps.addAll(dumpReqResp);
-			fileCount++;
-		}
-		if (logger != null)
-			logger.log(Level.INFO, "{0} file(s) processed. {1} entries found.", new Object[] { fileCount, allReqResps.size() });
-		return allReqResps;
-	}
+	public static final String ARGS_PRINT_INFO     = "--print-info";
+	public static final String ARGS_PRINT_REQUESTS = "--print-requests";
+	public static final String ARGS_PRINT_OPENAPI  = "--print-openapi";
+	public static final String ARGS_FORMAT         = "--format";
+	public static final String ARGS_NO_PRETTY      = "--no-pretty";
+	public static final String ARGS_NO_COLOR       = "--no-color";
 
 	/**
 	 * 
 	 * @param logger
 	 * @param args
 	 * @param dumps
-	 * @param noWatchArr
-	 * @param noEtagArr
-	 * @param noLogArr
-	 * @param collectFileArr
-	 * @param openApiPathArr
-	 * @param openApiTitleArr
+	 * @return
 	 * @throws Throwable
 	 */
-	public static void parseCommandLineArgs(Logger logger, //
+	public static Map<String, Object> parseCommandLineArgs(Logger logger, //
 			String[] args, //
-			List<String /* dump file */> dumps, //
-			boolean[] noWatchArr, //
-			boolean[] noEtagArr, //
-			boolean[] noLogArr, //
-			boolean[] noColorArr, //
-			boolean[] strictJsonArr, //
-			String[] collectFileArr, //
-			String[] openApiPathArr, //
-			String[] openApiTitleArr, //
-			String[] dataFileArr //
-	) throws Throwable {
+			List<String /* dump file */> dumps //
+	) {
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put(ARGS_HELP_OPTION, false);
+		paramMap.put(ARGS_PRINT_INFO, false);
+		paramMap.put(ARGS_PRINT_REQUESTS, false);
+		paramMap.put(ARGS_PRINT_OPENAPI, false);
+		paramMap.put(ARGS_NO_PRETTY, false);
+		paramMap.put(ARGS_NO_COLOR, NO_COLOR != null);
+		paramMap.put(ARGS_NO_WATCH, false);
+		paramMap.put(ARGS_NO_ETAG, false);
+		paramMap.put(ARGS_NO_LOG, false);
+		paramMap.put(ARGS_NO_CORS, false);
+		paramMap.put(ARGS_STRICT_JSON, false);
+		paramMap.put(ARGS_NO_COLOR, false);
+		paramMap.put(ARGS_COLLECT, null);
+		paramMap.put(ARGS_OPENAPI_PATH, null);
+		paramMap.put(ARGS_OPENAPI_TITLE, "");
+		paramMap.put(ARGS_DATA, null);
+		paramMap.put(ARGS_FORMAT, "json");
+
 		for (int i = 0; i < args.length; i++) {
 			/* skip original Tommy options */
 
 			// Tommy options Start
 			if (args[i].equals(ARGS_HELP_OPTION))
-				i++;
+				paramMap.put(ARGS_HELP_OPTION, true);
 			else if (args[i].equals(ARGS_APP_OPTION))
 				i++;
 			else if (args[i].equals(ARGS_PORT_OPTION))
@@ -174,7 +147,7 @@ public class ParseCommandLineUtils {
 			else if (args[i].equals(ARGS_PORT_SSL_OPTION))
 				i++;
 			else if (args[i].equals(ARGS_REDIRECT_OPTION))
-				i++;
+				;
 			else if (args[i].equals(ARGS_CONTEXT_PATH_OPTION))
 				i++;
 			else if (args[i].equals(ARGS_PASSWORD_OPTION))
@@ -182,38 +155,53 @@ public class ParseCommandLineUtils {
 			// Tommy options End
 
 			else if (args[i].equals(ARGS_NO_WATCH))
-				noWatchArr[0] = true;
+				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_NO_ETAG))
-				noEtagArr[0] = true;
+				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_NO_LOG))
-				noLogArr[0] = true;
+				paramMap.put(args[i], true);
+			else if (args[i].equals(ARGS_NO_CORS))
+				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_STRICT_JSON))
-				strictJsonArr[0] = true;
-
-			else if (args[i].equals(CustomMain.ARGS_NO_COLOR))
-				noColorArr[0] = true;
+				paramMap.put(args[i], true);
+			else if (args[i].equals(ARGS_NO_COLOR))
+				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_COLLECT)) {
 				if (i < args.length - 1)
-					collectFileArr[0] = args[++i];
+					paramMap.put(ARGS_COLLECT, args[++i]);
 			} else if (args[i].equals(ARGS_OPENAPI_PATH)) {
 				if (i < args.length - 1)
-					openApiPathArr[0] = args[++i];
+					paramMap.put(ARGS_OPENAPI_PATH, args[++i]);
 			} else if (args[i].equals(ARGS_OPENAPI_TITLE)) {
 				if (i < args.length - 1)
-					openApiTitleArr[0] = args[++i];
+					paramMap.put(ARGS_OPENAPI_TITLE, args[++i]);
 			} else if (args[i].equals(ARGS_DATA)) {
 				if (i < args.length - 1)
-					dataFileArr[0] = args[++i];
+					paramMap.put(ARGS_DATA, args[++i]);
+			} else if (args[i].equals(ARGS_PRINT_INFO))
+				paramMap.put(args[i], true);
+			else if (args[i].equals(ARGS_PRINT_REQUESTS))
+				paramMap.put(args[i], true);
+			else if (args[i].equals(ARGS_PRINT_OPENAPI))
+				paramMap.put(args[i], true);
+			else if (args[i].equals(ARGS_NO_PRETTY))
+				paramMap.put(args[i], true);
+			else if (args[i].equals(ARGS_FORMAT)) {
+				if (i < args.length - 1)
+					paramMap.put(ARGS_FORMAT, args[++i].toLowerCase(Locale.ENGLISH));
 			} else {
 				String fileName = args[i];
-				Path   path     = Paths.get(fileName);
-				if (Files.exists(path))
-					dumps.add(fileName);
+				if (fileName.startsWith("--"))
+					logger.log(Level.WARNING, "Unknown option: \"{0}\". Ignored.", fileName);
 				else {
-					if (logger != null)
+					Path path = Paths.get(fileName);
+					if (Files.exists(path))
+						dumps.add(fileName);
+					else
 						logger.log(Level.WARNING, "File \"{0}\" does not exists", fileName);
 				}
 			}
 		}
+		return paramMap;
 	}
 }

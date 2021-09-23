@@ -27,33 +27,25 @@ E-Mail: xnbox.team@outlook.com
 
 package org.tommy.main;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.deepfake_http.common.FirstLineReq;
 import org.deepfake_http.common.ReqResp;
 import org.deepfake_http.common.utils.JacksonUtils;
 import org.deepfake_http.common.utils.OpenApiUtils;
 import org.deepfake_http.common.utils.ParseCommandLineUtils;
+import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.deepfake_http.common.utils.SystemProperties;
 
 public class CustomMain {
-	/* formatter settings */
-	private static final String ARGS_HELP           = "--help";
-	private static final String ARGS_PRINT_INFO     = "--print-info";
-	private static final String ARGS_PRINT_REQUESTS = "--print-requests";
-	private static final String ARGS_PRINT_OPENAPI  = "--print-openapi";
-	private static final String ARGS_FORMAT         = "--format";
-	private static final String ARGS_NO_PRETTY      = "--no-pretty";
-	public static final String  ARGS_NO_COLOR       = "--no-color";
-
-	/**
-	 * https://no-color.org
-	 */
-	private static final String NO_COLOR = System.getenv("NO_COLOR");
 
 	/**
 	 * Custom main method (called for emmbedded web apps)
@@ -61,34 +53,19 @@ public class CustomMain {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		Logger logger = Logger.getLogger("cli.logger");
+		logger.setLevel(Level.ALL);
 
-		boolean help     = false;
-		boolean info     = false;
-		boolean requests = false;
-		boolean openapi  = false;
-		boolean noPretty = false;
-		boolean noColor  = NO_COLOR != null;
+		List<String /* dump file */> dumps    = new ArrayList<>();
+		Map<String, Object>          paramMap = ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps);
 
-		String format = "json";
-
-		for (int i = 0; i < args.length; i++)
-			if (args[i].equals(ARGS_HELP)) {
-				help = true;
-				break;
-			} else if (args[i].equals(ARGS_PRINT_INFO))
-				info = true;
-			else if (args[i].equals(ARGS_PRINT_REQUESTS))
-				requests = true;
-			else if (args[i].equals(ARGS_PRINT_OPENAPI))
-				openapi = true;
-			else if (args[i].equals(ARGS_NO_PRETTY))
-				noPretty = true;
-			else if (args[i].equals(ARGS_NO_COLOR))
-				noColor = true;
-			else if (args[i].equals(ARGS_FORMAT)) {
-				if (i < args.length - 1)
-					format = args[++i].toLowerCase(Locale.ENGLISH);
-			}
+		boolean help     = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_HELP_OPTION);
+		boolean info     = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_PRINT_INFO);
+		boolean requests = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_PRINT_REQUESTS);
+		boolean openapi  = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_PRINT_OPENAPI);
+		boolean noPretty = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_PRETTY);
+		boolean noColor  = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_COLOR);
+		String  format   = (String) paramMap.get(ParseCommandLineUtils.ARGS_FORMAT);
 
 		if (help) {
 			StringBuilder sb = new StringBuilder();
@@ -114,10 +91,11 @@ public class CustomMain {
 			sb.append(" FLAGS:                                                                        \n");
 			sb.append("     --no-log               disable request/response console logging           \n");
 			sb.append("     --no-etag              disable ETag optimization                          \n");
+			sb.append("     --no-cors              disable CORS headers                               \n");
 			sb.append("     --no-watch             disable watch files for changes                    \n");
 			sb.append("     --no-color             disable ANSI color output for --print-* commands   \n");
 			sb.append("     --no-pretty            disable prettyprint for --print-* commands         \n");
-			sb.append("     --strict-json          enable strict JSON compare                         \n");
+			sb.append("     --strict-json          enable strict JSON comparison                      \n");
 			sb.append("     --redirect             redirect HTTP to HTTPS                             \n");
 			sb.append("                                                                               \n");
 			sb.append(" COMMANDS:                                                                     \n");
@@ -132,20 +110,7 @@ public class CustomMain {
 			System.out.println(sb);
 			System.exit(0);
 		} else if (info) {
-			List<String /* dump file */> dumps           = new ArrayList<>();
-			boolean[]                    noWatchArr      = new boolean[1];
-			boolean[]                    noEtagArr       = new boolean[1];
-			boolean[]                    noLogArr        = new boolean[1];
-			boolean[]                    noColorArr      = new boolean[1];
-			boolean[]                    strictJsonArr   = new boolean[1];
-			String[]                     collectFileArr  = new String[1];
-			String[]                     openApiPathArr  = new String[1];
-			String[]                     openApiTitleArr = new String[1];
-			String[]                     dataFileArr     = new String[1];
-
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, strictJsonArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
-
 				String json = serializeInfoToJson(dumps, format, !noPretty, !noColor);
 				System.out.println(json);
 			} catch (Throwable e) {
@@ -153,20 +118,8 @@ public class CustomMain {
 			}
 			System.exit(0);
 		} else if (requests) {
-			List<String /* dump file */ > dumps           = new ArrayList<>();
-			boolean[]                     noWatchArr      = new boolean[1];
-			boolean[]                     noEtagArr       = new boolean[1];
-			boolean[]                     noLogArr        = new boolean[1];
-			boolean[]                     noColorArr      = new boolean[1];
-			boolean[]                     strictJsonArr   = new boolean[1];
-			String[]                      collectFileArr  = new String[1];
-			String[]                      openApiPathArr  = new String[1];
-			String[]                      openApiTitleArr = new String[1];
-			String[]                      dataFileArr     = new String[1];
-
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, strictJsonArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
-				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
+				List<ReqResp> allReqResps = getAllReqResp(null, dumps);
 
 				String json = serializeRequestsToJson(allReqResps, format, !noPretty, !noColor);
 				System.out.println(json);
@@ -175,29 +128,58 @@ public class CustomMain {
 			}
 			System.exit(0);
 		} else if (openapi) {
-			List<String /* dump file */ > dumps           = new ArrayList<>();
-			boolean[]                     noWatchArr      = new boolean[1];
-			boolean[]                     noEtagArr       = new boolean[1];
-			boolean[]                     noLogArr        = new boolean[1];
-			boolean[]                     noColorArr      = new boolean[1];
-			boolean[]                     strictJsonArr   = new boolean[1];
-			String[]                      collectFileArr  = new String[1];
-			String[]                      openApiPathArr  = new String[1];
-			String[]                      openApiTitleArr = new String[1];
-			String[]                      dataFileArr     = new String[1];
-
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, strictJsonArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
-				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
+				List<ReqResp> allReqResps = getAllReqResp(null, dumps);
 
-				Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitleArr[0]);
-				String              json       = JacksonUtils.stringifyToJsonYaml(openApiMap, format, !noPretty, !noColor);
+				String              openApiTitle = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_TITLE);
+				Map<String, Object> openApiMap   = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitle);
+				String              json         = JacksonUtils.stringifyToJsonYaml(openApiMap, format, !noPretty, !noColor);
 				System.out.println(json);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 			System.exit(0);
 		}
+	}
+
+	/**
+	 * 
+	 * @param logger
+	 * @param dumps
+	 * @return
+	 * @throws Throwable
+	 */
+	public static List<ReqResp> getAllReqResp(Logger logger, List<String /* dump file */> dumps) throws Throwable {
+		List<ReqResp> allReqResps = new ArrayList<>();
+		int           fileCount   = 0;
+		for (String dumpFile : dumps) {
+			List<ReqResp> dumpReqResp = getDumpReqResp(dumpFile);
+			logger.log(Level.INFO, "File: \"{0}\" found {1} entries.", new Object[] { dumpFile, dumpReqResp.size() });
+			allReqResps.addAll(dumpReqResp);
+			fileCount++;
+		}
+		logger.log(Level.INFO, "{0} file(s) processed. {1} entries found.", new Object[] { fileCount, allReqResps.size() });
+		return allReqResps;
+	}
+
+	/**
+	 * 
+	 * @param dumpFile
+	 * @return
+	 * @throws Throwable
+	 */
+	private static List<ReqResp> getDumpReqResp(String dumpFile) throws Throwable {
+		String dump = Files.readString(new File(dumpFile).toPath());
+		dump = dump.stripLeading();
+		List<ReqResp> reqResps;
+		if (dump.startsWith("{") || dump.startsWith("---")) {
+			Map<String, Object> openApiMap = JacksonUtils.parseJsonYamlToMap(dump);
+			reqResps = OpenApiUtils.openApiMapToListReqResps(openApiMap);
+		} else {
+			List<String> dumpLines = ParseDumpUtils.readLines(dump);
+			reqResps = ParseDumpUtils.parseDump(dumpFile, dumpLines);
+		}
+		return reqResps;
 	}
 
 	/**
@@ -210,7 +192,7 @@ public class CustomMain {
 	private static String serializeInfoToJson(List<String> dumps, String format, boolean prettyprint, boolean color) throws Throwable {
 		List<Map<String, Object>> list = new ArrayList<>(dumps.size());
 		for (String dumpFile : dumps) {
-			List<ReqResp>       dumpReqResp = ParseCommandLineUtils.getDumpReqResp(dumpFile);
+			List<ReqResp>       dumpReqResp = getDumpReqResp(dumpFile);
 			Map<String, Object> map         = new LinkedHashMap<>();
 			map.put("dumpFile", dumpFile);
 			map.put("requestCount", dumpReqResp.size());
