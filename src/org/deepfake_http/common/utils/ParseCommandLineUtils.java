@@ -87,6 +87,7 @@ public class ParseCommandLineUtils {
 	private static final String ARGS_NO_WATCH      = "--no-watch";      // disable watch dump files for changes
 	private static final String ARGS_NO_ETAG       = "--no-etag";       // disable ETag optimization
 	private static final String ARGS_NO_LOG        = "--no-log";        // disable request/response console logging
+	private static final String ARGS_STRICT_JSON   = "--strict-json";   // disable request/response console logging
 	private static final String ARGS_COLLECT       = "--collect";       // collect live request/response dumps to file
 	private static final String ARGS_OPENAPI_PATH  = "--openapi-path";  // serve OpenAPI client at specified context path
 	private static final String ARGS_OPENAPI_TITLE = "--openapi-title"; // provide custom OpenAPI spec title             
@@ -147,7 +148,19 @@ public class ParseCommandLineUtils {
 	 * @param openApiTitleArr
 	 * @throws Throwable
 	 */
-	public static void parseCommandLineArgs(Logger logger, String[] args, List<String /* dump file */> dumps, boolean[] noWatchArr, boolean[] noEtagArr, boolean[] noLogArr, boolean[] noColorArr, String[] collectFileArr, String[] openApiPathArr, String[] openApiTitleArr, String[] dataFileArr) throws Throwable {
+	public static void parseCommandLineArgs(Logger logger, //
+			String[] args, //
+			List<String /* dump file */> dumps, //
+			boolean[] noWatchArr, //
+			boolean[] noEtagArr, //
+			boolean[] noLogArr, //
+			boolean[] noColorArr, //
+			boolean[] strictJsonArr, //
+			String[] collectFileArr, //
+			String[] openApiPathArr, //
+			String[] openApiTitleArr, //
+			String[] dataFileArr //
+	) throws Throwable {
 		for (int i = 0; i < args.length; i++) {
 			/* skip original Tommy options */
 
@@ -174,6 +187,9 @@ public class ParseCommandLineUtils {
 				noEtagArr[0] = true;
 			else if (args[i].equals(ARGS_NO_LOG))
 				noLogArr[0] = true;
+			else if (args[i].equals(ARGS_STRICT_JSON))
+				strictJsonArr[0] = true;
+
 			else if (args[i].equals(CustomMain.ARGS_NO_COLOR))
 				noColorArr[0] = true;
 			else if (args[i].equals(ARGS_COLLECT)) {

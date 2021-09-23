@@ -35,7 +35,8 @@ import org.mozilla.javascript.ScriptableObject;
 
 public class JsonUtils {
 	/**
-	 * 
+	 * This method is not in use!
+	 *
 	 * @param json
 	 * @param var
 	 * @return

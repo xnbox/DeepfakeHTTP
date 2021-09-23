@@ -76,9 +76,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.ScriptableObject;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
@@ -95,6 +93,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * TODO 
  * - support block comments in dumps
+ * --no-cors
  */
 public class DeepfakeHttpServlet extends HttpServlet {
 	/**
@@ -130,6 +129,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noEtag;
 	private boolean noLog;
 	private boolean noColor;
+	private boolean strictJson;
 
 	private String                       collectFile;
 	private String                       openApiPath;
@@ -178,6 +178,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		boolean[] noEtagArr       = new boolean[1];
 		boolean[] noLogArr        = new boolean[1];
 		boolean[] noColorArr      = new boolean[1];
+		boolean[] strictJsonArr   = new boolean[1];
 		String[]  collectFileArr  = new String[1];
 		String[]  openApiPathArr  = new String[1];
 		String[]  openApiTitleArr = new String[1];
@@ -189,12 +190,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
-
+			ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, strictJsonArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 			noWatch      = noWatchArr[0];
 			noEtag       = noEtagArr[0];
 			noLog        = noLogArr[0];
 			noColor      = noColorArr[0];
+			strictJson   = strictJsonArr[0];
 			collectFile  = collectFileArr[0];
 			openApiPath  = openApiPathArr[0];
 			openApiTitle = openApiTitleArr[0];
@@ -269,6 +270,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO --no-cors
+		/* https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin */
+		response.addHeader("Access-Control-Allow-Origin", "*");
+
+		/* https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Methods */
+		response.addHeader("Access-Control-Allow-Methods", "*");
+
+		/* https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers */
+		response.addHeader("Access-Control-Allow-Headers", "*");
+
 		if (request.getMethod().equalsIgnoreCase("PATCH"))
 			doPatch(request, response);
 		else
@@ -513,14 +524,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									break;
 								} else {
 									boolean jsonContent = requestHeaderContentType != null && requestHeaderContentType.startsWith("application/json");
-									// TODO Add CLI option --no-strict
-									if (jsonContent) {
-										Map<String, Object> mapTemplate = JacksonUtils.parseJsonYamlToMap(templateBody);
-										Map<String, Object> mapPovided = JacksonUtils.parseJsonYamlToMap(providedBody.strip());
-										MapDifference<String, Object> md = Maps.difference(mapTemplate, mapPovided);
-										if (md.entriesOnlyOnRight().isEmpty())
+									if (jsonContent && !strictJson) {
+										ObjectMapper om = new ObjectMapper();
+										if (om.readTree(templateBody).equals(om.readTree(providedBody.strip()))) {
 											reqResp = crr;
 											break;
+										}
 									}
 									if (templateBody.equals(providedBody.strip())) {
 										reqResp = crr;

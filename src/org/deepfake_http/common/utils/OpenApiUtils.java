@@ -29,6 +29,7 @@ package org.deepfake_http.common.utils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -52,7 +53,6 @@ public class OpenApiUtils {
 	 * @throws Exception
 	 */
 	public static List<ReqResp> openApiMapToListReqResps(Map<String, Object> openApiMap) throws Throwable {
-		// TODO: Handle OpenAPI request examples
 		List<ReqResp>       allReqResps = new ArrayList<>();
 		Map<String, Object> mapPaths    = (Map<String, Object>) openApiMap.get("paths");
 		if (mapPaths == null)
@@ -66,6 +66,27 @@ public class OpenApiUtils {
 			Map<String, Object> mapMethodProps = (Map<String, Object>) mapMethods.get(method);
 			if (mapMethodProps == null || mapMethodProps.isEmpty())
 				continue;
+
+			String              requestExample = null;
+			String              requestMime    = null;
+			Map<String, Object> mapRequestBody = (Map<String, Object>) mapMethodProps.get("requestBody");
+			if (mapRequestBody != null && !mapRequestBody.isEmpty()) {
+				Map<String, Object> mapRequestBodyContent = (Map<String, Object>) mapRequestBody.get("content");
+				if (mapRequestBodyContent != null && !mapRequestBodyContent.isEmpty()) {
+					Map.Entry<String, Object> application_jsonMapEntry = mapRequestBodyContent.entrySet().iterator().next();
+					requestMime = application_jsonMapEntry.getKey();
+					Map<String, Object> mapOpenApiRequestBodyContentMime = (Map<String, Object>) application_jsonMapEntry.getValue();
+					if (mapOpenApiRequestBodyContentMime != null && !mapOpenApiRequestBodyContentMime.isEmpty()) {
+						Object exampleObj = mapOpenApiRequestBodyContentMime.get("example");
+						if (exampleObj != null) {
+							if (exampleObj instanceof String)
+								requestExample = (String) exampleObj;
+							else if (exampleObj instanceof Map || exampleObj instanceof List)
+								requestExample = JacksonUtils.stringifyToJsonYaml(exampleObj, JacksonUtils.FORMAT_JSON, false, false);
+						}
+					}
+				}
+			}
 
 			Map<String, Object> mapStatuses = (Map<String, Object>) mapMethodProps.get("responses");
 			if (mapStatuses == null || mapStatuses.isEmpty())
@@ -133,7 +154,11 @@ public class OpenApiUtils {
 				reqResp.request.headers.add(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY + ": " + openApiMethodSummary);
 			if (openApiMethodDescription != null && !openApiMethodDescription.isEmpty())
 				reqResp.request.headers.add(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION + ": " + openApiMethodDescription);
-			reqResp.request.firstLine  = method.toUpperCase(Locale.ENGLISH) + ' ' + path + (queryString.isEmpty() ? "" : '?' + queryString) + ' ' + ParseDumpUtils.HTTP_1_1;
+			if (requestMime != null)
+				reqResp.request.headers.add(DeepfakeHttpServlet.HTTP_HEADER_CONTENT_TYPE + ": " + requestMime);
+			reqResp.request.firstLine = method.toUpperCase(Locale.ENGLISH) + ' ' + path + (queryString.isEmpty() ? "" : '?' + queryString) + ' ' + ParseDumpUtils.HTTP_1_1;
+			if (requestExample != null)
+				reqResp.request.body = requestExample;
 			reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + statusStr;
 			reqResp.response.headers.add(DeepfakeHttpServlet.HTTP_HEADER_CONTENT_TYPE + ": " + contentType);
 			reqResp.response.body = example;
@@ -150,29 +175,27 @@ public class OpenApiUtils {
 	 * @throws Exception
 	 */
 	public static Map<String, Object> createOpenApiMap(List<ReqResp> allReqResps, String title) throws Throwable {
-		// TODO: Handle OpenAPI request examples
 		Map<String, Object> mapPaths = new LinkedHashMap<>(allReqResps.size());
 		for (ReqResp reqResp : allReqResps) {
 			FirstLineReq  firstLineReq  = new FirstLineReq(reqResp.request.firstLine);
 			FirstLineResp firstLineResp = new FirstLineResp(reqResp.response.firstLine);
 
-			String path            = HttpPathUtils.extractPathFromUri(firstLineReq.getUri());
-			String method          = firstLineReq.getMethod();
-			String methodLowerCase = method.toLowerCase(Locale.ENGLISH);
-			String queryString     = HttpPathUtils.extractQueryStringFromUri(firstLineReq.getUri());
+			String                    path            = HttpPathUtils.extractPathFromUri(firstLineReq.getUri());
+			String                    method          = firstLineReq.getMethod();
+			String                    methodLowerCase = method.toLowerCase(Locale.ENGLISH);
+			String                    queryString     = HttpPathUtils.extractQueryStringFromUri(firstLineReq.getUri());
+			Map<String, List<String>> queryParams     = new LinkedHashMap<>();
+			String                    requestBody     = reqResp.request.body;
 
-			Map<String, List<String>> queryParams = new LinkedHashMap<>();
-
+			String requestContentType = null;
 			for (String headerLine : reqResp.request.headers) {
 				Header header = new Header(headerLine);
-				if (header.name.toLowerCase().equals(DeepfakeHttpServlet.HTTP_HEADER_CONTENT_TYPE.toLowerCase(Locale.ENGLISH))) {
-					String contentType = header.value;
-					if (contentType.startsWith("application/x-www-form-urlencoded")) {
-						String body = reqResp.response.body.toString().strip();
-						if (!body.isEmpty())
-							MatchUtils.parseQuery(body, queryParams);
-						break;
-					}
+				if (header.name.toLowerCase(Locale.ENGLISH).equals(DeepfakeHttpServlet.HTTP_HEADER_CONTENT_TYPE.toLowerCase(Locale.ENGLISH))) {
+					requestContentType = header.value;
+					if (requestContentType.startsWith("application/x-www-form-urlencoded"))
+						if (!requestBody.isEmpty())
+							MatchUtils.parseQuery(requestBody, queryParams);
+					break;
 				}
 			}
 
@@ -268,6 +291,26 @@ public class OpenApiUtils {
 				mapMethodProps.put("description", openApiMethodDescription);
 			if (!openApiMethodTags.isEmpty())
 				mapMethodProps.put("tags", openApiMethodTags);
+
+			Object objBody;
+			if (requestContentType != null) {
+				Map<String, Object> mapOpenApiRequestBody = new LinkedHashMap<>();
+				mapMethodProps.put("requestBody", mapOpenApiRequestBody);
+
+				Map<String, Object> mapOpenApiRequestBodyContent = new LinkedHashMap<>();
+				mapOpenApiRequestBody.put("content", mapOpenApiRequestBodyContent);
+
+				Map<String, Object> mapOpenApiRequestBodyContentMime = new LinkedHashMap<>();
+				if (requestContentType != null)
+					mapOpenApiRequestBodyContent.put(requestContentType, mapOpenApiRequestBodyContentMime);
+
+				if (requestContentType.startsWith("application/json"))
+					objBody = JacksonUtils.parseJsonYamlToMap(requestBody);
+				else
+					objBody = requestBody;
+				mapOpenApiRequestBodyContentMime.put("example", objBody);
+				mapOpenApiRequestBodyContentMime.put("schema", new HashMap<>(0));
+			}
 
 			String contentType = null;
 			for (String headerLine : reqResp.response.headers) {

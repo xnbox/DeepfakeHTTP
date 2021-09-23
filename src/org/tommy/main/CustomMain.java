@@ -117,6 +117,7 @@ public class CustomMain {
 			sb.append("     --no-watch             disable watch files for changes                    \n");
 			sb.append("     --no-color             disable ANSI color output for --print-* commands   \n");
 			sb.append("     --no-pretty            disable prettyprint for --print-* commands         \n");
+			sb.append("     --strict-json          enable strict JSON compare                         \n");
 			sb.append("     --redirect             redirect HTTP to HTTPS                             \n");
 			sb.append("                                                                               \n");
 			sb.append(" COMMANDS:                                                                     \n");
@@ -136,13 +137,14 @@ public class CustomMain {
 			boolean[]                    noEtagArr       = new boolean[1];
 			boolean[]                    noLogArr        = new boolean[1];
 			boolean[]                    noColorArr      = new boolean[1];
+			boolean[]                    strictJsonArr   = new boolean[1];
 			String[]                     collectFileArr  = new String[1];
 			String[]                     openApiPathArr  = new String[1];
 			String[]                     openApiTitleArr = new String[1];
 			String[]                     dataFileArr     = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, strictJsonArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 
 				String json = serializeInfoToJson(dumps, format, !noPretty, !noColor);
 				System.out.println(json);
@@ -156,13 +158,14 @@ public class CustomMain {
 			boolean[]                     noEtagArr       = new boolean[1];
 			boolean[]                     noLogArr        = new boolean[1];
 			boolean[]                     noColorArr      = new boolean[1];
+			boolean[]                     strictJsonArr   = new boolean[1];
 			String[]                      collectFileArr  = new String[1];
 			String[]                      openApiPathArr  = new String[1];
 			String[]                      openApiTitleArr = new String[1];
 			String[]                      dataFileArr     = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, strictJsonArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				String json = serializeRequestsToJson(allReqResps, format, !noPretty, !noColor);
@@ -177,13 +180,14 @@ public class CustomMain {
 			boolean[]                     noEtagArr       = new boolean[1];
 			boolean[]                     noLogArr        = new boolean[1];
 			boolean[]                     noColorArr      = new boolean[1];
+			boolean[]                     strictJsonArr   = new boolean[1];
 			String[]                      collectFileArr  = new String[1];
 			String[]                      openApiPathArr  = new String[1];
 			String[]                      openApiTitleArr = new String[1];
 			String[]                      dataFileArr     = new String[1];
 
 			try {
-				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
+				ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps, noWatchArr, noEtagArr, noLogArr, noColorArr, strictJsonArr, collectFileArr, openApiPathArr, openApiTitleArr, dataFileArr);
 				List<ReqResp> allReqResps = ParseCommandLineUtils.getAllReqResp(null, dumps);
 
 				Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitleArr[0]);
