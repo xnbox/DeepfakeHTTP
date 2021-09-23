@@ -95,7 +95,7 @@ COMMANDS:
     --print-openapi        print OpenAPI specification to stdout as json/yaml
                                                                               
 ️ARGS:
-    <file>...               dump text file(s) and/or OpenAPI json/yaml file(s)
+    <file>...              dump text file(s) and/or OpenAPI json/yaml file(s)
 ```
 
 <h2>Usage Exampes</h2>
