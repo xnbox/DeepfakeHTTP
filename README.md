@@ -2,7 +2,7 @@
 Your 100% static dynamic backend</h1>
 
 <a title="License MIT" href="https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
-<a title="Release 1.0.14" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-1.0.14-4DC71F?style=flat-square"></a>
+<a title="Release 1.0.15" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-1.0.15-4DC71F?style=flat-square"></a>
 <a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
 
 <p align="center">
@@ -75,13 +75,17 @@ OPTIONS:
     --collect <file>       collect live request/response to file
     --data <file>          specify json/yaml data file to populate templates
     --format <json|yaml>   output format for --print-* commands, default: json
+    --status <number>      status code for non-matching requests, default: 400
 
 FLAGS:
     --no-log               disable request/response console logging
-    --no-etag              disable ETag optimization
+    --no-cors              disable CORS headers
+    --no-etag              disable 'ETag' header
+    --no-powered-by        disable 'X-Powered-By' header
     --no-watch             disable watch files for changes
     --no-color             disable ANSI color output for --print-* commands
     --no-pretty            disable prettyprint for --print-* commands
+    --strict-json          enable strict JSON comparison
     --redirect             redirect HTTP to HTTPS
 
 COMMANDS:

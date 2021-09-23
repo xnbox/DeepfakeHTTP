@@ -293,7 +293,7 @@ public class OpenApiUtils {
 				mapMethodProps.put("tags", openApiMethodTags);
 
 			Object objBody;
-			if (requestContentType != null) {
+			if (requestContentType != null && !requestBody.isEmpty()) {
 				Map<String, Object> mapOpenApiRequestBody = new LinkedHashMap<>();
 				mapMethodProps.put("requestBody", mapOpenApiRequestBody);
 

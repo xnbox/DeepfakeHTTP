@@ -87,11 +87,13 @@ public class CustomMain {
 			sb.append("     --collect <file>       collect live request/response to file              \n");
 			sb.append("     --data <file>          specify json/yaml data file to populate templates  \n");
 			sb.append("     --format <json|yaml>   output format for --print-* commands, default: json\n");
+			sb.append("     --status <number>      status code for non-matching requests, default: 400\n");
 			sb.append("                                                                               \n");
 			sb.append(" FLAGS:                                                                        \n");
 			sb.append("     --no-log               disable request/response console logging           \n");
-			sb.append("     --no-etag              disable ETag optimization                          \n");
 			sb.append("     --no-cors              disable CORS headers                               \n");
+			sb.append("     --no-etag              disable 'ETag' header                              \n");
+			sb.append("     --no-powered-by        disable 'X-Powered-By' header                      \n");
 			sb.append("     --no-watch             disable watch files for changes                    \n");
 			sb.append("     --no-color             disable ANSI color output for --print-* commands   \n");
 			sb.append("     --no-pretty            disable prettyprint for --print-* commands         \n");

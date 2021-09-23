@@ -91,11 +91,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * TODO 
- * - support block comments in dumps
- * --no-cors
- */
 public class DeepfakeHttpServlet extends HttpServlet {
 	/**
 	 * serialVersionUID
@@ -120,7 +115,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION = "X-OpenAPI-Description";// request non-standard
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_TAGS        = "X-OpenAPI-Tags";       // request non-standard
 
-	private static final String X_POWERED_BY_VALUE = "DeepfakeHTTP";
+	private static final String X_POWERED_BY_VALUE = "DeepfakeHTTP " + System.getProperty("build.version") + " (" + System.getProperty("build.timestamp") + ")";
 
 	private byte[] openApiJsonBs;
 	private byte[] openApiYamlBs;
@@ -130,8 +125,10 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noEtag;
 	private boolean noLog;
 	private boolean noCors;
+	private boolean noPoweredBy;
 	private boolean noColor;
 	private boolean strictJson;
+	private int     badRequestStatus;
 
 	private String                       collectFile;
 	private String                       openApiPath;
@@ -185,16 +182,18 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
 			Map<String, Object> paramMap = ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps);
-			noWatch      = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_WATCH);
-			noEtag       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_ETAG);
-			noLog        = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG);
-			noCors       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_CORS);
-			noColor      = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_COLOR);
-			strictJson   = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_STRICT_JSON);
-			collectFile  = (String) paramMap.get(ParseCommandLineUtils.ARGS_COLLECT);
-			openApiPath  = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_PATH);
-			openApiTitle = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_TITLE);
-			String dataFile = (String) paramMap.get(ParseCommandLineUtils.ARGS_DATA);
+			noWatch          = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_WATCH);
+			noEtag           = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_ETAG);
+			noLog            = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG);
+			noCors           = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_CORS);
+			noPoweredBy      = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_POWERED_BY);
+			noColor          = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_COLOR);
+			strictJson       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_STRICT_JSON);
+			collectFile      = (String) paramMap.get(ParseCommandLineUtils.ARGS_COLLECT);
+			openApiPath      = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_PATH);
+			openApiTitle     = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_TITLE);
+			dataFile         = (String) paramMap.get(ParseCommandLineUtils.ARGS_DATA);
+			badRequestStatus = (int) paramMap.get(ParseCommandLineUtils.ARGS_STATUS);
 
 			if (openApiTitle == null)
 				openApiTitle = "";
@@ -539,7 +538,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					boolean simpleBadRequest400;
 					if (reqResp == null) {
 						reqResp                    = new ReqResp();
-						reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + HttpServletResponse.SC_BAD_REQUEST + ' ' + "Bad request";
+						reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + badRequestStatus + ' ' + "Bad request";
 						simpleBadRequest400        = true;
 					} else
 						simpleBadRequest400 = false;
@@ -579,8 +578,9 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						responseHeaders.put(header.name, header.value);
 					}
 
-					if (!responseHeaders.containsKey(HTTP_HEADER_X_POWERED_BY))
-						responseHeaders.put(HTTP_HEADER_X_POWERED_BY, X_POWERED_BY_VALUE);
+					if (!noPoweredBy)
+						if (!responseHeaders.containsKey(HTTP_HEADER_X_POWERED_BY))
+							responseHeaders.put(HTTP_HEADER_X_POWERED_BY, X_POWERED_BY_VALUE);
 
 					if (requestDelay != 0)
 						Thread.sleep(requestDelay);
@@ -634,7 +634,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						responseHeaders.put(HTTP_HEADER_CONTENT_LENGTH, Integer.toString(bs.length));
 
 					if (!noEtag) {
-						if (status != HttpServletResponse.SC_BAD_REQUEST) {
+						if (status != badRequestStatus) {
 							String etag = "\"" + Integer.toHexString(Murmur3.hash32(bs)) + "\""; // Murmur3 32-bit variant
 
 							String  etagFromClient = request.getHeader(HTTP_HEADER_IF_NONE_MATCH);
@@ -745,7 +745,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			String headersColor;
 			String contentColor;
 
-			if (status == HttpServletResponse.SC_BAD_REQUEST) {
+			if (status == badRequestStatus) {
 				firstLineColor = IAnsi.CYAN_BOLD_BRIGHT;
 				headersColor   = IAnsi.CYAN;
 				contentColor   = IAnsi.CYAN_BRIGHT;
@@ -791,7 +791,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			if (color)
 				baos.write(IAnsi.RESET.getBytes(StandardCharsets.UTF_8));
 
-			if (status == HttpServletResponse.SC_BAD_REQUEST) {
+			if (status == badRequestStatus) {
 				firstLineColor = IAnsi.RED_BOLD_BRIGHT;
 				headersColor   = IAnsi.PURPLE;
 				contentColor   = IAnsi.PURPLE_BRIGHT;
@@ -1026,10 +1026,10 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 * @return
 	 * @throws Exception
 	 */
-	private static ReqResp getBadRequest400(List<ReqResp> reqResps) throws Exception {
+	private ReqResp getBadRequest400(List<ReqResp> reqResps) throws Exception {
 		for (ReqResp reqResp : reqResps) {
 			FirstLineResp firstLineResp = new FirstLineResp(reqResp.response.firstLine);
-			if (firstLineResp.getStatus() == HttpServletResponse.SC_BAD_REQUEST)
+			if (firstLineResp.getStatus() == badRequestStatus)
 				return reqResp;
 		}
 		return null;
