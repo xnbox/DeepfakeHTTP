@@ -286,11 +286,11 @@ Optional response headers
     <tr><td valign="top"><code>X-Body-Type     </code></td>
     <td>
     <p>Tells the server what the content type (media type) of the body content actually is. Value of this header has same rules as value of standard HTTP <code>Content-Type</code> header.</p>
-    <p>This header is useful when you want to use binary data, template or script as a response body.</p>
+    <p>This header is useful when you want to use binary data or script as a response body.</p>
     <i>Examples:</i>
 <br><br>
 
-A response body is a character data (default).<br>
+(1) A response body is a character data (default).<br>
 No <code>X-Body-Type</code> header is needed.
 
 ```text
@@ -298,6 +298,21 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {"id": 5, "name": "John Doe"}
+```
+
+(2) A response body is a character data (default).<br>
+No <code>X-Body-Type</code> header is needed.
+
+```text
+HTTP/1.1 200 OK
+Content-Type: text/html
+
+<!DOCTYPE html>
+<html lang="en">
+    <body>
+        <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
+    </body>
+</html>
 ```
 
 <h2></h2>
@@ -337,24 +352,6 @@ Content-Type: image/gif
 X-Body-Type: text/uri-list
 
 data:image/gif;base64,R0lGODlhAQABAIAAAP...
-```
-
-<h2></h2>
-
-Get a response body from a template.<br>
-Body type is <code>text/template</code>. Useful for forms processing.
-
-```text
-HTTP/1.1 200 OK
-Content-Type: text/html
-X-Body-Type: text/template
-
-<!DOCTYPE html>
-<html lang="en">
-    <body>
-        <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
-    </body>
-</html>
 ```
 
 </td></tr>
