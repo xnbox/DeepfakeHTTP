@@ -41,21 +41,24 @@ public class TemplateUtils {
 
 	/**
 	 * 
+	 * @param processTemplate
 	 * @param freeMarkerConfiguration
 	 * @param s
-	 * @param dataJson
 	 * @param dataMap
 	 * @return
 	 * @throws IOException
 	 * @throws TemplateException
 	 */
-	public static String processTemplate(Configuration freeMarkerConfiguration, String s, String dataJson, Map<String, Object> dataMap) throws IOException, TemplateException {
-		dataMap.put(TEMPLATE_RANDOM_FUNCTION_NAME, new RandomMethod());
-		Template freeMarkerTemplate = new Template("", new StringReader(s), freeMarkerConfiguration);
-		try (StringWriter writer = new StringWriter()) {
-			freeMarkerTemplate.process(dataMap, writer);
-			return writer.toString();
+	public static String processTemplate(boolean processTemplate, Configuration freeMarkerConfiguration, String s, Map<String, Object> dataMap) throws IOException, TemplateException {
+		if (processTemplate) {
+			dataMap.put(TEMPLATE_RANDOM_FUNCTION_NAME, new RandomMethod());
+			Template freeMarkerTemplate = new Template("", new StringReader(s), freeMarkerConfiguration);
+			try (StringWriter writer = new StringWriter()) {
+				freeMarkerTemplate.process(dataMap, writer);
+				return writer.toString();
+			}
 		}
+		return s;
 	}
 
 }

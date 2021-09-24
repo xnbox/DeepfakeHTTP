@@ -97,6 +97,7 @@ public class CustomMain {
 			sb.append("     --no-watch             disable watch files for changes                    \n");
 			sb.append("     --no-color             disable ANSI color output for --print-* commands   \n");
 			sb.append("     --no-pretty            disable prettyprint for --print-* commands         \n");
+			sb.append("     --no-template          disable template processing                        \n");
 			sb.append("     --strict-json          enable strict JSON comparison                      \n");
 			sb.append("     --redirect             enable redirect HTTP to HTTPS                      \n");
 			sb.append("                                                                               \n");

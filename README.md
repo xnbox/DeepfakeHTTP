@@ -85,6 +85,7 @@ FLAGS:
     --no-watch             disable watch files for changes
     --no-color             disable ANSI color output for --print-* commands
     --no-pretty            disable prettyprint for --print-* commands
+    --no-template          disable template processing
     --strict-json          enable strict JSON comparison
     --redirect             enable redirect HTTP to HTTPS
 

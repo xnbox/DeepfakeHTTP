@@ -88,23 +88,24 @@ public class ParseCommandLineUtils {
 	//@formatter:on
 
 	/* command line args */
-	public static final String ARGS_NO_WATCH       = "--no-watch";      // disable watch dump files for changes
-	public static final String ARGS_NO_ETAG        = "--no-etag";       // disable ETag optimization
-	public static final String ARGS_NO_LOG         = "--no-log";        // disable request/response console logging
-	public static final String ARGS_NO_CORS        = "--no-cors";       // disable CORS headers
-	public static final String ARGS_NO_POWERED_BY  = "--no-powered-by"; // disable 'X-Powered-By' header
-	public static final String ARGS_STRICT_JSON    = "--strict-json";   // enable strict JSON comparison
-	public static final String ARGS_COLLECT        = "--collect";       // collect live request/response dumps to file
-	public static final String ARGS_OPENAPI_PATH   = "--openapi-path";  // serve OpenAPI client at specified context path
-	public static final String ARGS_OPENAPI_TITLE  = "--openapi-title"; // provide custom OpenAPI spec title             
-	public static final String ARGS_DATA           = "--data";          // specify json/yaml data file to populate templates
-	public static final String ARGS_PRINT_INFO     = "--print-info";
-	public static final String ARGS_PRINT_REQUESTS = "--print-requests";
-	public static final String ARGS_PRINT_OPENAPI  = "--print-openapi";
-	public static final String ARGS_FORMAT         = "--format";
-	public static final String ARGS_STATUS         = "--status";        // status code for non-matching requests, default: 400
-	public static final String ARGS_NO_PRETTY      = "--no-pretty";
-	public static final String ARGS_NO_COLOR       = "--no-color";
+	public static final String ARGS_NO_WATCH       = "--no-watch";       // disable watch dump files for changes
+	public static final String ARGS_NO_ETAG        = "--no-etag";        // disable ETag optimization
+	public static final String ARGS_NO_LOG         = "--no-log";         // disable request/response console logging
+	public static final String ARGS_NO_CORS        = "--no-cors";        // disable CORS headers
+	public static final String ARGS_NO_POWERED_BY  = "--no-powered-by";  // disable 'X-Powered-By' header
+	public static final String ARGS_STRICT_JSON    = "--strict-json";    // enable strict JSON comparison
+	public static final String ARGS_COLLECT        = "--collect";        // collect live request/response dumps to file
+	public static final String ARGS_OPENAPI_PATH   = "--openapi-path";   // serve OpenAPI client at specified context path
+	public static final String ARGS_OPENAPI_TITLE  = "--openapi-title";  // provide custom OpenAPI spec title             
+	public static final String ARGS_DATA           = "--data";           // specify json/yaml data file to populate templates
+	public static final String ARGS_PRINT_INFO     = "--print-info";     // print dump files statistics to stdout as json/yaml
+	public static final String ARGS_PRINT_REQUESTS = "--print-requests"; // print dump requests to stdout as json/yaml
+	public static final String ARGS_PRINT_OPENAPI  = "--print-openapi";  // print OpenAPI specification to stdout as json/yaml
+	public static final String ARGS_FORMAT         = "--format";         // output format for --print-* commands, default: json
+	public static final String ARGS_STATUS         = "--status";         // status code for non-matching requests, default: 400
+	public static final String ARGS_NO_COLOR       = "--no-color";       // disable ANSI color output for --print-* commands
+	public static final String ARGS_NO_PRETTY      = "--no-pretty";      // disable prettyprint for --print-* commands
+	public static final String ARGS_NO_TEMPLATE    = "--no-template";    // disable template processing
 
 	/**
 	 * 
@@ -119,11 +120,12 @@ public class ParseCommandLineUtils {
 			List<String /* dump file */> dumps //
 	) {
 		Map<String, Object> paramMap = new HashMap<>();
+
+		/* CLI options defaults */
 		paramMap.put(ARGS_HELP_OPTION, false);
 		paramMap.put(ARGS_PRINT_INFO, false);
 		paramMap.put(ARGS_PRINT_REQUESTS, false);
 		paramMap.put(ARGS_PRINT_OPENAPI, false);
-		paramMap.put(ARGS_NO_PRETTY, false);
 		paramMap.put(ARGS_NO_COLOR, NO_COLOR != null);
 		paramMap.put(ARGS_NO_WATCH, false);
 		paramMap.put(ARGS_NO_ETAG, false);
@@ -132,6 +134,8 @@ public class ParseCommandLineUtils {
 		paramMap.put(ARGS_NO_POWERED_BY, false);
 		paramMap.put(ARGS_STRICT_JSON, false);
 		paramMap.put(ARGS_NO_COLOR, false);
+		paramMap.put(ARGS_NO_PRETTY, false);
+		paramMap.put(ARGS_NO_TEMPLATE, false);
 		paramMap.put(ARGS_COLLECT, null);
 		paramMap.put(ARGS_OPENAPI_PATH, null);
 		paramMap.put(ARGS_OPENAPI_TITLE, "");
@@ -192,6 +196,8 @@ public class ParseCommandLineUtils {
 			else if (args[i].equals(ARGS_PRINT_OPENAPI))
 				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_NO_PRETTY))
+				paramMap.put(args[i], true);
+			else if (args[i].equals(ARGS_NO_TEMPLATE))
 				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_FORMAT)) {
 				if (i < args.length - 1)

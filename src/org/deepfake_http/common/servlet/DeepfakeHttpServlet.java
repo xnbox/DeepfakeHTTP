@@ -127,6 +127,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noCors;
 	private boolean noPoweredBy;
 	private boolean noColor;
+	private boolean noTemplate;
 	private boolean strictJson;
 	private int     badRequestStatus;
 
@@ -142,8 +143,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private Map<Path /* dirPath */, DirectoryWatcher> directoryWatchersMap = new HashMap<>();
 	private DirectoryWatcher                          dataFileDirectoryWatcher;
 
-	private String              dataJson = "{}";
-	private Map<String, Object> dataMap  = new HashMap<>(0);
+	private Map<String, Object> dataMap;
 
 	private List<ReqResp> allReqResps;
 	private ReqResp       badRequest400;
@@ -188,6 +188,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			noCors           = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_CORS);
 			noPoweredBy      = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_POWERED_BY);
 			noColor          = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_COLOR);
+			noTemplate       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_TEMPLATE);
 			strictJson       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_STRICT_JSON);
 			collectFile      = (String) paramMap.get(ParseCommandLineUtils.ARGS_COLLECT);
 			openApiPath      = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_PATH);
@@ -546,9 +547,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					if (dataFilePath != null || !providedParams.isEmpty()) {
 						Map<String, Object> tmpDataMap = new LinkedHashMap<>(dataMap);
 						tmpDataMap.put("parameters", providedParams);
-						String tmpDataJson = JacksonUtils.stringifyToJsonYaml(tmpDataMap, JacksonUtils.FORMAT_JSON, false, false);
 
-						processResp(freeMarkerConfiguration, reqResp, tmpDataJson, tmpDataMap);
+						processResp(!noTemplate, freeMarkerConfiguration, reqResp, tmpDataMap);
 					}
 
 					String        responseFirstLineStr = reqResp.response.firstLine;
@@ -1042,16 +1042,18 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 */
 	private void reload(boolean activateDirWatchers) throws Throwable {
 		/* reload data file */
-		if (dataFilePath != null) {
-			dataJson = Files.readString(dataFilePath, StandardCharsets.UTF_8).strip(); // JSON or YAML
-			dataMap  = JacksonUtils.parseJsonYamlToMap(dataJson);
+		if (dataFilePath == null)
+			dataMap = new HashMap<>();
+		else {
+			String dataJson = Files.readString(dataFilePath, StandardCharsets.UTF_8).strip(); // JSON or YAML
+			dataMap = JacksonUtils.parseJsonYamlToMap(dataJson);
 		}
 
 		allReqResps = CustomMain.getAllReqResp(logger, dumps);
 
 		if (dataFilePath != null)
 			for (ReqResp reqResp : allReqResps)
-				processReq(freeMarkerConfiguration, reqResp, dataJson, dataMap);
+				processReq(!noTemplate, freeMarkerConfiguration, reqResp, dataMap);
 
 		/* Create OpenAPI JSON */
 		Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitle);
@@ -1135,24 +1137,24 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		return rr;
 	}
 
-	private static void processReq(Configuration freeMarkerConfiguration, ReqResp reqResp, String dataJson, Map<String, Object> dataMap) throws IOException, TemplateException {
-		reqResp.request.firstLine = TemplateUtils.processTemplate(freeMarkerConfiguration, reqResp.request.firstLine, dataJson, dataMap);
+	private static void processReq(boolean processTemplate, Configuration freeMarkerConfiguration, ReqResp reqResp, Map<String, Object> dataMap) throws IOException, TemplateException {
+		reqResp.request.firstLine = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, reqResp.request.firstLine, dataMap);
 		for (int i = 0; i < reqResp.request.headers.size(); i++) {
 			String headerStr = reqResp.request.headers.get(i);
-			headerStr = TemplateUtils.processTemplate(freeMarkerConfiguration, headerStr, dataJson, dataMap);
+			headerStr = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, headerStr, dataMap);
 			reqResp.request.headers.set(i, headerStr);
 		}
-		reqResp.request.body = TemplateUtils.processTemplate(freeMarkerConfiguration, reqResp.request.body, dataJson, dataMap);
+		reqResp.request.body = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, reqResp.request.body, dataMap);
 	}
 
-	private static void processResp(Configuration freeMarkerConfiguration, ReqResp reqResp, String dataJson, Map<String, Object> dataMap) throws IOException, TemplateException {
-		reqResp.response.firstLine = TemplateUtils.processTemplate(freeMarkerConfiguration, reqResp.response.firstLine, dataJson, dataMap);
+	private static void processResp(boolean processTemplate, Configuration freeMarkerConfiguration, ReqResp reqResp, Map<String, Object> dataMap) throws IOException, TemplateException {
+		reqResp.response.firstLine = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, reqResp.response.firstLine, dataMap);
 		for (int i = 0; i < reqResp.response.headers.size(); i++) {
 			String headerStr = reqResp.response.headers.get(i);
-			headerStr = TemplateUtils.processTemplate(freeMarkerConfiguration, headerStr, dataJson, dataMap);
+			headerStr = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, headerStr, dataMap);
 			reqResp.response.headers.set(i, headerStr);
 		}
-		reqResp.response.body = TemplateUtils.processTemplate(freeMarkerConfiguration, reqResp.response.body, dataJson, dataMap);
+		reqResp.response.body = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, reqResp.response.body, dataMap);
 	}
 
 }
