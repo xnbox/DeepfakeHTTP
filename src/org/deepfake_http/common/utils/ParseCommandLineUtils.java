@@ -106,6 +106,8 @@ public class ParseCommandLineUtils {
 	public static final String ARGS_NO_COLOR       = "--no-color";       // disable ANSI color output for --print-* commands
 	public static final String ARGS_NO_PRETTY      = "--no-pretty";      // disable prettyprint for --print-* commands
 	public static final String ARGS_NO_TEMPLATE    = "--no-template";    // disable template processing
+	public static final String ARGS_NO_WILDCARD    = "--no-wildcard";    // disable wildcard processing
+
 
 	/**
 	 * 
@@ -136,6 +138,7 @@ public class ParseCommandLineUtils {
 		paramMap.put(ARGS_NO_COLOR, false);
 		paramMap.put(ARGS_NO_PRETTY, false);
 		paramMap.put(ARGS_NO_TEMPLATE, false);
+		paramMap.put(ARGS_NO_WILDCARD, false);
 		paramMap.put(ARGS_COLLECT, null);
 		paramMap.put(ARGS_OPENAPI_PATH, null);
 		paramMap.put(ARGS_OPENAPI_TITLE, "");
@@ -198,6 +201,8 @@ public class ParseCommandLineUtils {
 			else if (args[i].equals(ARGS_NO_PRETTY))
 				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_NO_TEMPLATE))
+				paramMap.put(args[i], true);
+			else if (args[i].equals(ARGS_NO_WILDCARD))
 				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_FORMAT)) {
 				if (i < args.length - 1)

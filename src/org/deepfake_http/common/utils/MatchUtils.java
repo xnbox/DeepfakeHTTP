@@ -63,7 +63,7 @@ public class MatchUtils {
 		return true;
 	}
 
-	public static boolean matchQuery(String template, String query, Map<String, List<String>> paramMap) {
+	public static boolean matchQuery(boolean processWildcards, String template, String query, Map<String, List<String>> paramMap) {
 		if (template.equals(query))
 			return true;
 		Map<String, List<String>> templateMap = new LinkedHashMap<>();
@@ -90,7 +90,7 @@ public class MatchUtils {
 				//					continue;
 				//				}
 				String paramValueQuery = paramValuesQuery.get(i);
-				if (!match(paramValueTemplate, paramValueQuery))
+				if (!match(processWildcards, paramValueTemplate, paramValueQuery))
 					return false;
 				List<String> paramValues = paramMap.get(paramName);
 				if (paramValues == null) {
@@ -146,29 +146,32 @@ public class MatchUtils {
 	 * @param providedValues
 	 * @return
 	 */
-	public static boolean matchHeaderValue(String value, Collection<String> providedValues) {
+	public static boolean matchHeaderValue(boolean processWildcards, String value, Collection<String> providedValues) {
 		for (String providedValue : providedValues)
-			if (match(value, providedValue))
+			if (match(processWildcards, value, providedValue))
 				return true;
 		return false;
 	}
 
-	private static boolean match(String template, String s) {
-		if (Objects.equals(template, s))
-			return true;
-		if ("*".equals(template) && s != null)
-			return true;
-		if (template == null && s != null)
-			return false;
-		if (template != null && s == null)
-			return false;
-		template = template.strip();
-		s        = s.strip();
-		try {
-			return new WildcardMatch().match(s, template);
-		} catch (Throwable e) {
-			return false; // WildcardMatch can throw Exceptions
-		}
+	private static boolean match(boolean processWildcards, String template, String s) {
+		if (processWildcards) {
+			if (Objects.equals(template, s))
+				return true;
+			if ("*".equals(template) && s != null)
+				return true;
+			if (template == null && s != null)
+				return false;
+			if (template != null && s == null)
+				return false;
+			template = template.strip();
+			s        = s.strip();
+			try {
+				return new WildcardMatch().match(s, template);
+			} catch (Throwable e) {
+				return false; // WildcardMatch can throw Exceptions
+			}
+		} else
+			return Objects.equals(template, s);
 	}
 
 	private static List<String> tokenizePath(String s) {

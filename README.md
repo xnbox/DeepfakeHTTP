@@ -86,6 +86,7 @@ FLAGS:
     --no-color             disable ANSI color output for --print-* commands
     --no-pretty            disable prettyprint for --print-* commands
     --no-template          disable template processing
+    --no-wildcard          disable wildcard processing
     --strict-json          enable strict JSON comparison
     --redirect             enable redirect HTTP to HTTPS
 

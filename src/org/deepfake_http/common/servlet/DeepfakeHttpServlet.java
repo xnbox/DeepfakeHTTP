@@ -128,6 +128,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noPoweredBy;
 	private boolean noColor;
 	private boolean noTemplate;
+	private boolean noWildcard;
 	private boolean strictJson;
 	private int     badRequestStatus;
 
@@ -189,6 +190,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			noPoweredBy      = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_POWERED_BY);
 			noColor          = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_COLOR);
 			noTemplate       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_TEMPLATE);
+			noWildcard       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_WILDCARD);
 			strictJson       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_STRICT_JSON);
 			collectFile      = (String) paramMap.get(ParseCommandLineUtils.ARGS_COLLECT);
 			openApiPath      = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_PATH);
@@ -421,7 +423,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 						String templateQueryString = HttpPathUtils.extractQueryStringFromUri(firstLineReq.getUri());
 
-						boolean queryStringOk = MatchUtils.matchQuery(templateQueryString, providedQueryString, providedParams);
+						boolean queryStringOk = MatchUtils.matchQuery(!noWildcard, templateQueryString, providedQueryString, providedParams);
 						if ( //
 						protocolOk && //
 						methodOk && //
@@ -504,7 +506,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									if (providedValues == null)
 										ok = false;
 									else
-										ok = MatchUtils.matchHeaderValue(value, providedValues);
+										ok = MatchUtils.matchHeaderValue(!noWildcard, value, providedValues);
 									if (!ok)
 										break;
 								}
