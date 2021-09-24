@@ -312,7 +312,7 @@ Content-Type: text/html
 <!DOCTYPE html>
 <html lang="en">
     <body>
-        <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
+        <h1>Hello ${fname[0]} ${lname[0]}!</h1>
     </body>
 </html>
 ```
@@ -435,7 +435,7 @@ X-Body-Type: text/template
 <!DOCTYPE html>
 <html lang="en">
 <body>
-    <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
+    <h1>Hello ${fname[0]} ${lname[0]}!</h1>
 </body>
 </html>
 ```
@@ -515,7 +515,7 @@ X-Body-Type: text/template
 <!DOCTYPE html>
 <html lang="en">
 <body>
-    <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
+    <h1>Hello ${fname[0]} ${lname[0]}!</h1>
 </body>
 </html>
 ```
@@ -539,7 +539,7 @@ HTTP/1.1 200 OK
         <label for="fname">First name:</label><input type="text" name="fname"><br><br>
         <label for="lname">Last name: </label><input type="text" name="lname"><br><br>
         <p>Only first name 'John' and last name 'Doe' are supported.<br>
-        Expected output is: Hello, John Doe!,<br>
+        Expected output is: Hello John Doe!,<br>
         or HTTP status 400 Bad request if first name is not 'John' or last name is not 'Doe'.
         </p><br><br>
         <input type="submit" value="Submit">
@@ -559,7 +559,7 @@ X-Body-Type: text/template
 
 <!DOCTYPE html>
 <body>
-    <h1>Hello, ${fname[0]} ${lname[0]}!</h1>
+    <h1>Hello ${fname[0]} ${lname[0]}!</h1>
 </body>
 </html>
 ```
