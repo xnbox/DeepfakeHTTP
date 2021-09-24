@@ -182,7 +182,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			Map<String, Object> paramMap = ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps);
+			Map<String, Object> paramMap = ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps);
 			noWatch          = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_WATCH);
 			noEtag           = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_ETAG);
 			noLog            = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG);
@@ -548,7 +548,9 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					if (dataFilePath != null || !providedParams.isEmpty()) {
 						Map<String, Object> tmpDataMap = new LinkedHashMap<>(dataMap);
-						tmpDataMap.put("parameters", providedParams);
+						Map<String, Object> requestMap = new LinkedHashMap<>();
+						requestMap.put("parameters", providedParams);
+						tmpDataMap.put("request", requestMap);
 
 						processResp(!noTemplate, freeMarkerConfiguration, reqResp, tmpDataMap);
 					}

@@ -108,7 +108,6 @@ public class ParseCommandLineUtils {
 	public static final String ARGS_NO_TEMPLATE    = "--no-template";    // disable template processing
 	public static final String ARGS_NO_WILDCARD    = "--no-wildcard";    // disable wildcard processing
 
-
 	/**
 	 * 
 	 * @param logger
@@ -212,14 +211,17 @@ public class ParseCommandLineUtils {
 					paramMap.put(args[i], Integer.parseInt(args[++i]));
 			} else {
 				String fileName = args[i];
-				if (fileName.startsWith("--"))
-					logger.log(Level.WARNING, "Unknown option: \"{0}\". Ignored.", fileName);
-				else {
+				if (fileName.startsWith("--")) {
+					if (logger != null)
+						logger.log(Level.WARNING, "Unknown option: \"{0}\". Ignored.", fileName);
+				} else {
 					Path path = Paths.get(fileName);
 					if (Files.exists(path))
 						dumps.add(fileName);
-					else
-						logger.log(Level.WARNING, "File \"{0}\" does not exists", fileName);
+					else {
+						if (logger != null)
+							logger.log(Level.WARNING, "File \"{0}\" does not exists", fileName);
+					}
 				}
 			}
 		}

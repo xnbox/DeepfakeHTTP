@@ -46,7 +46,6 @@ import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.deepfake_http.common.utils.SystemProperties;
 
 public class CustomMain {
-
 	/**
 	 * Custom main method (called for emmbedded web apps)
 	 *
