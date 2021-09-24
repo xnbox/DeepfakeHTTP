@@ -86,7 +86,7 @@ FLAGS:
     --no-color             disable ANSI color output for --print-* commands
     --no-pretty            disable prettyprint for --print-* commands
     --strict-json          enable strict JSON comparison
-    --redirect             redirect HTTP to HTTPS
+    --redirect             enable redirect HTTP to HTTPS
 
 COMMANDS:
     --help                 print help message
