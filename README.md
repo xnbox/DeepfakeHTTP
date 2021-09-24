@@ -2,7 +2,7 @@
 Your 100% static dynamic backend</h1>
 
 <a title="License MIT" href="https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
-<a title="Release 1.0.15" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-1.0.15-4DC71F?style=flat-square"></a>
+<a title="Release 2.1.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-2.1.1-4DC71F?style=flat-square"></a>
 <a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
 
 <p align="center">
@@ -35,7 +35,7 @@ Your 100% static dynamic backend</h1>
     <li>Copy-paste the content of the dump example to the file <code>dump.txt</code>:
 <span></span>
 
-```
+```http
 GET /api/customer/123 HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -230,7 +230,7 @@ Optional request headers (OpenAPI)
     <p>OpenAPI request summary text.</p>
     <i>Example:</i>
 
-```
+```http
 HTTP/1.1 200 OK
 Content-Type: application/json
 X-OpenAPI-Summary: Get customer information
@@ -245,7 +245,7 @@ X-OpenAPI-Summary: Get customer information
     <p>OpenAPI request description text.</p>
     <i>Example:</i>
 
-```
+```http
 HTTP/1.1 200 OK
 Content-Type: application/json
 X-OpenAPI-Summary: Get customer information
@@ -261,7 +261,7 @@ X-OpenAPI-Description: This API extracts customer info from db
     <p>OpenAPI request comma-separated tag list.</p>
     <i>Example:</i>
 
-```
+```http
 HTTP/1.1 200 OK
 Content-Type: application/json
 X-OpenAPI-Summary: Get customer information
@@ -295,7 +295,7 @@ Optional response headers
 (1) A response body is a character data (default).<br>
 No <code>X-Body-Type</code> header is needed.
 
-```text
+```http
 HTTP/1.1 200 OK
 Content-Type: application/json
 
@@ -305,7 +305,7 @@ Content-Type: application/json
 (2) A response body is a character data (default).<br>
 No <code>X-Body-Type</code> header is needed.
 
-```text
+```http
 HTTP/1.1 200 OK
 Content-Type: text/html
 
@@ -322,7 +322,7 @@ Content-Type: text/html
 Get a response body from a remote server.<br>
 Body type is <code>text/uri-list</code> (RFC 2483)
 
-```text
+```http
 HTTP/1.1 200 OK
 Content-Type: application/json
 X-Body-Type: text/uri-list
@@ -335,7 +335,7 @@ http://example.com/api/car/1234.json
 Get a response body from a file.<br>
 Body type is <code>text/uri-list</code> (RFC 2483)
 
-```text
+```http
 HTTP/1.1 200 OK
 Content-Type: image/jpeg
 X-Body-Type: text/uri-list
@@ -348,7 +348,7 @@ file:///home/john/photo.jpeg
 Get a response body from a data URI.<br>
 Body type is <code>text/uri-list</code> (RFC 2483)
 
-```text
+```http
 HTTP/1.1 200 OK
 Content-Type: image/gif
 X-Body-Type: text/uri-list
@@ -363,7 +363,7 @@ data:image/gif;base64,R0lGODlhAQABAIAAAP...
     <i>Example:</i>
     <br>
 
-```text
+```http
 # Two seconds request delay.
 
 HTTP/1.1 200 OK
@@ -379,7 +379,7 @@ X-Request-Delay: 2000
     <i>Example:</i>
     <br>
 
-```text
+```http
 # Two seconds response delay.
 
 HTTP/1.1 200 OK
@@ -401,7 +401,7 @@ Dump examples
 <br>
 <h3>Example 1.</h3>
 
-```text
+```http
 # Comments are welcome! :)
 # Please don't miss a single carriage return between headers and body!
 
@@ -443,7 +443,7 @@ X-Body-Type: text/template
 <br>
 <h3>Example 2.</h3>
 
-```text
+```http
 #
 # First request-response entry
 #
@@ -484,7 +484,7 @@ Content-Type: application/json
 <br>
 <h3>Example 3.</h3>
 
-```text
+```http
 #
 # Work with HTML forms (1)
 #
@@ -523,7 +523,7 @@ X-Body-Type: text/template
 <br>
 <h3>Example 4.</h3>
 
-```text
+```http
 #
 # Work with HTML forms (2)
 #
