@@ -295,7 +295,7 @@ Optional response headers
     <i>Examples:</i>
 <br><br>
 
-(1) A response body is a character data (default).<br>
+A response body is a character data (default).<br>
 No <code>X-Body-Type</code> header is needed.
 
 ```http
@@ -303,21 +303,6 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {"id": 5, "name": "John Doe"}
-```
-
-(2) A response body is a character data (default).<br>
-No <code>X-Body-Type</code> header is needed.
-
-```http
-HTTP/1.1 200 OK
-Content-Type: text/html
-
-<!DOCTYPE html>
-<html lang="en">
-    <body>
-        Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!
-    </body>
-</html>
 ```
 
 <h2></h2>
