@@ -405,7 +405,6 @@ Dump examples
 <h3>Example 1.</h3>
 
 ```http
-# Comments are welcome! :)
 # Please don't miss a single carriage return between headers and body!
 
 GET /form.html HTTP/1.1
@@ -440,6 +439,7 @@ Content-Type: text/html
     <h1>Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!</h1>
 </body>
 </html>
+.
 ```
 
 <br>
@@ -481,6 +481,7 @@ Content-Type: application/json
     "id": 5,
     "name": "John Doe"
 }
+.
 ```
 
 <br>
@@ -491,7 +492,7 @@ Content-Type: application/json
 # Work with HTML forms (1)
 #
 
-GET /form.html HTTP/1.1
+GET /form1.html HTTP/1.1
 
 HTTP/1.1 200 OK
 
@@ -519,6 +520,7 @@ Content-Type: text/html
     <h1>Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!</h1>
 </body>
 </html>
+.
 ```
 
 <br>
@@ -529,27 +531,27 @@ Content-Type: text/html
 # Work with HTML forms (2)
 #
 
-GET /form.html HTTP/1.1
+GET /form2.html HTTP/1.1
 
 HTTP/1.1 200 OK
 
 <!DOCTYPE html>
 <html lang="en">
 <body>
-    <form action="/action_page.php" method="POST">
-        <label for="fname">First name:</label><input type="text" name="fname"><br><br>
-        <label for="lname">Last name: </label><input type="text" name="lname"><br><br>
-        <p>Only first name 'John' and last name 'Doe' are supported.<br>
-        Expected output is: Hello John Doe!,<br>
-        or HTTP status 400 Bad request if first name is not 'John' or last name is not 'Doe'.
-        </p><br><br>
+    <form action="/action_page2.php" method="POST">
+        <label for="fname">First name:</label><input type="text" name="fname" value="John"><br>
+        <label for="lname">Last name: </label><input type="text" name="lname" value="Doe"><br>
+        <p>Only first name <strong>John</strong> and last name <strong>Doe</strong> are supported.<br>
+        Expected output is: <strong>Hello John Doe!</strong>,<br>
+        or HTTP status <code>400 Bad request</code> if first name is not <strong>John</strong> or last name is not <strong>Doe</strong>.
+        </p>
         <input type="submit" value="Submit">
     </form>
 </body>
 </html>
 
 
-POST /action_page.php HTTP/1.1
+POST /action_page2.php HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
 
 fname=John&lname=Doe
@@ -562,4 +564,5 @@ Content-Type: text/html
     <h1>Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!</h1>
 </body>
 </html>
+.
 ```
