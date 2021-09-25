@@ -10,19 +10,20 @@ Your 100% static dynamic backend</h1>
 </p>
 
 <p align="center">
-<table width="100%">
+<table>
 <tr>
 <td>
-<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/image.png" height="170rem">
+<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/image.png" width="290">
 </td>
 <td>
-<strong>What are people using it for?</strong>
+<h3>What are people using it for?</h3>
 <ul>
     <li>Creating the product POC or demo before even starting out with the backend</li>
     <li>REST, GraphQL, and other APIs prototyping and testing</li>
     <li>Hiding critical enterprise infrastructure behind a simple static facade</li>
     <li>Hacking and fine-tuning HTTP communications on both server and client sides</li>
 </ul>
+<img width="1000" height="0">
 </td>
 </tr>
 </table>
@@ -226,7 +227,7 @@ APPENDIX A.
 Optional request headers (OpenAPI)
 </h2>
 <table>
-    <tr><th>Header</th><th>Description</th></tr>
+    <tr><th width="220rem">Header</th><th>Description</th></tr>
     <tr></tr>
     <tr><td valign="top"><code>X-OpenAPI-Summary</code></td>
     <td>
@@ -273,7 +274,7 @@ X-OpenAPI-Tags: Work with customer, Buyers, Login info
 
 {"id": 5, "name": "John Doe"}
 ```
-
+<img width="1000" height="0">
 </td></tr>
 </table>
 <strong>NOTE:  </strong>Optional request headers are used as OpenAPI annotations and will <strong>not</strong> be sent to the server engine.
@@ -286,7 +287,7 @@ APPENDIX B.
 Optional response headers
 </h2>
 <table>
-    <tr><th width="21%" >Header</th>                                <th>Description</th></tr>
+    <tr><th width="220rem">Header</th><th>Description</th></tr>
     <tr></tr>
     <tr><td valign="top"><code>X-Body-Type     </code></td>
     <td>
@@ -343,7 +344,6 @@ X-Body-Type: text/uri-list
 
 data:image/gif;base64,R0lGODlhAQABAIAAAP...
 ```
-
 </td></tr>
 <tr></tr>
     <tr><td valign="top"><code>X-Request-Delay</code></td>
@@ -359,7 +359,6 @@ X-Request-Delay: 2000
 
 {"id": 5, "name": "John Doe"}
 ```
-
 </td></tr>
 <tr></tr>
     <tr><td valign="top"><code>X-Response-Delay</code></td>
@@ -375,7 +374,7 @@ X-Response-Delay: 2000
 
 {"id": 5, "name": "John Doe"}
 ```
-
+<img width="1000" height="0">
 </td></tr>
 </table>
 <strong>NOTE:  </strong>Optional response headers will <strong>not</strong> be sent to clients.
@@ -795,4 +794,3 @@ startxref
 .
 ```
 </details>
-
