@@ -181,8 +181,7 @@ That's all.
     <li>No installation</li>
     <li>No configuration files</li>
     <li>Single-file executable</li>
-    <li>Grab response data from HTTP dumps and/or OpenAPI json/yaml</li>
-    
+    <li>Retrieve response data from HTTP dumps and/or OpenAPI json/yaml</li>
 </ul>
 <details>
 <summary>
