@@ -206,10 +206,12 @@ That's all.
     <li>Live request/response collection</li>
     <li>Optional watching dump files for changes</li>
     <li>Optional ETag optimization</li>
+    <li>Optional CORS support</li>
     <li>Optional live request/response logging</li>
     <li>TLS(SSL) connections and HTTP to HTTPS redirect</li>
     <li>Customizable OpenAPI client path</li>
     <li>Latest OpenAPI specification (v3.0.3) in JSON and YAML format</li>
+    <li>Colorized console output</li>
     <li>Disabling color via NO_COLOR environment variable</li>
 </ul>
 </details>
