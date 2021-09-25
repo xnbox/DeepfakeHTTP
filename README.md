@@ -315,7 +315,7 @@ Content-Type: text/html
 <!DOCTYPE html>
 <html lang="en">
     <body>
-        <h1>Hello ${fname[0]} ${lname[0]}!</h1>
+        <h1>Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!</h1>
     </body>
 </html>
 ```
@@ -438,7 +438,7 @@ X-Body-Type: text/template
 <!DOCTYPE html>
 <html lang="en">
 <body>
-    <h1>Hello ${fname[0]} ${lname[0]}!</h1>
+    <h1>Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!</h1>
 </body>
 </html>
 ```
@@ -518,7 +518,7 @@ X-Body-Type: text/template
 <!DOCTYPE html>
 <html lang="en">
 <body>
-    <h1>Hello ${fname[0]} ${lname[0]}!</h1>
+    <h1>Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!</h1>
 </body>
 </html>
 ```
@@ -562,7 +562,7 @@ X-Body-Type: text/template
 
 <!DOCTYPE html>
 <body>
-    <h1>Hello ${fname[0]} ${lname[0]}!</h1>
+    <h1>Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!</h1>
 </body>
 </html>
 ```
