@@ -525,10 +525,11 @@ Content-Type: text/html
 
 <br>
 <details>
+<h3>
 <summary>
-    <h3>More Examples&hellip;</h3>
+    More Examples&hellip;
 </summary>
-
+</h3>
 <h3>Example 4.</h3>
 
 ```http
