@@ -524,6 +524,11 @@ Content-Type: text/html
 ```
 
 <br>
+<details>
+<summary>
+    <h3>More Examples&hellip;</h3>
+</summary>
+
 <h3>Example 4.</h3>
 
 ```http
@@ -569,4 +574,6 @@ Content-Type: text/html
 </body>
 </html>
 .
-	```
+```
+</details>
+
