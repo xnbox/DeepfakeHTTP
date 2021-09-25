@@ -187,7 +187,6 @@ That's all.
 <summary>
     more features&hellip;
 </summary>
-<br>
 <ul>
     <li>Optional built-in OpenAPI client</li>
     <li>Asynchronous requests and responses.</li>
