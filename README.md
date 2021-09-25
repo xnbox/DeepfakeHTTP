@@ -489,6 +489,45 @@ Content-Type: application/json
 
 ```http
 #
+# favicon
+#
+GET /favicon.ico HTTP/1.1
+
+HTTP/1.1 200 OK
+Content-Type: image/vnd.microsoft.icon
+X-Body-Type: text/uri-list
+
+data:image/vnd.microsoft.icon;base64,AAABAAEAEBAAAAEAGABoAwAAFgAAACgAAAAQAA
+ AAIAAAAAEAGAAAAAAAAAMAABILAAASCwAAAAAAAAAAAAASVuwSVuwSVuwSVuwAif8Aif8Aif8A
+ if8Aif8Aif8Aif8Aif8SVuwSVuwSVuwSVuwSVuwSVuwAif8Aif8Aif8Aif8Aif8Aif8Aif8Aif
+ 8Aif8Aif8Aif8Aif8SVuwSVuwSVuwAif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8A
+ if8Aif8Aif8SVuwSVuwAif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif
+ 8SVuwAif8Aif8Aif8Aif8Aif8AAwYAAwYAAwYAAwYAAwYAAwYAif8Aif8Aif8Aif8Aif8Aif8A
+ if8Aif8Aif8AAwYAAwYAif8Aif8Aif8Aif8AAwYAAwYAif8Aif8Aif8Aif8Aif8Aif8Aif8Aif
+ 8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8A
+ if8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif
+ 8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8A
+ if8Aif8Aif8Aif8Aif8Aif8Aif8AAwYAif8AAwYAAwYAif8Aif8Aif8AAwYAAwYAif8Aif8AAw
+ YAif8Aif8Aif8Aif8Aif8AAwYAAwYAif8Aif8Aif8Aif8Aif8AAwYAAwYAAwYAif8Aif8Aif8S
+ VuwAif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8SVuwSVuwAif8Aif
+ 8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8SVuwSVuwSVuwAif8Aif8Aif8A
+ if8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8SVuwSVuwSVuwSVuwSVuwSVuwAif8Aif8Aif8Aif
+ 8Aif8Aif8Aif8Aif8SVuwSVuwSVuwSVuzwDwAAwAMAAIABAACAAQAAAAAAAAAAAAAAAAAAAAAA
+ AAAAAAAAAAAAAAAAAAAAAACAAQAAgAEAAMADAADwDwAA
+.
+```
+
+<br>
+<details>
+<summary>
+    <strong>More Examples&hellip;</strong>
+</summary>
+
+<br>
+<h3>Example 4.</h3>
+
+```http
+#
 # Work with HTML forms (1)
 #
 
@@ -500,8 +539,10 @@ HTTP/1.1 200 OK
 <html lang="en">
 <body>
     <form action="/action_page.php" method="POST">
-        <label for="fname">First name:</label><input type="text" name="fname"><br><br>
-        <label for="lname">Last name: </label><input type="text" name="lname"><br><br>
+        <label for="fname">First name:</label><input type="text" name="fname"><br>
+        <br>
+        <label for="lname">Last name: </label><input type="text" name="lname"><br>
+        <br>
         <input type="submit" value="Submit">
     </form>
 </body>
@@ -524,12 +565,7 @@ Content-Type: text/html
 ```
 
 <br>
-<details>
-<summary>
-    <strong>More Examples&hellip;</strong>
-</summary>
-
-<h3>Example 4.</h3>
+<h3>Example 5.</h3>
 
 ```http
 #
