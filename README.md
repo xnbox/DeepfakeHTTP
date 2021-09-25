@@ -181,12 +181,16 @@ That's all. &nbsp;🎉🎉🎉
     <li>No installation</li>
     <li>No configuration files</li>
     <li>Single-file executable</li>
-    <li>Built-in OpenAPI client</li>
+    <li>Grab response data from HTTP dumps and/or OpenAPI json/ymal</li>
+    
 </ul>
-
-<h2>Supports:</h2>
-
+<details>
+<summary>
+    more features&hellip;
+</summary>
+<br>
 <ul>
+    <li>Optional built-in OpenAPI client</li>
     <li>Asynchronous requests and responses.</li>
     <li>HTTP message formats (RFC 7230)</li>
     <li>Unlimited number of request/response pairs in the dump</li>
@@ -208,6 +212,7 @@ That's all. &nbsp;🎉🎉🎉
     <li>Latest OpenAPI specification (v3.0.3) in JSON and YAML format</li>
     <li>Disabling color via NO_COLOR environment variable</li>
 </ul>
+<details>
 
 <h2>LEGAL</h2>
 <ul>
