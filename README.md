@@ -315,7 +315,7 @@ Content-Type: text/html
 <!DOCTYPE html>
 <html lang="en">
     <body>
-        <h1>Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!</h1>
+        Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!
     </body>
 </html>
 ```
