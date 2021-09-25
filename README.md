@@ -212,7 +212,7 @@ That's all. &nbsp;🎉🎉🎉
     <li>Latest OpenAPI specification (v3.0.3) in JSON and YAML format</li>
     <li>Disabling color via NO_COLOR environment variable</li>
 </ul>
-<details>
+</details>
 
 <h2>LEGAL</h2>
 <ul>
