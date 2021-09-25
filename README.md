@@ -6,7 +6,7 @@ Your 100% static dynamic backend</h1>
 <a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
 
 <p align="center">
-<a href="#get-started">Get started</a> | <a href="#usage">Usage</a> | <a href="#usage-exampes">Usage Examples</a> | <a href="#features"> Features</a> | <a href="#legal">LEGAL</a>
+<a href="#get-started">Get started</a> | <a href="#usage">Usage</a> | <a href="#usage-exampes">Usage Examples</a> | <a href="#how-does-it-work">How does it work?</a> |<a href="#features"> Features</a> | <a href="#legal">Legal</a>
 </p>
 
 <p align="center">
@@ -214,7 +214,7 @@ That's all. &nbsp;🎉🎉🎉
 </ul>
 </details>
 
-<h2>LEGAL</h2>
+<h2>Legal</h2>
 <ul>
 <li>The DeepfakeHTTP is released under the <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/LICENSE">MIT</a> license.</li>
 <li>Third-party products: <a href="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/THIRD-PARTY">THIRD-PARTY</a></li>
