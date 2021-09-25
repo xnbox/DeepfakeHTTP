@@ -390,6 +390,14 @@ Dump examples
 <h3>Example 1.</h3>
 
 ```http
+#
+# Simple form.
+#
+# Example:
+#
+# http://localhost:8080/api/customer/5
+#
+
 # Please don't miss a single carriage return between headers and body!
 
 GET /form.html HTTP/1.1
@@ -432,8 +440,16 @@ Content-Type: text/html
 
 ```http
 #
-# First request-response entry
+# Math headers
 #
+#
+# Example:
+#
+# http://localhost:8080/api/customer/5
+#
+
+
+# First request-response entry
 
 # Client request
 GET /api/customer/5 HTTP/1.1
@@ -450,9 +466,7 @@ Content-Type: application/json
 }
 .
 
-#
 # Second request-response entry
-#
 
 # Client request
 GET /api/customer/5 HTTP/1.1
@@ -515,6 +529,11 @@ data:image/vnd.microsoft.icon;base64,AAABAAEAEBAAAAEAGABoAwAAFgAAACgAAAAQAA
 #
 # Work with HTML forms (1)
 #
+#
+# Example:
+#
+# http://localhost:8080/form1.html
+#
 
 GET /form1.html HTTP/1.1
 
@@ -556,6 +575,11 @@ Content-Type: text/html
 #
 # Work with HTML forms (2)
 #
+#
+# Example:
+#
+# http://localhost:8080/form2.html
+#
 
 GET /form2.html HTTP/1.1
 
@@ -594,6 +618,183 @@ Content-Type: text/html
     <h1>Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!</h1>
 </body>
 </html>
+.
+```
+
+<br>
+<h3>Example 5.</h3>
+
+```http
+
+<br>
+<h3>Example 5.</h3>
+
+```http
+#
+# Response with PDF file
+#
+#
+# Example:
+#
+# http://localhost:8080/customers/123456/purchases/2018-07-29/report?format=pdf
+#
+
+GET /customers/{id}/purchases/{date}/report?format=pdf HTTP/1.1
+
+HTTP/1.1 200 OK
+Content-Type: application/pdf
+
+%PDF-1.3
+1 0 obj
+<<
+/Type /Catalog
+/Outlines 2 0 R
+/Pages 3 0 R
+>>
+endobj
+
+2 0 obj
+<<
+/Type /Outlines
+/Count 0
+>>
+endobj
+
+3 0 obj
+<<
+/Type /Pages
+/Count 2
+/Kids [ 4 0 R 6 0 R ] 
+>>
+endobj
+
+4 0 obj
+<<
+/Type /Page
+/Parent 3 0 R
+/Resources <<
+/Font <<
+/F1 9 0 R 
+>>
+/ProcSet 8 0 R
+>>
+/MediaBox [0 0 612.0000 792.0000]
+/Contents 5 0 R
+>>
+endobj
+
+5 0 obj
+<< /Length 1074 >>
+stream
+2 J
+BT
+0 0 0 rg
+/F1 0027 Tf
+57.3750 722.2800 Td
+( Customer ID: ${request.parameters.id[0]}) Tj
+ET
+BT
+/F1 0010 Tf
+69.2500 688.6080 Td
+( Date: ${request.parameters.date[0]} ) Tj
+ET
+BT
+/F1 0010 Tf
+69.2500 664.7040 Td
+( Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore ) Tj
+ET
+BT
+/F1 0010 Tf
+69.2500 652.7520 Td
+( et dolore magna aliq ua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi. ) Tj
+ET
+endstream
+endobj
+
+6 0 obj
+<<
+/Type /Page
+/Parent 3 0 R
+/Resources <<
+/Font <<
+/F1 9 0 R 
+>>
+/ProcSet 8 0 R
+>>
+/MediaBox [0 0 612.0000 792.0000]
+/Contents 7 0 R
+>>
+endobj
+
+7 0 obj
+<< /Length 676 >>
+stream
+2 J
+BT
+0 0 0 rg
+/F1 0027 Tf
+57.3750 722.2800 Td
+( Customer ID: ${request.parameters.id[0]}) Tj
+ET
+BT
+/F1 0010 Tf
+69.2500 688.6080 Td
+( Date: ${request.parameters.date[0]} ) Tj
+ET
+BT
+/F1 0010 Tf
+69.2500 664.7040 Td
+( More text... ) Tj
+ET
+endstream
+endobj
+
+8 0 obj
+[/PDF /Text]
+endobj
+
+9 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/Name /F1
+/BaseFont /Helvetica
+/Encoding /WinAnsiEncoding
+>>
+endobj
+
+10 0 obj
+<<
+/Creator (DeepfakeHTTP \(https://github.com/xnbox/DeepfakeHTTP))
+/Producer (DeepfakeHTTP)
+/CreationDate (D:20210925043107)
+>>
+endobj
+
+xref
+0 11
+0000000000 65535 f
+0000000019 00000 n
+0000000093 00000 n
+0000000147 00000 n
+0000000222 00000 n
+0000000390 00000 n
+0000001522 00000 n
+0000001690 00000 n
+0000002423 00000 n
+0000002456 00000 n
+0000002574 00000 n
+
+trailer
+<<
+/Size 11
+/Root 1 0 R
+/Info 10 0 R
+>>
+
+startxref
+2714
+%%EOF
 .
 ```
 </details>
