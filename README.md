@@ -6,7 +6,7 @@ Your 100% static dynamic backend</h1>
 <a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
 
 <p align="center">
-<a href="#get-started">Get started</a> | <a href="#usage">Usage</a> | <a href="#usage-exampes">Usage Examples</a> | <a href="#how-does-it-work">How does it work?</a> |<a href="#features"> Features</a> | <a href="#legal">Legal</a> | <a href="#appendix-aoptional-request-headers-openapi">Appendices</a>
+<a href="#get-started">Get started</a> | <a href="#usage">Usage</a> | <a href="#usage-exampes">Usage Examples</a> | <a href="#how-does-it-work">How does it work?</a> |<a href="#features"> Features</a> | <a href="#appendix-cdump-examples">Dump Examples</a> | <a href="#appendix-aoptional-request-headers-openapi">Optional Headers</a>
 </p>
 
 <p align="center">
