@@ -540,10 +540,14 @@ HTTP/1.1 200 OK
 <body>
     <form action="/action_page2.php" method="POST">
         <label for="fname">First name:</label><input type="text" name="fname" value="John"><br>
+        <br>
         <label for="lname">Last name: </label><input type="text" name="lname" value="Doe"><br>
-        <p>Only first name <strong>John</strong> and last name <strong>Doe</strong> are supported.<br>
-        Expected output is: <strong>Hello John Doe!</strong>,<br>
-        or HTTP status <code>400 Bad request</code> if first name is not <strong>John</strong> or last name is not <strong>Doe</strong>.
+        <p>
+        Only the first name <i>John</i> and the last name <i>Doe</i> are supported.
+        <br>
+        Expected result is: <strong>Hello John Doe!</strong>,<br>
+        or HTTP status <strong><code>400 Bad request</code></strong><br>
+        when first name is not <i>John</i> or last name is not <i>Doe</i>.
         </p>
         <input type="submit" value="Submit">
     </form>
@@ -565,4 +569,4 @@ Content-Type: text/html
 </body>
 </html>
 .
-```
+	```
