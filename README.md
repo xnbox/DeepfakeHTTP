@@ -173,7 +173,7 @@ java -jar df.jar --print-openapi dump.txt
     <li>If entry is found, the server send entry to the client
     <li>If entry is not found, the server sends status <code>400</code> with no body.</li>
 </ol>
-That's all. &nbsp;
+That's all.
 
 <h2>Features</h2>
 <ul>
