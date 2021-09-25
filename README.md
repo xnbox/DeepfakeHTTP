@@ -433,7 +433,6 @@ Content-Type: application/x-www-form-urlencoded
 # Fake PHP file :)
 HTTP/1.1 200 OK
 Content-Type: text/html
-X-Body-Type: text/template
 
 <!DOCTYPE html>
 <html lang="en">
@@ -513,7 +512,6 @@ Content-Type: application/x-www-form-urlencoded
 
 HTTP/1.1 200 OK
 Content-Type: text/html
-X-Body-Type: text/template
 
 <!DOCTYPE html>
 <html lang="en">
@@ -558,7 +556,6 @@ fname=John&lname=Doe
 
 HTTP/1.1 200 OK
 Content-Type: text/html
-X-Body-Type: text/template
 
 <!DOCTYPE html>
 <body>
