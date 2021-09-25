@@ -173,7 +173,7 @@ java -jar df.jar --print-openapi dump.txt
     <li>If entry is found, the server send entry to the client
     <li>If entry is not found, the server sends status <code>400</code> with no body.</li>
 </ol>
-That's all. &nbsp;
+That's all.
 
 <h2>Features</h2>
 <ul>
@@ -181,7 +181,7 @@ That's all. &nbsp;
     <li>No installation</li>
     <li>No configuration files</li>
     <li>Single-file executable</li>
-    <li>Grab response data from HTTP dumps and/or OpenAPI json/ymal</li>
+    <li>Grab response data from HTTP dumps and/or OpenAPI json/yaml</li>
     
 </ul>
 <details>
