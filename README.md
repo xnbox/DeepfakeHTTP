@@ -204,7 +204,7 @@ That's all.
     <li>Comments <code> #</code> in dumps</li>
     <li>Live request/response collection</li>
     <li>Optional watching dump files for changes</li>
-    <li>Optional ETag optimization</li>
+    <li>Optional <code>ETag</code> support</li>
     <li>Optional CORS support</li>
     <li>Optional live request/response logging</li>
     <li>TLS(SSL) connections and HTTP to HTTPS redirect</li>
