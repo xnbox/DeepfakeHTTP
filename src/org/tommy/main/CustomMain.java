@@ -66,51 +66,9 @@ public class CustomMain {
 		boolean      noColor  = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_COLOR);
 		String       format   = (String) paramMap.get(ParseCommandLineUtils.ARGS_FORMAT);
 
-		if (help) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("\n");
-			sb.append(" DeepfakeHTTP Web Server " + System.getProperty("build.version") + ". Build: " + System.getProperty("build.timestamp") + '\n');
-			sb.append("\n");
-			sb.append("  OS: " + SystemProperties.OS_NAME + " (" + SystemProperties.OS_ARCH + ")" + '\n');
-			sb.append(" JVM: " + SystemProperties.JAVA_JAVA_VM_NAME + " (" + SystemProperties.JAVA_JAVA_VERSION + ")\n");
-			sb.append("                                                                               \n");
-			sb.append(" Usage:                                                                        \n");
-			sb.append("                                                                               \n");
-			sb.append(" java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS]                                 \n");
-			sb.append("                                                                               \n");
-			sb.append(" OPTIONS:                                                                      \n");
-			sb.append("     --port <number>        HTTP TCP port number, default: 8080                \n");
-			sb.append("     --port-ssl <number>    HTTPS TCP port number, default: 8443               \n");
-			sb.append("     --dump <file>...       dump text file(s) and/or OpenAPI json/yaml file(s) \n");
-			sb.append("     --data <file>...       json/yaml/csv data file(s) to populate templates   \n");
-			sb.append("     --openapi-path <path>  serve OpenAPI client at specified context path     \n");
-			sb.append("     --openapi-title <text> provide custom OpenAPI spec title                  \n");
-			sb.append("     --collect <file>       collect live request/response to file              \n");
-			sb.append("     --format <json|yaml>   output format for --print-* commands, default: json\n");
-			sb.append("     --status <number>      status code for non-matching requests, default: 400\n");
-			sb.append("                                                                               \n");
-			sb.append(" FLAGS:                                                                        \n");
-			sb.append("     --no-log               disable request/response console logging           \n");
-			sb.append("     --no-cors              disable CORS headers                               \n");
-			sb.append("     --no-etag              disable 'ETag' header                              \n");
-			sb.append("     --no-powered-by        disable 'X-Powered-By' header                      \n");
-			sb.append("     --no-watch             disable watch files for changes                    \n");
-			sb.append("     --no-color             disable ANSI color output for --print-* commands   \n");
-			sb.append("     --no-pretty            disable prettyprint for --print-* commands         \n");
-			sb.append("     --no-template          disable template processing                        \n");
-			sb.append("     --no-wildcard          disable wildcard processing                        \n");
-			sb.append("     --strict-json          enable strict JSON comparison                      \n");
-			sb.append("     --redirect             enable redirect HTTP to HTTPS                      \n");
-			sb.append("                                                                               \n");
-			sb.append(" COMMANDS:                                                                     \n");
-			sb.append("     --help                 print help message                                 \n");
-			sb.append("     --print-info           print dump files statistics to stdout as json/yaml \n");
-			sb.append("     --print-requests       print dump requests to stdout as json/yaml         \n");
-			sb.append("     --print-openapi        print OpenAPI specification to stdout as json/yaml \n");
-
-			System.out.println(sb);
-			System.exit(0);
-		} else if (info) {
+		if (help || args.length == 0)
+			doHelp();
+		else if (info) {
 			try {
 				String json = serializeInfoToJson(dumps, format, !noPretty, !noColor);
 				System.out.println(json);
@@ -120,7 +78,7 @@ public class CustomMain {
 			System.exit(0);
 		} else if (requests) {
 			try {
-				List<ReqResp> allReqResps = getAllReqResp(null, dumps);
+				List<ReqResp> allReqResps = getAllReqResp(logger, dumps);
 
 				String json = serializeRequestsToJson(allReqResps, format, !noPretty, !noColor);
 				System.out.println(json);
@@ -130,7 +88,7 @@ public class CustomMain {
 			System.exit(0);
 		} else if (openapi) {
 			try {
-				List<ReqResp> allReqResps = getAllReqResp(null, dumps);
+				List<ReqResp> allReqResps = getAllReqResp(logger, dumps);
 
 				String              openApiTitle = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_TITLE);
 				Map<String, Object> openApiMap   = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitle);
@@ -141,6 +99,52 @@ public class CustomMain {
 			}
 			System.exit(0);
 		}
+	}
+
+	private static void doHelp() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("\n");
+		sb.append(" DeepfakeHTTP Web Server " + System.getProperty("build.version") + ". Build: " + System.getProperty("build.timestamp") + '\n');
+		sb.append("\n");
+		sb.append("  OS: " + SystemProperties.OS_NAME + " (" + SystemProperties.OS_ARCH + ")" + '\n');
+		sb.append(" JVM: " + SystemProperties.JAVA_JAVA_VM_NAME + " (" + SystemProperties.JAVA_JAVA_VERSION + ")\n");
+		sb.append("                                                                               \n");
+		sb.append(" Usage:                                                                        \n");
+		sb.append("                                                                               \n");
+		sb.append(" java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS]                                 \n");
+		sb.append("                                                                               \n");
+		sb.append(" OPTIONS:                                                                      \n");
+		sb.append("     --port <number>        HTTP TCP port number, default: 8080                \n");
+		sb.append("     --port-ssl <number>    HTTPS TCP port number, default: 8443               \n");
+		sb.append("     --dump <file>...       dump text file(s) and/or OpenAPI json/yaml file(s) \n");
+		sb.append("     --data <file>...       json/yaml/csv data file(s) to populate templates   \n");
+		sb.append("     --openapi-path <path>  serve OpenAPI client at specified context path     \n");
+		sb.append("     --openapi-title <text> provide custom OpenAPI spec title                  \n");
+		sb.append("     --collect <file>       collect live request/response to file              \n");
+		sb.append("     --format <json|yaml>   output format for --print-* commands, default: json\n");
+		sb.append("     --status <number>      status code for non-matching requests, default: 400\n");
+		sb.append("                                                                               \n");
+		sb.append(" FLAGS:                                                                        \n");
+		sb.append("     --no-log               disable request/response console logging           \n");
+		sb.append("     --no-cors              disable CORS headers                               \n");
+		sb.append("     --no-etag              disable 'ETag' header                              \n");
+		sb.append("     --no-powered-by        disable 'X-Powered-By' header                      \n");
+		sb.append("     --no-watch             disable watch files for changes                    \n");
+		sb.append("     --no-color             disable ANSI color output for --print-* commands   \n");
+		sb.append("     --no-pretty            disable prettyprint for --print-* commands         \n");
+		sb.append("     --no-template          disable template processing                        \n");
+		sb.append("     --no-wildcard          disable wildcard processing                        \n");
+		sb.append("     --strict-json          enable strict JSON comparison                      \n");
+		sb.append("     --redirect             enable redirect HTTP to HTTPS                      \n");
+		sb.append("                                                                               \n");
+		sb.append(" COMMANDS:                                                                     \n");
+		sb.append("     --help                 print help message                                 \n");
+		sb.append("     --print-info           print dump files statistics to stdout as json/yaml \n");
+		sb.append("     --print-requests       print dump requests to stdout as json/yaml         \n");
+		sb.append("     --print-openapi        print OpenAPI specification to stdout as json/yaml \n");
+
+		System.out.println(sb);
+		System.exit(0);
 	}
 
 	/**

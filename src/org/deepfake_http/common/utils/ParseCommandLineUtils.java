@@ -89,7 +89,8 @@ public class ParseCommandLineUtils {
 	//@formatter:on
 
 	/* command line args */
-	public static final String ARGS_DUMP           = "--dump";           // specify json/yaml data file to populate templates
+	public static final String ARGS_DUMP           = "--dump";           // dump text file(s) and/or OpenAPI json/yaml file(s)
+	public static final String ARGS_DATA           = "--data";           // json/yaml/csv data file(s) to populate templates
 	public static final String ARGS_NO_WATCH       = "--no-watch";       // disable watch dump files for changes
 	public static final String ARGS_NO_ETAG        = "--no-etag";        // disable ETag optimization
 	public static final String ARGS_NO_LOG         = "--no-log";         // disable request/response console logging
@@ -99,7 +100,6 @@ public class ParseCommandLineUtils {
 	public static final String ARGS_COLLECT        = "--collect";        // collect live request/response dumps to file
 	public static final String ARGS_OPENAPI_PATH   = "--openapi-path";   // serve OpenAPI client at specified context path
 	public static final String ARGS_OPENAPI_TITLE  = "--openapi-title";  // provide custom OpenAPI spec title             
-	public static final String ARGS_DATA           = "--data";           // specify json/yaml data file to populate templates
 	public static final String ARGS_PRINT_INFO     = "--print-info";     // print dump files statistics to stdout as json/yaml
 	public static final String ARGS_PRINT_REQUESTS = "--print-requests"; // print dump requests to stdout as json/yaml
 	public static final String ARGS_PRINT_OPENAPI  = "--print-openapi";  // print OpenAPI specification to stdout as json/yaml
@@ -123,6 +123,7 @@ public class ParseCommandLineUtils {
 
 		/* CLI options defaults */
 		paramMap.put(ARGS_DUMP, new ArrayList<String>());
+		paramMap.put(ARGS_DATA, new ArrayList<String>());
 		paramMap.put(ARGS_HELP_OPTION, false);
 		paramMap.put(ARGS_PRINT_INFO, false);
 		paramMap.put(ARGS_PRINT_REQUESTS, false);
@@ -141,7 +142,6 @@ public class ParseCommandLineUtils {
 		paramMap.put(ARGS_COLLECT, null);
 		paramMap.put(ARGS_OPENAPI_PATH, null);
 		paramMap.put(ARGS_OPENAPI_TITLE, "");
-		paramMap.put(ARGS_DATA, new ArrayList<String>());
 		paramMap.put(ARGS_FORMAT, "json");
 		paramMap.put(ARGS_STATUS, HttpServletResponse.SC_BAD_REQUEST); // 400
 
