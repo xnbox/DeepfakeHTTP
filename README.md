@@ -211,7 +211,7 @@ That's all.
     <li>Customizable OpenAPI client path</li>
     <li>Latest OpenAPI specification (v3.0.3) in JSON and YAML format</li>
     <li>Colorized console output</li>
-    <li>Disabling color via NO_COLOR environment variable</li>
+    <li>Disabling color via <code>NO_COLOR</code> environment variable</li>
 </ul>
 </details>
 
