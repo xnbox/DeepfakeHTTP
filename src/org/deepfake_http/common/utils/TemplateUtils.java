@@ -37,7 +37,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 public class TemplateUtils {
-	private static final String TEMPLATE_RANDOM_FUNCTION_NAME = "$";
+	private static final String TEMPLATE_RANDOM_FUNCTION_NAME = "random";
 
 	/**
 	 * 

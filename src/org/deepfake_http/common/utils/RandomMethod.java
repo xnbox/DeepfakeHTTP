@@ -99,13 +99,10 @@ public class RandomMethod implements TemplateMethodModelEx {
 			return ((SimpleNumber) tm).getAsNumber();
 		else if (tm instanceof TemplateBooleanModel)
 			return ((TemplateBooleanModel) tm).getAsBoolean();
-		else if (tm instanceof DefaultListAdapter) {
-			Object obj = ((DefaultListAdapter) tm).getWrappedObject();
-			return JacksonUtils.stringifyToJsonYaml(obj, JacksonUtils.FORMAT_JSON, false, false);
-		} else if (tm instanceof DefaultMapAdapter) {
-			Object obj = ((DefaultMapAdapter) tm).getWrappedObject();
-			return JacksonUtils.stringifyToJsonYaml(obj, JacksonUtils.FORMAT_JSON, false, false);
-		}
+		else if (tm instanceof DefaultListAdapter)
+			return ((DefaultListAdapter) tm).getWrappedObject();
+		else if (tm instanceof DefaultMapAdapter)
+			return ((DefaultMapAdapter) tm).getWrappedObject();
 		return "\"" + tm + "\"";
 	}
 
