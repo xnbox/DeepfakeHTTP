@@ -2,7 +2,7 @@
 Your 100% static dynamic backend</h1>
 
 <a title="License MIT" href="https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
-<a title="Release 2.1.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-2.1.1-4DC71F?style=flat-square"></a>
+<a title="Release 3.1.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-3.1.1-4DC71F?style=flat-square"></a>
 <a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
 
 <p align="center">
@@ -53,7 +53,7 @@ Content-Type: application/json
 </li>
     <li>Start the server from command line:
 <pre>
-java -jar df.jar dump.txt
+java -jar df.jar --dump dump.txt
 </pre>
 </li>
     <li>Use a browser to check whether the server is running: <a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a>
@@ -66,15 +66,16 @@ That's it! For more examples see: <a href="#appendix-cdump-examples">APPENDIX C.
 <h2>Usage</h2>
 
 ```
-java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS] <file>...
+java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS]
 
-OPTIONS:                                                           
+OPTIONS:
     --port <number>        HTTP TCP port number, default: 8080
     --port-ssl <number>    HTTPS TCP port number, default: 8443
+    --dump <file>...       dump text file(s) and/or OpenAPI json/yaml file(s)
+    --data <file>...       json/yaml/csv data file(s) to populate templates
     --openapi-path <path>  serve OpenAPI client at specified context path
     --openapi-title <text> provide custom OpenAPI spec title
     --collect <file>       collect live request/response to file
-    --data <file>          specify json/yaml data file to populate templates
     --format <json|yaml>   output format for --print-* commands, default: json
     --status <number>      status code for non-matching requests, default: 400
 
@@ -96,23 +97,20 @@ COMMANDS:
     --print-info           print dump files statistics to stdout as json/yaml
     --print-requests       print dump requests to stdout as json/yaml
     --print-openapi        print OpenAPI specification to stdout as json/yaml
-                                                                              
-️ARGS:
-    <file>...              dump text file(s) and/or OpenAPI json/yaml file(s)
 ```
 
 <h2>Usage Exampes</h2>
 Start server on dump file:
 <pre>
-java -jar df.jar dump.txt
+java -jar df.jar --dump dump.txt
 </pre>
 Start server on OpenAPI file:
 <pre>
-java -jar df.jar openapi.json
+java -jar df.jar --dump openapi.json
 </pre>
 Start server with built-in OpenAPI client:
 <pre>
-java -jar df.jar --openapi-path /api dump.txt
+java -jar df.jar --openapi-path /api --dump dump.txt
 </pre>
 <details>
 <summary>
@@ -121,15 +119,15 @@ java -jar df.jar --openapi-path /api dump.txt
 <br>
 Start server on few dump files:
 <pre>
-java -jar df.jar dump1.txt dump2.txt dump3.txt
+java -jar df.jar --dump dump1.txt dump2.txt dump3.txt
 </pre>
 Start server on mix of dump and OpenAPI files:
 <pre>
-java -jar df.jar dump1.txt openapi2.json dump3.txt openapi4.yaml
+java -jar df.jar --dump dump1.txt openapi2.json dump3.txt openapi4.yaml
 </pre>
 Start server with built-in OpenAPI client with custom title:
 <pre>
-java -jar df.jar --openapi-path /api --openapi-title 'My Killer REST API v18.2.1' dump.txt
+java -jar df.jar --openapi-path /api --openapi-title 'My Killer REST API v18.2.1' --dump dump.txt
 </pre>
 </details>
 <details>
@@ -139,23 +137,23 @@ java -jar df.jar --openapi-path /api --openapi-title 'My Killer REST API v18.2.1
 <br>
 Collect live request/response to file:
 <pre>
-java -jar df.jar --collect /home/john/live.txt dump.txt
+java -jar df.jar --collect /home/john/live.txt --dump dump.txt
 </pre>
 Specify JSON data file to populate templates:
 <pre>
-java -jar df.jar --data /home/john/data.json dump.txt
+java -jar df.jar --data /home/john/data.json --dump dump.txt
 </pre>
 Print dump files statistics to stdout as JSON:
 <pre>
-java -jar df.jar --print-info dump.txt
+java -jar df.jar --print-info --dump dump.txt
 </pre>
 Print dump requests to stdout as JSON:
 <pre>
-java -jar df.jar --print-requests dump.txt
+java -jar df.jar --print-requests --dump dump.txt
 </pre>
 Print OpenAPI specification to stdout as JSON:
 <pre>
-java -jar df.jar --print-openapi dump.txt
+java -jar df.jar --print-openapi --dump dump.txt
 </pre>
 </details>
 
@@ -191,15 +189,16 @@ That's all.
 <br>
 <ul>
     <li>Optional built-in OpenAPI client</li>
-    <li>Asynchronous requests and responses.</li>
+    <li>Asynchronous requests and responses</li>
     <li>HTTP message formats (RFC 7230)</li>
     <li>Unlimited number of request/response pairs in the dump</li>
     <li>Scriptable response body</li>
-    <li><code>GET</code>, <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc.</li>
+    <li>Supports methods: <code>GET</code>, <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc.</li>
     <li>Multi-line and multi-value headers (RFC 7230).</li>
-    <li>OpenAPI-styled templates in paths.</li>
-    <li>Wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in query string and header values.</li>
+    <li>OpenAPI-styled templates in paths</li>
+    <li>Wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in query string and header values</li>
     <li>Templates in response body</li>
+    <li>JSON/YAML/CSV data files to populate templates</li>
     <li>Response body fetching from external sources like URLs, local files, and data URI</li>
     <li>Per entry user-defined request and response delays</li>
     <li>Comments <code> #</code> in dumps</li>
@@ -521,7 +520,7 @@ data:image/vnd.microsoft.icon;base64,AAABAAEAEBAAAAEAGABoAwAAFgAAACgAAAAQAA
 <br>
 <details>
 <summary>
-    <strong>More Examples&hellip;</strong>
+    More Examples&hellip;
 </summary>
 
 <br>
