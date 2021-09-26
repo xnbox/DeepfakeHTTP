@@ -29,6 +29,9 @@ package org.deepfake_http.common.utils;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -40,6 +43,9 @@ import com.fasterxml.jackson.core.TSFBuilder;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.csv.CsvFactory;
+import com.fasterxml.jackson.dataformat.csv.CsvFactoryBuilder;
+import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.skjolber.jackson.jsh.AnsiSyntaxHighlight;
 import com.github.skjolber.jackson.jsh.DefaultSyntaxHighlighter;
@@ -117,34 +123,65 @@ public class JacksonUtils {
 	}
 
 	/**
-	 * Parse JSON/YAML object to Map<String, Object>
+	 * Parse JSON/YAML/CSV object to Map<String, Object> or List<String>
 	 *
-	 * @param s - JSON/YAML
+	 * @param s - JSON/YAML/CSV
 	 * @return
 	 * @throws JsonProcessingException
 	 */
-	public static Map<String, Object> parseJsonYamlToMap(String s) throws JsonProcessingException {
+	public static Object parseJsonYamlToMap(String s) throws JsonProcessingException {
 		s = s.strip();
 		TSFBuilder tsfBuilder;
-		if (s.startsWith("{"))
+		if (s.startsWith("{")) {
 			tsfBuilder = JsonFactory.builder(); //
-		else if (s.startsWith("---"))
+			tsfBuilder //
+					.enable(JsonReadFeature.ALLOW_TRAILING_COMMA) //
+					.enable(JsonReadFeature.ALLOW_YAML_COMMENTS) //
+					.enable(JsonReadFeature.ALLOW_MISSING_VALUES) //
+					.enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES) //
+					.enable(JsonReadFeature.ALLOW_SINGLE_QUOTES); //
+			return parseJsonYaml(tsfBuilder.build(), s, Object.class);
+		} else if (s.startsWith("---")) {
 			tsfBuilder = YAMLFactory.builder(); //
-		else
-			throw new IllegalArgumentException();
-		tsfBuilder //
-				.enable(JsonReadFeature.ALLOW_TRAILING_COMMA) //
-				.enable(JsonReadFeature.ALLOW_YAML_COMMENTS) //
-				.enable(JsonReadFeature.ALLOW_MISSING_VALUES) //
-				.enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES) //
-				.enable(JsonReadFeature.ALLOW_SINGLE_QUOTES); //
-		return parseJsonYaml(tsfBuilder.build(), s, Map.class);
+			tsfBuilder //
+					.enable(JsonReadFeature.ALLOW_TRAILING_COMMA) //
+					.enable(JsonReadFeature.ALLOW_YAML_COMMENTS) //
+					.enable(JsonReadFeature.ALLOW_MISSING_VALUES) //
+					.enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES) //
+					.enable(JsonReadFeature.ALLOW_SINGLE_QUOTES); //
+			return parseJsonYaml(tsfBuilder.build(), s, Object.class);
+		} else {
+			tsfBuilder = CsvFactory.builder(); //
+			((CsvFactoryBuilder) tsfBuilder) //
+					.enable(CsvParser.Feature.WRAP_AS_ARRAY) //
+					.enable(CsvParser.Feature.TRIM_SPACES) //
+					.enable(CsvParser.Feature.ALLOW_COMMENTS) //
+					.enable(CsvParser.Feature.EMPTY_STRING_AS_NULL) //
+					.enable(CsvParser.Feature.INSERT_NULLS_FOR_MISSING_COLUMNS) //
+					.enable(CsvParser.Feature.SKIP_EMPTY_LINES); //
+			List<List<String>> csv = parseJsonYaml(tsfBuilder.build(), s, List.class);
+			if (csv.isEmpty())
+				return new LinkedHashMap<>(0);
+			List<String>              headers = csv.get(0);
+			List<Map<String, Object>> list    = new ArrayList(csv.size() - 1);
+			for (int r = 1; r < csv.size(); r++) {
+				List<String>        values = csv.get(r);
+				Map<String, Object> rowMap = new LinkedHashMap<>(headers.size());
+				for (int c = 0; c < headers.size(); c++) {
+					String columnName  = headers.get(c);
+					String columnValue = values.get(c);
+					rowMap.put(columnName, columnValue);
+				}
+				list.add(rowMap);
+			}
+			return list;
+		}
 	}
 
 	/**
-	 * Parse JSON/YAML
+	 * Parse JSON/YAML/CSV
 	 *
-	 * @param s - JSON/YAML
+	 * @param s - JSON/YAML/CSV
 	 * @return
 	 * @throws JsonProcessingException
 	 */
