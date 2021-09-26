@@ -30,6 +30,7 @@ package org.deepfake_http.common.utils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -88,6 +89,7 @@ public class ParseCommandLineUtils {
 	//@formatter:on
 
 	/* command line args */
+	public static final String ARGS_DUMP           = "--dump";           // specify json/yaml data file to populate templates
 	public static final String ARGS_NO_WATCH       = "--no-watch";       // disable watch dump files for changes
 	public static final String ARGS_NO_ETAG        = "--no-etag";        // disable ETag optimization
 	public static final String ARGS_NO_LOG         = "--no-log";         // disable request/response console logging
@@ -116,13 +118,11 @@ public class ParseCommandLineUtils {
 	 * @return
 	 * @throws Throwable
 	 */
-	public static Map<String, Object> parseCommandLineArgs(Logger logger, //
-			String[] args, //
-			List<String /* dump file */> dumps //
-	) {
+	public static Map<String, Object> parseCommandLineArgs(Logger logger, String[] args) {
 		Map<String, Object> paramMap = new HashMap<>();
 
 		/* CLI options defaults */
+		paramMap.put(ARGS_DUMP, new ArrayList<String>());
 		paramMap.put(ARGS_HELP_OPTION, false);
 		paramMap.put(ARGS_PRINT_INFO, false);
 		paramMap.put(ARGS_PRINT_REQUESTS, false);
@@ -141,7 +141,7 @@ public class ParseCommandLineUtils {
 		paramMap.put(ARGS_COLLECT, null);
 		paramMap.put(ARGS_OPENAPI_PATH, null);
 		paramMap.put(ARGS_OPENAPI_TITLE, "");
-		paramMap.put(ARGS_DATA, null);
+		paramMap.put(ARGS_DATA, new ArrayList<String>());
 		paramMap.put(ARGS_FORMAT, "json");
 		paramMap.put(ARGS_STATUS, HttpServletResponse.SC_BAD_REQUEST); // 400
 
@@ -189,8 +189,35 @@ public class ParseCommandLineUtils {
 				if (i < args.length - 1)
 					paramMap.put(args[i], args[++i]);
 			} else if (args[i].equals(ARGS_DATA)) {
-				if (i < args.length - 1)
-					paramMap.put(args[i], args[++i]);
+				if (i < args.length - 1) {
+					List<String> files = (List<String>) paramMap.get(ARGS_DATA);
+					while (true) {
+						i++;
+						if (args[i].startsWith("--")) {
+							i--;
+							i--;
+							break;
+						}
+						files.add(args[i]);
+						if (i == args.length - 1)
+							break;
+					}
+				}
+			} else if (args[i].equals(ARGS_DUMP)) {
+				if (i < args.length - 1) {
+					List<String> files = (List<String>) paramMap.get(ARGS_DUMP);
+					while (true) {
+						i++;
+						if (args[i].startsWith("--")) {
+							i--;
+							i--;
+							break;
+						}
+						files.add(args[i]);
+						if (i == args.length - 1)
+							break;
+					}
+				}
 			} else if (args[i].equals(ARGS_PRINT_INFO))
 				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_PRINT_REQUESTS))
@@ -211,18 +238,9 @@ public class ParseCommandLineUtils {
 					paramMap.put(args[i], Integer.parseInt(args[++i]));
 			} else {
 				String fileName = args[i];
-				if (fileName.startsWith("--")) {
+				if (fileName.startsWith("--"))
 					if (logger != null)
 						logger.log(Level.WARNING, "Unknown option: \"{0}\". Ignored.", fileName);
-				} else {
-					Path path = Paths.get(fileName);
-					if (Files.exists(path))
-						dumps.add(fileName);
-					else {
-						if (logger != null)
-							logger.log(Level.WARNING, "File \"{0}\" does not exists", fileName);
-					}
-				}
 			}
 		}
 		return paramMap;

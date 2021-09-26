@@ -132,17 +132,17 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean strictJson;
 	private int     badRequestStatus;
 
-	private String                       collectFile;
-	private String                       openApiPath;
-	private String                       openApiTitle;
-	private String                       dataFile;
-	private Path                         dataFilePath;
+	private String       collectFile;
+	private String       openApiPath;
+	private String       openApiTitle;
+	private List<String> dataFiles;
+	//private Path                         dataFilePath;
 	private List<String /* dump file */> dumps;
 
 	private Logger logger;
 
 	private Map<Path /* dirPath */, DirectoryWatcher> directoryWatchersMap = new HashMap<>();
-	private DirectoryWatcher                          dataFileDirectoryWatcher;
+	//private DirectoryWatcher                          dataFileDirectoryWatcher;
 
 	private Map<String, Object> dataMap;
 
@@ -174,15 +174,15 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		logger = Logger.getLogger(getClass().getName());
 		logger.log(Level.INFO, "DeepfakeHTTP Logger: HELLO!");
 
-		dumps = new ArrayList<>();
-
 		try {
 			InitialContext ctx = new InitialContext();
 
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
-			Map<String, Object> paramMap = ParseCommandLineUtils.parseCommandLineArgs(null, args, dumps);
+			Map<String, Object> paramMap = ParseCommandLineUtils.parseCommandLineArgs(null, args);
+			dumps            = (List<String>) paramMap.get(ParseCommandLineUtils.ARGS_DUMP);
+			dataFiles        = (List<String>) paramMap.get(ParseCommandLineUtils.ARGS_DATA);
 			noWatch          = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_WATCH);
 			noEtag           = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_ETAG);
 			noLog            = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG);
@@ -195,7 +195,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			collectFile      = (String) paramMap.get(ParseCommandLineUtils.ARGS_COLLECT);
 			openApiPath      = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_PATH);
 			openApiTitle     = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_TITLE);
-			dataFile         = (String) paramMap.get(ParseCommandLineUtils.ARGS_DATA);
 			badRequestStatus = (int) paramMap.get(ParseCommandLineUtils.ARGS_STATUS);
 
 			if (openApiTitle == null)
@@ -203,28 +202,9 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 			boolean activateDirWatchers = !noWatch;
 
-			if (dataFile != null) {
-				dataFilePath = new File(dataFile).toPath();
-				Path dirPath  = dataFilePath.getParent();
-				Path filePath = dataFilePath.getFileName();
+			logger.log(Level.INFO, "{0} dump file(s) loaded.", dumps.size());
+			logger.log(Level.INFO, "{0} data file(s) loaded.", dataFiles.size());
 
-				if (activateDirWatchers) {
-					dataFileDirectoryWatcher = new DirectoryWatcher(logger, dirPath, new Runnable() {
-
-						@Override
-						public void run() {
-							try {
-								reload(false);
-							} catch (Throwable e) {
-								e.printStackTrace();
-							}
-						}
-					});
-					dataFileDirectoryWatcher.addFile(filePath);
-					Thread dirWatcherThread = new Thread(dataFileDirectoryWatcher);
-					dirWatcherThread.start();
-				}
-			}
 			reload(activateDirWatchers);
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -546,7 +526,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					} else
 						simpleBadRequest400 = false;
 
-					if (dataFilePath != null || !providedParams.isEmpty()) {
+					if (!dataMap.isEmpty() || !providedParams.isEmpty()) {
 						Map<String, Object> tmpDataMap = new LinkedHashMap<>(dataMap);
 						Map<String, Object> requestMap = new LinkedHashMap<>();
 						requestMap.put("parameters", providedParams);
@@ -1045,17 +1025,24 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 * @throws Throwable
 	 */
 	private void reload(boolean activateDirWatchers) throws Throwable {
-		/* reload data file */
-		if (dataFilePath == null)
-			dataMap = new HashMap<>();
-		else {
-			String dataJson = Files.readString(dataFilePath, StandardCharsets.UTF_8).strip(); // JSON or YAML
-			dataMap = JacksonUtils.parseJsonYamlToMap(dataJson);
+		/* reload data files */
+		dataMap = new LinkedHashMap<>();
+		Map<String, Object> map = new LinkedHashMap<>();
+		dataMap.put("data", map);
+		for (String dataFile : dataFiles) {
+			Path   dataFilePath = new File(dataFile).toPath();
+			String file         = dataFilePath.getFileName().toString();
+			int    pos          = file.indexOf('.');
+			if (pos != -1)
+				file = file.substring(0, pos);
+			String dataJson          = Files.readString(dataFilePath, StandardCharsets.UTF_8).strip(); // JSON or YAML
+			Object currentDataObject = JacksonUtils.parseJsonYamlToMap(dataJson);
+			map.put(file, currentDataObject);
 		}
 
 		allReqResps = CustomMain.getAllReqResp(logger, dumps);
 
-		if (dataFilePath != null)
+		if (!dataMap.isEmpty())
 			for (ReqResp reqResp : allReqResps)
 				processReq(!noTemplate, freeMarkerConfiguration, reqResp, dataMap);
 
@@ -1068,12 +1055,36 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		String openApiYaml = JacksonUtils.stringifyToJsonYaml(openApiMap, JacksonUtils.FORMAT_YAML, true, false);
 		openApiYamlBs = openApiYaml.getBytes(StandardCharsets.UTF_8);
 
-		for (String dumpFile : dumps) {
-			Path path     = new File(dumpFile).toPath();
-			Path dirPath  = path.getParent();
-			Path filePath = path.getFileName();
+		if (activateDirWatchers) {
+			for (String dumpFile : dumps) {
+				Path path     = new File(dumpFile).toPath();
+				Path dirPath  = path.getParent();
+				Path filePath = path.getFileName();
 
-			if (activateDirWatchers) {
+				DirectoryWatcher dirWatcher = directoryWatchersMap.get(dirPath);
+				if (dirWatcher == null) {
+					dirWatcher = new DirectoryWatcher(logger, dirPath, new Runnable() {
+
+						@Override
+						public void run() {
+							try {
+								reload(false);
+							} catch (Throwable e) {
+								e.printStackTrace();
+							}
+						}
+					});
+					Thread dirWatcherThread = new Thread(dirWatcher);
+					dirWatcherThread.start();
+					directoryWatchersMap.put(dirPath, dirWatcher);
+				}
+				dirWatcher.addFile(filePath);
+			}
+			for (String dataFile : dataFiles) {
+				Path path     = new File(dataFile).toPath();
+				Path dirPath  = path.getParent();
+				Path filePath = path.getFileName();
+
 				DirectoryWatcher dirWatcher = directoryWatchersMap.get(dirPath);
 				if (dirWatcher == null) {
 					dirWatcher = new DirectoryWatcher(logger, dirPath, new Runnable() {

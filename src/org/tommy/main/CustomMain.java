@@ -55,16 +55,16 @@ public class CustomMain {
 		Logger logger = Logger.getLogger("cli.logger");
 		logger.setLevel(Level.ALL);
 
-		List<String /* dump file */> dumps    = new ArrayList<>();
-		Map<String, Object>          paramMap = ParseCommandLineUtils.parseCommandLineArgs(logger, args, dumps);
+		Map<String, Object> paramMap = ParseCommandLineUtils.parseCommandLineArgs(logger, args);
 
-		boolean help     = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_HELP_OPTION);
-		boolean info     = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_PRINT_INFO);
-		boolean requests = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_PRINT_REQUESTS);
-		boolean openapi  = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_PRINT_OPENAPI);
-		boolean noPretty = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_PRETTY);
-		boolean noColor  = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_COLOR);
-		String  format   = (String) paramMap.get(ParseCommandLineUtils.ARGS_FORMAT);
+		List<String> dumps    = (List<String>) paramMap.get(ParseCommandLineUtils.ARGS_DUMP);
+		boolean      help     = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_HELP_OPTION);
+		boolean      info     = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_PRINT_INFO);
+		boolean      requests = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_PRINT_REQUESTS);
+		boolean      openapi  = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_PRINT_OPENAPI);
+		boolean      noPretty = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_PRETTY);
+		boolean      noColor  = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_COLOR);
+		String       format   = (String) paramMap.get(ParseCommandLineUtils.ARGS_FORMAT);
 
 		if (help) {
 			StringBuilder sb = new StringBuilder();
@@ -76,15 +76,16 @@ public class CustomMain {
 			sb.append("                                                                               \n");
 			sb.append(" Usage:                                                                        \n");
 			sb.append("                                                                               \n");
-			sb.append(" java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS] <file>...                       \n");
+			sb.append(" java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS]                                 \n");
 			sb.append("                                                                               \n");
 			sb.append(" OPTIONS:                                                                      \n");
 			sb.append("     --port <number>        HTTP TCP port number, default: 8080                \n");
 			sb.append("     --port-ssl <number>    HTTPS TCP port number, default: 8443               \n");
+			sb.append("     --dump <file>...       dump text file(s) and/or OpenAPI json/yaml file(s) \n");
+			sb.append("     --data <file>...       json/yaml/csv data file(s) to populate templates   \n");
 			sb.append("     --openapi-path <path>  serve OpenAPI client at specified context path     \n");
 			sb.append("     --openapi-title <text> provide custom OpenAPI spec title                  \n");
 			sb.append("     --collect <file>       collect live request/response to file              \n");
-			sb.append("     --data <file>          specify json/yaml data file to populate templates  \n");
 			sb.append("     --format <json|yaml>   output format for --print-* commands, default: json\n");
 			sb.append("     --status <number>      status code for non-matching requests, default: 400\n");
 			sb.append("                                                                               \n");
@@ -106,9 +107,6 @@ public class CustomMain {
 			sb.append("     --print-info           print dump files statistics to stdout as json/yaml \n");
 			sb.append("     --print-requests       print dump requests to stdout as json/yaml         \n");
 			sb.append("     --print-openapi        print OpenAPI specification to stdout as json/yaml \n");
-			sb.append("                                                                               \n");
-			sb.append(" ️ARGS:                                                                         \n");
-			sb.append("     <file>...               dump text file(s) and/or OpenAPI json/yaml file(s)\n");
 
 			System.out.println(sb);
 			System.exit(0);
@@ -176,7 +174,7 @@ public class CustomMain {
 		dump = dump.stripLeading();
 		List<ReqResp> reqResps;
 		if (dump.startsWith("{") || dump.startsWith("---")) {
-			Map<String, Object> openApiMap = JacksonUtils.parseJsonYamlToMap(dump);
+			Map<String, Object> openApiMap = (Map<String, Object>) JacksonUtils.parseJsonYamlToMap(dump);
 			reqResps = OpenApiUtils.openApiMapToListReqResps(openApiMap);
 		} else {
 			List<String> dumpLines = ParseDumpUtils.readLines(dump);
