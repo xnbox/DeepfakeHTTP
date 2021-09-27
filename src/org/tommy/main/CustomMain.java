@@ -28,7 +28,7 @@ E-Mail: xnbox.team@outlook.com
 package org.tommy.main;
 
 import java.io.File;
-import java.nio.file.Files;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +44,7 @@ import org.deepfake_http.common.utils.OpenApiUtils;
 import org.deepfake_http.common.utils.ParseCommandLineUtils;
 import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.deepfake_http.common.utils.SystemProperties;
+import org.deepfake_http.common.utils.UrlUtils;
 
 public class CustomMain {
 	/**
@@ -116,8 +117,8 @@ public class CustomMain {
 		sb.append(" OPTIONS:                                                                      \n");
 		sb.append("     --port <number>        HTTP TCP port number, default: 8080                \n");
 		sb.append("     --port-ssl <number>    HTTPS TCP port number, default: 8443               \n");
-		sb.append("     --dump <file>...       dump text file(s) and/or OpenAPI json/yaml file(s) \n");
-		sb.append("     --data <file>...       json/yaml/csv data file(s) to populate templates   \n");
+		sb.append("     --dump <file|url>...   dump text file(s) and/or OpenAPI json/yaml file(s) \n");
+		sb.append("     --data <file|url>...   json/yaml/csv data file(s) to populate templates   \n");
 		sb.append("     --openapi-path <path>  serve OpenAPI client at specified context path     \n");
 		sb.append("     --openapi-title <text> provide custom OpenAPI spec title                  \n");
 		sb.append("     --collect <file>       collect live request/response to file              \n");
@@ -174,7 +175,7 @@ public class CustomMain {
 	 * @throws Throwable
 	 */
 	private static List<ReqResp> getDumpReqResp(String dumpFile) throws Throwable {
-		String dump = Files.readString(new File(dumpFile).toPath());
+		String dump = UrlUtils.urlToText(dumpFile);
 		dump = dump.stripLeading();
 		List<ReqResp> reqResps;
 		if (dump.startsWith("{") || dump.startsWith("---")) {

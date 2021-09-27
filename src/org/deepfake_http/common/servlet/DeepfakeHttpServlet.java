@@ -65,6 +65,7 @@ import org.deepfake_http.common.dir_watcher.DirectoryWatcher;
 import org.deepfake_http.common.utils.DataUriUtils;
 import org.deepfake_http.common.utils.HttpPathUtils;
 import org.deepfake_http.common.utils.IAnsi;
+import org.deepfake_http.common.utils.IProtocol;
 import org.deepfake_http.common.utils.JacksonUtils;
 import org.deepfake_http.common.utils.MatchUtils;
 import org.deepfake_http.common.utils.OpenApiUtils;
@@ -72,6 +73,7 @@ import org.deepfake_http.common.utils.ParseCommandLineUtils;
 import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.deepfake_http.common.utils.ResourceUtils;
 import org.deepfake_http.common.utils.TemplateUtils;
+import org.deepfake_http.common.utils.UrlUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.ScriptableObject;
@@ -173,7 +175,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	public void init(ServletConfig servletConfig) throws ServletException {
 		logger = Logger.getLogger(getClass().getName());
 		logger.log(Level.INFO, "DeepfakeHTTP Logger: HELLO!");
-
 		try {
 			InitialContext ctx = new InitialContext();
 
@@ -905,7 +906,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	}
 
 	private byte[] getnerateOutFromUrl(String body, String[] mimeArr, String[] encodingArr) throws IOException {
-		if (body.startsWith("file:") || body.startsWith("https:") || body.startsWith("http:")) {
+		if (body.startsWith(IProtocol.FILE) || body.startsWith(IProtocol.HTTP) || body.startsWith(IProtocol.HTTPS)) {
 			try (InputStream is = new URL(body).openStream()) {
 				return is.readAllBytes();
 			}
@@ -1035,7 +1036,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			int    pos          = file.indexOf('.');
 			if (pos != -1)
 				file = file.substring(0, pos);
-			String dataJson          = Files.readString(dataFilePath, StandardCharsets.UTF_8).strip(); // JSON or YAML
+			String dataJson          = UrlUtils.urlToText(dataFilePath.toFile().getAbsolutePath());
 			Object currentDataObject = JacksonUtils.parseJsonYamlToMap(dataJson);
 			map.put(file, currentDataObject);
 		}
