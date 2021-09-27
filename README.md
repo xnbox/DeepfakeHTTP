@@ -56,7 +56,8 @@ Content-Type: application/json
 java -jar df.jar --dump dump.txt
 </pre>
 </li>
-    <li>Use a browser to check whether the server is running: <a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a>
+    <li>Use a browser to check whether the server is running:<br>
+<a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a>
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/get-started.png">
 </li>
 </ol>
@@ -71,8 +72,8 @@ java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS]
 OPTIONS:
     --port <number>        HTTP TCP port number, default: 8080
     --port-ssl <number>    HTTPS TCP port number, default: 8443
-    --dump <file>...       dump text file(s) and/or OpenAPI json/yaml file(s)
-    --data <file>...       json/yaml/csv data file(s) to populate templates
+    --dump <file|url>...   dump text file(s) and/or OpenAPI json/yaml file(s)
+    --data <file|url>...   json/yaml/csv data file(s) to populate templates
     --openapi-path <path>  serve OpenAPI client at specified context path
     --openapi-title <text> provide custom OpenAPI spec title
     --collect <file>       collect live request/response to file
