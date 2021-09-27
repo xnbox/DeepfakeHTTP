@@ -56,8 +56,10 @@ Content-Type: application/json
 java -jar df.jar --dump dump.txt
 </pre>
 </li>
-    <li>Use a browser to check whether the server is running:<br>
+    <li>Use a browser to check whether the server is running:
+<br>
 <a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a>
+<br>
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/get-started.png">
 </li>
 </ol>
