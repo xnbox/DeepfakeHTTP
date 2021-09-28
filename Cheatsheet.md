@@ -134,7 +134,7 @@ Get response:
 	<li>Comments are not part of output.</li>
 	<li>Comment your dums with <code>#</code> character.</li>
 	<li>Only single lines comments are supported.</li>
-	<li>If you need comment after the body, use period (full stop) character <code>#</code> to mark end of body.</li>
+	<li>If you need comment after the body, use period (full stop) character <code>.</code> to mark end of body.</li>
 	<li>Don't miss a single carriage return between headers and body!</li>
 </ul>
 <strong>💡 See Also:</strong>
