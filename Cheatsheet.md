@@ -1,5 +1,5 @@
 <!-- -------------------------------------------------------------------- -->
-<br><table><tr><td><h2 id="hello-world">💡 Hello, World!</h2>
+<table><tr><td><h2 id="hello-world">💡 Hello, World!</h2>
 
 <ol>
 
