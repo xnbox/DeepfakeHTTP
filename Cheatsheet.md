@@ -1,3 +1,20 @@
+<h1>Table of Contents</h1>
+<ul>
+	<li><a href="#hello-world">💡 Hello, World!</a></li>
+	<li><a href="#comments">💡 Comments in dump</a></li>
+	<li><a href="#process-form-data1">💡 Process form data</a></li>
+	<li><a href="#process-form-data2">💡 Process form data with parameters matching</a></li>
+	<li><a href="#math-headers">💡 Math headers</a></li>
+	<li><a href="#req-param-template">💡 Request parameters in template</a></li>
+	<li><a href="#mult-req-param">💡 Multivalued request parameters</a></li>
+	<li><a href="#openapi-param-in-path">💡 OpenAPI-style parameters in path</a></li>
+	<li><a href="#ext-data-in-template">💡 External data and request parameters in template</a></li>
+	<li><a href="#random-data-in-template">💡 Random data in template</a></li>
+	<li><a href="#favicon-as-binary-data">💡 Provide favicon as binary data</a></li>
+	<li><a href="#resp-with-binary-data">💡 Response with binary data</a></li>
+	<li><a href="#gen-pdf">💡 Generate PDF document and populate it with request parameters</a></li>
+</ul>
+
 <!-- -------------------------------------------------------------------- -->
 <table><tr><td><h2 id="hello-world">💡 Hello, World!</h2>
 
@@ -64,8 +81,6 @@ Get response:
 	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
 <ul>
 </td></tr></table>
-<!-- -------------------------------------------------------------------- -->
-
 <!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="comments">💡 Comments in dump</h2>
 
@@ -136,8 +151,6 @@ Get response:
 	<li><a href="#hello-world">Hello, World!</h2></a></li>
 <ul>
 </td></tr></table>
-<!-- -------------------------------------------------------------------- -->
-
 <!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="process-form-data1">💡 Process form data</h2>
 
@@ -221,8 +234,6 @@ Hello John Doe!
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
 <ul>
 </td></tr></table>
-<!-- -------------------------------------------------------------------- -->
-
 <!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="process-form-data2">💡 Process form data with parameters matching</h2>
 
@@ -318,8 +329,6 @@ Request failed with status: <code>400 Bad request</code>
 <ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
-
-<!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="math-headers">💡 Math headers</h2>
 
 <ol>
@@ -406,8 +415,6 @@ Expected result:
 <ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
-
-<!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="req-param-template">💡 Request parameters in template</h2>
 
 <ol>
@@ -473,8 +480,6 @@ Get response:
 	<li><a href="#random-data-in-template">Random data in template</a></li>
 <ul>
 </td></tr></table>
-<!-- -------------------------------------------------------------------- -->
-
 <!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="mult-req-param">💡 Multivalued request parameters</h2>
 
@@ -542,8 +547,6 @@ Get response:
 <ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
-
-<!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="openapi-param-in-path">💡 OpenAPI-style parameters in path</h2>
 
 <ol>
@@ -607,8 +610,6 @@ Get response:
 	<li><a href="#random-data-in-template">Random data in template</a></li>
 <ul>
 </td></tr></table>
-<!-- -------------------------------------------------------------------- -->
-
 <!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="ext-data-in-template">💡 External data and request parameters in template</h2>
 
@@ -689,8 +690,6 @@ Get response:
 </ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
-
-<!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="random-data-in-template">💡 Random data in template</h2>
 
 <ol>
@@ -765,8 +764,6 @@ Get response:
 </ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
-
-<!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="favicon-as-binary-data">💡 Provide favicon as binary data</h2>
 
 <ol>
@@ -833,8 +830,6 @@ The <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/favi
 	<li><a href="#gen-pdf">Generate PDF document and populate it with request parameters</a></li>
 <ul>
 </td></tr></table>
-<!-- -------------------------------------------------------------------- -->
-
 <!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="resp-with-binary-data">💡 Response with binary data</h2>
 
@@ -971,8 +966,6 @@ Get response:<br>
 	<li><a href="#gen-pdf">Generate PDF document and populate it with request parameters</a></li>
 <ul>
 </td></tr></table>
-<!-- -------------------------------------------------------------------- -->
-
 <!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="gen-pdf">💡 Generate PDF document and populate it with request parameters</h2>
 
