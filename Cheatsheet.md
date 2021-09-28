@@ -3,6 +3,76 @@
 <!-- -------------------------------------------------------------------- -->
 <br>
 <table><tr><td>
+<h2 id="req-param-template">💡 Hello, World!</h2>
+
+<ol>
+
+<li>
+Prepare file <code>dump.txt</code>:
+
+```http
+GET /api/customer/123 HTTP/1.1
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": 123,
+    "fname": "John",
+    "lname": "Doe",
+    "email": ["john@example.com", "johndoe@example.com"]
+}
+```
+</li>
+
+<li>
+Start server:
+	
+```
+java -jar df.jar --dump dump.txt
+```
+</li>
+<li>
+
+Navigate to:<br>
+<a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a>
+</li>
+
+<li>
+Get response:
+
+```json
+{
+    "id": 123,
+    "fname": "John",
+    "lname": "Doe",
+    "email": ["john@example.com", "johndoe@example.com"]
+}
+```
+<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/get-started.png">
+</li>
+
+</ol>
+<img width="1000" height="1">
+<br>
+<strong>⚡️ Hacks and Tips:</strong><br>
+<ul>
+	<li>DeepfakeHTTP also supports <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc. methods</li>
+</ul>
+<strong>💡 See Also:</strong>
+<ul>
+	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
+	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
+	<li><a href="#random-data-in-template">Random data in template</a></li>
+	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
+<ul>
+</td></tr></table>
+
+<!-- -------------------------------------------------------------------- -->
+
+<!-- -------------------------------------------------------------------- -->
+<br>
+<table><tr><td>
 <h2 id="req-param-template">💡 Request parameters in template</h2>
 
 <ol>
@@ -785,6 +855,7 @@ View generated <a href="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/mai
 <br>
 <strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
+	<li>Parameters are always treated as strings.</li>
 	<li>If response body content is a plain character data you don't need <code>X-Body-Type</code> header.</li>
 	<li>Serve any media type by using <code>X-Body-Type: text/uri-list</code> and appropriate <code>Content-Type</code>response headers.</li>
 	<li>With <code>X-Body-Type: text/uri-list</code> response header you can use also <code>http://</code>, <code>https://</code> and <code>file://</code> URLs.</li>
