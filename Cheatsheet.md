@@ -61,7 +61,7 @@ Get response:
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
-	<li><a href="#comments">💡 Comments in dump</a></li>
+	<li><a href="#comments">Comments in dump</a></li>
 	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
 	<li><a href="#random-data-in-template">Random data in template</a></li>
@@ -124,7 +124,6 @@ Get response:
     "email": ["john@example.com", "johndoe@example.com"]
 }
 ```
-<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/get-started.png">
 </li>
 
 </ol>
@@ -132,6 +131,7 @@ Get response:
 <br>
 <strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
+	<li>Comments are not part of output.</li>
 	<li>Comment your dums with <code>#</code> character.</li>
 	<li>Only single lines comments are supported.</li>
 	<li>If you need comment after the body, use period (full stop) character <code>#</code> to mark end of body.</li>
@@ -228,49 +228,6 @@ Hello John Doe!
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
 
-#
-# Math headers
-#
-#
-# Example:
-#
-# http://localhost:8080/api/customer/5
-#
-
-
-# First request-response entry
-
-# Client request
-GET /api/customer/5 HTTP/1.1
-Accept-Language: ru;*
-
-.
-# Server response
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-    "id": 5,
-    "name": "Джон Доу"
-}
-.
-
-# Second request-response entry
-
-# Client request
-GET /api/customer/5 HTTP/1.1
-
-.
-# Server response
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-    "id": 5,
-    "name": "John Doe"
-}
-.
-
 <!-- -------------------------------------------------------------------- -->
 <br>
 <table><tr><td>
@@ -285,8 +242,6 @@ Prepare file <code>dump.txt</code>:
 GET /api/customer/5 HTTP/1.1
 Accept-Language: ru;*
 
-.
-# Server response
 HTTP/1.1 200 OK
 Content-Type: application/json
 
@@ -294,15 +249,9 @@ Content-Type: application/json
     "id": 5,
     "name": "Джон Доу"
 }
-.
 
-# Second request-response entry
-
-# Client request
 GET /api/customer/5 HTTP/1.1
 
-.
-# Server response
 HTTP/1.1 200 OK
 Content-Type: application/json
 
@@ -322,34 +271,49 @@ java -jar df.jar --dump dump.txt
 </li>
 <li>
 Navigate to:<br>
-<a href="http://localhost:8080/form1.html">http://localhost:8080/form1.html</a>
+<a href="http://localhost:8080/api/customer/5">http://localhost:8080/api/customer/5</a>
 </li>
 <li>
-Fill in input fields. Eg.: John Doe
-</li>
+Expected result:
 
-<li>
-Get response:
-
-```text
-Hello John Doe!
+```json
+{
+    "id": 5,
+    "name": "John Doe"
+}
 ```
 </li>
+<li>Change browser's preferred language to Russian</li>
+<li>
+Navigate to:<br>
+<a href="http://localhost:8080/api/customer/5">http://localhost:8080/api/customer/5</a>
+</li>
+<li>
+Expected result:
+
+```json
+{
+    "id": 5,
+    "name": "Джон Доу"
+}
+```
 
 </ol>
 <img width="1000" height="1">
 <br>
 <strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
-	<li>DeepfakeHTTP supports <code>GET</code>, <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc. methods</li>
-	<li>Don't miss a single carriage return between headers and body!</li>
+	<li>If headers was provided in the request, they will be included in match algorithm</li>
+	<li>If body was provided in the request, it will be included in match algorithm</li>
+	<li>DeepfakeHTTP supports wildcards (<code>*</code> and <code>?</code>) in request query string and headers</li>
+	<li>Esacape character for wildcards is <code>/</code></li>
+	<li>DeepfakeHTTP supports OpenApi-styled parameters in path</li>
+	<li>DeepfakeHTTP supports templates in request line, headers and body</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
 	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
-	<li><a href="#random-data-in-template">Random data in template</a></li>
-	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
 <ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
