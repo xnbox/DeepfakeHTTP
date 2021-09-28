@@ -4,7 +4,7 @@
 	<li><a href="#comments">Comments in dump</a></li>
 	<li><a href="#process-form-data1">Process form data</a></li>
 	<li><a href="#process-form-data2">Process form data with parameters matching</a></li>
-	<li><a href="#math-headers">Math headers</a></li>
+	<li><a href="#match-headers">Match headers</a></li>
 	<li><a href="#req-param-template">Request parameters in template</a></li>
 	<li><a href="#mult-req-param">Multivalued request parameters</a></li>
 	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
@@ -13,6 +13,7 @@
 	<li><a href="#favicon-as-binary-data">Provide favicon as binary data</a></li>
 	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
 	<li><a href="#gen-pdf">Generate PDF document and populate it with request parameters</a></li>
+	<li><a href="#gen-openapi-spec">Generate OpenAPI JSON/YAML spec from dump</a></li>
 </ul>
 <br>
 <!-- -------------------------------------------------------------------- -->
@@ -329,7 +330,7 @@ Request failed with status: <code>400 Bad request</code>
 <ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
-<br><table><tr><td><h2 id="math-headers">Math headers</h2>
+<br><table><tr><td><h2 id="match-headers">Match headers</h2>
 
 <ol>
 
@@ -1174,4 +1175,50 @@ View generated <a href="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/mai
 <ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
+<br><table><tr><td><h2 id="gen-openapi-spec">Generate OpenAPI JSON/YAML spec from dump</h2>
 
+<ol>
+
+<li>
+Prepare file <code>dump.txt</code>:
+
+```http
+GET /api/customers/{id}/profile?mode=* HTTP/1.1
+X-OpenAPI-Summary: Customer profile
+X-OpenAPI-Description: Customer profile info
+X-OpenAPI-Tags: Customers, Info
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": "${request.parameters.id[0]}",
+    "mode": "${request.parameters.mode[0]}",
+    "fname": "John",
+    "lname": "Doe"
+}
+```
+</li>
+
+<li>
+Print OpenAPI spec JSON to stdout:
+
+```
+java -jar df.jar --print-openapi --openapi-title 'Acme CRM REST API' --dump dump.txt
+```
+</li>
+
+</ol>
+<img width="1000" height="1">
+<br>
+<strong>⚡️ Hacks and Tips:</strong><br>
+<ul>
+	<li>Use <code>--format yaml</code> option to print OpenAPI spec in YAML format.</li>
+	<li>Use <code>--no-color</code> option to disable ANSI colors.</li>
+	<li>Use <code>--openapi-path <path></code> option to serve built-in OpenAPI client.</li>
+</ul>
+<strong>💡 See Also:</strong>
+<ul>
+</ul>
+</td></tr></table>
+<!-- -------------------------------------------------------------------- -->
