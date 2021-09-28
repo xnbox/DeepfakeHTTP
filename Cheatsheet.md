@@ -1,5 +1,4 @@
 <h1><a href="#">DeepfakeHTTP Cheatsheet</a></h1>
-
 <!-- -------------------------------------------------------------------- -->
 <br>
 <table><tr><td>
@@ -33,7 +32,6 @@ java -jar df.jar --dump dump.txt
 ```
 </li>
 <li>
-
 Navigate to:<br>
 <a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a>
 </li>
@@ -58,6 +56,7 @@ Get response:
 <strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
 	<li>DeepfakeHTTP also supports <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc. methods</li>
+	<li>Don't miss a single carriage return between headers and body!</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
@@ -67,7 +66,6 @@ Get response:
 	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
 <ul>
 </td></tr></table>
-
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
@@ -97,7 +95,6 @@ HTTP/1.1 200 OK
     </form>
 </body>
 </html>
-
 
 POST /action_page.php HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
@@ -143,6 +140,7 @@ Hello John Doe!
 <strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
 	<li>DeepfakeHTTP supports <code>GET</code>, <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc. methods</li>
+	<li>Don't miss a single carriage return between headers and body!</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
@@ -152,7 +150,6 @@ Hello John Doe!
 	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
 <ul>
 </td></tr></table>
-
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
@@ -188,7 +185,6 @@ java -jar df.jar --dump dump.txt
 ```
 </li>
 <li>
-
 Navigate to:<br>
 <a href="http://localhost:8080/api/customers/123/profile?mode=open">http://localhost:8080/api/customers/123/profile?mode=open</a>
 </li>
@@ -214,6 +210,7 @@ Get response:
 	<li>Parameters are always treated as strings.</li>
 	<li>Multivalued query parameters: <code>?mode=open&mode=tmp</code> ➞ <code>${request.parameters.mode[1]}</code> ➞ <code>tmp</code>.</li>
 	<li>Multivalued path parameters: <code>/{id}/car/{id}</code> ➞ <code>/123/car/tesla</code> ➞ <code>${request.parameters.id[1]}</code> ➞ <code>tesla</code>.</li>
+	<li>Don't miss a single carriage return between headers and body!</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
@@ -223,7 +220,6 @@ Get response:
 	<li><a href="#random-data-in-template">Random data in template</a></li>
 <ul>
 </td></tr></table>
-
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
@@ -260,7 +256,6 @@ java -jar df.jar --dump dump.txt
 ```
 </li>
 <li>
-
 Navigate to:<br>
 <a href="http://localhost:8080/api/customers/123/profile/abc/info/?mode=open&mode=tmp">http://localhost:8080/api/customers/123/profile/abc/info?mode=open&mode=tmp</a>
 </li>
@@ -286,6 +281,7 @@ Get response:
 <ul>
 	<li>Parameters are always treated as strings.</li>
 	<li>Query parameters can contain wildcards <code>*</code>, <code>?</code>: <code>?mode=*&virus=covid-??</code> ➞ <code>?mode=open&virus=covid-19</code>.</li>
+	<li>Don't miss a single carriage return between headers and body!</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
@@ -294,7 +290,6 @@ Get response:
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
 <ul>
 </td></tr></table>
-
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
@@ -329,7 +324,6 @@ java -jar df.jar --dump dump.txt
 ```
 </li>
 <li>
-
 Navigate to:<br>
 <a href="http://localhost:8080/api/customers/123/profile">http://localhost:8080/api/customers/123/profile</a>
 </li>
@@ -354,6 +348,7 @@ Get response:
 	<li>Parameters are always treated as strings.</li>
 	<li>Multivalued path parameters: <code>/{id}/car/{id}</code> ➞ <code>/123/car/tesla</code> ➞ <code>${request.parameters.id[1]}</code> ➞ <code>tesla</code>.</li>
 	<li>Query parameters also supported: <code>?mode=open</code> ➞ <code>${request.parameters.mode[0]}</code> ➞ <code>open</code>.</li>
+	<li>Don't miss a single carriage return between headers and body!</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
@@ -363,7 +358,6 @@ Get response:
 	<li><a href="#random-data-in-template">Random data in template</a></li>
 <ul>
 </td></tr></table>
-
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
@@ -411,11 +405,9 @@ java -jar df.jar --dump dump.txt --data customers.json
 ```
 </li>
 <li>
-
 Navigate to:<br>
 <a href="http://localhost:8080/api/customers/123/profile?mode=open">http://localhost:8080/api/customers/123/profile?mode=open</a>
 </li>
-
 <li>
 Get response:
 
@@ -440,6 +432,7 @@ Get response:
 	<li>Multiple data files are supported with the <code>--data</code> option.</li>
 	<li>DeepfakeHTTP supports JSON, YAML and CSV data files.</li>
 	<li>By default, data files are watched for changes. Use <code>--no-watch</code> option to disable watching.</li>
+	<li>Don't miss a single carriage return between headers and body!</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
@@ -493,7 +486,6 @@ java -jar df.jar --dump dump.txt --data customers.json
 ```
 </li>
 <li>
-
 Navigate to:<br>
 <a href="http://localhost:8080/api/customers/123/profile">http://localhost:8080/api/customers/123/profile</a>
 </li>
@@ -519,6 +511,7 @@ Get response:
 	<li>Multiple data files are supported with the <code>--data</code> option.</li>
 	<li>DeepfakeHTTP supports JSON, YAML and CSV data files.</li>
 	<li>By default, data files are watched for changes. Use <code>--no-watch</code> option to disable watching.</li>
+	<li>Don't miss a single carriage return between headers and body!</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
@@ -573,7 +566,6 @@ java -jar df.jar --dump dump.txt
 ```
 </li>
 <li>
-
 Navigate to:<br>
 <a href="http://localhost:8080/">http://localhost:8080</a>
 </li>
@@ -590,6 +582,7 @@ The <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/favi
 <ul>
 	<li>Serve any media type by using <code>X-Body-Type: text/uri-list</code> and appropriate <code>Content-Type</code>response headers.</li>
 	<li>With <code>X-Body-Type: text/uri-list</code> response header you can use also <code>http://</code>, <code>https://</code> and <code>file://</code> URLs.</li>
+	<li>Don't miss a single carriage return between headers and body!</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
@@ -597,7 +590,6 @@ The <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/favi
 	<li><a href="#gen-pdf">Generate PDF document and populate it with request parameters</a></li>
 <ul>
 </td></tr></table>
-
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
@@ -716,11 +708,9 @@ java -jar df.jar --dump dump.txt
 ```
 </li>
 <li>
-
 Navigate to:<br>
 <a href="http://localhost:8080/Albert_Einstein.jpeg">http://localhost:8080/Albert_Einstein.jpeg</a>
 </li>
-
 <li>
 Get response:<br>
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/Albert_Einstein.jpeg">
@@ -740,7 +730,6 @@ Get response:<br>
 	<li><a href="#gen-pdf">Generate PDF document and populate it with request parameters</a></li>
 <ul>
 </td></tr></table>
-
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
@@ -922,7 +911,6 @@ java -jar df.jar --dump dump.txt
 ```
 </li>
 <li>
-
 Navigate to:<br>
 <a href="http://localhost:8080/customers/123456/purchases/2018-07-29/report?format=pdf">http://localhost:8080/customers/123456/purchases/2018-07-29/report?format=pdf</a>
 </li>
@@ -953,6 +941,5 @@ View generated <a href="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/mai
 	<li><a href="#req-param-template">Request parameters in template</a></li>
 <ul>
 </td></tr></table>
-
 <!-- -------------------------------------------------------------------- -->
 
