@@ -220,10 +220,107 @@ Hello John Doe!
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
+	<li><a href="#process-form-data2">Process Form data with parameters matching</a></li>
 	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
-	<li><a href="#random-data-in-template">Random data in template</a></li>
-	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
+<ul>
+</td></tr></table>
+<!-- -------------------------------------------------------------------- -->
+
+<!-- -------------------------------------------------------------------- -->
+<br>
+<table><tr><td>
+<h2 id="process-form-data2">💡 Process Form data with parameters matching</h2>
+
+<ol>
+
+<li>
+Prepare file <code>dump.txt</code>:
+
+```http
+GET /form2.html HTTP/1.1
+
+HTTP/1.1 200 OK
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <form action="/action_page2.php" method="POST">
+        <label for="fname">First name:</label><input type="text" name="fname" value="John"><br>
+        <br>
+        <label for="lname">Last name: </label><input type="text" name="lname" value="Doe"><br>
+        <p>
+        Only the first name <i>John</i> and the last name <i>Doe</i> are supported.
+        <br>
+        Expected result is: <strong>Hello John Doe!</strong>,<br>
+        or HTTP status <strong><code>400 Bad request</code></strong><br>
+        when first name is not <i>John</i> or last name is not <i>Doe</i>.
+        </p>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
+POST /action_page2.php HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+fname=John&lname=Doe
+
+HTTP/1.1 200 OK
+Content-Type: text/html
+
+<!DOCTYPE html>
+<body>
+    Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!
+</body>
+</html>
+```
+</li>
+
+<li>
+Start server:
+	
+```
+java -jar df.jar --dump dump.txt
+```
+</li>
+<li>
+Navigate to:<br>
+<a href="http://localhost:8080/form2.html">http://localhost:8080/form2.html</a>
+</li>
+<li>
+Fill in input fields. Eg.: John Doe
+</li>
+
+<li>
+Expected response:
+
+```text
+Hello John Doe!
+```
+</li>
+
+<li>
+Fill in input fields. Eg.: Lora Corban
+</li>
+
+<li>
+Expected result:<br>
+Request failed with status: <code>400 Bad request</code>
+</li>
+
+</ol>
+<img width="1000" height="1">
+<br>
+<strong>⚡️ Hacks and Tips:</strong><br>
+<ul>
+	<li>DeepfakeHTTP supports <code>GET</code>, <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc. methods</li>
+	<li>Don't miss a single carriage return between headers and body!</li>
+</ul>
+<strong>💡 See Also:</strong>
+<ul>
+	<li><a href="#process-form-data1">Process Form data</h2></a></li>
+	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
 <ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
