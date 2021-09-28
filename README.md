@@ -19,7 +19,7 @@ Your 100% static dynamic backend</h1>
 <h3>What are people using it for?</h3>
 <ul>
     <li>Creating the product POC or demo before even starting out with the backend</li>
-    <li>REST, GraphQL, and other APIs prototyping and testing</li>
+    <li>REST, GraphQL, and other APIs mocking and testing</li>
     <li>Hiding critical enterprise infrastructure behind a simple static facade</li>
     <li>Hacking and fine-tuning HTTP communications on both server and client sides</li>
 </ul>
