@@ -139,7 +139,7 @@ Get response:
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br><table><tr><td><h2 id="process-form-data1">💡 Process Form data</h2>
+<br><table><tr><td><h2 id="process-form-data1">💡 Process form data</h2>
 
 <ol>
 
@@ -149,6 +149,8 @@ Prepare file <code>dump.txt</code>:
 ```http
 GET /form1.html HTTP/1.1
 
+.
+# Fake HTML file :)
 HTTP/1.1 200 OK
 
 <!DOCTYPE html>
@@ -167,6 +169,8 @@ HTTP/1.1 200 OK
 POST /action_page.php HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
 
+.
+# Fake PHP response :)
 HTTP/1.1 200 OK
 Content-Type: text/html
 
@@ -212,7 +216,7 @@ Hello John Doe!
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
-	<li><a href="#process-form-data2">Process Form data with parameters matching</a></li>
+	<li><a href="#process-form-data2">Process form data with parameters matching</a></li>
 	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
 <ul>
@@ -220,7 +224,7 @@ Hello John Doe!
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br><table><tr><td><h2 id="process-form-data2">💡 Process Form data with parameters matching</h2>
+<br><table><tr><td><h2 id="process-form-data2">💡 Process form data with parameters matching</h2>
 
 <ol>
 
@@ -309,7 +313,7 @@ Request failed with status: <code>400 Bad request</code>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
-	<li><a href="#process-form-data1">Process Form data</h2></a></li>
+	<li><a href="#process-form-data1">Process form data</h2></a></li>
 	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
 <ul>
 </td></tr></table>
