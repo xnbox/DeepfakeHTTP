@@ -1,4 +1,4 @@
-<h1>Cheatsheet</h1>
+<h1><a href="#">DeepfakeHTTP Cheatsheet</a></h1>
 
 <!-- -------------------------------------------------------------------- -->
 <br>
@@ -774,7 +774,7 @@ Navigate to:<br>
 
 <li>
 Get response:<br>
-<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/report.pdf">
+<a href="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/report.pdf">report.pdf</a>
 </li>
 
 </ol>
