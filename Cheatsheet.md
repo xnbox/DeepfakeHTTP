@@ -1,4 +1,5 @@
 <h1><a href="#">DeepfakeHTTP Cheatsheet</a></h1>
+
 <!-- -------------------------------------------------------------------- -->
 <br>
 <table><tr><td>
@@ -60,10 +61,85 @@ Get response:
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
+	<li><a href="#comments">💡 Comments in dump</a></li>
 	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
 	<li><a href="#random-data-in-template">Random data in template</a></li>
 	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
+<ul>
+</td></tr></table>
+<!-- -------------------------------------------------------------------- -->
+
+<!-- -------------------------------------------------------------------- -->
+<br>
+<table><tr><td>
+<h2 id="comments">💡 Comments in dump</h2>
+
+<ol>
+
+<li>
+Prepare file <code>dump.txt</code>:
+
+```http
+# Client request
+GET /api/customer/123 HTTP/1.1
+
+.
+# Server response
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": 123,
+    "fname": "John",
+    "lname": "Doe",
+    "email": ["john@example.com", "johndoe@example.com"]
+}
+.
+# Some comments at the end (ater "." character)
+# More comments...
+```
+</li>
+
+<li>
+Start server:
+	
+```
+java -jar df.jar --dump dump.txt
+```
+</li>
+<li>
+Navigate to:<br>
+<a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a>
+</li>
+
+<li>
+Get response:
+
+```json
+{
+    "id": 123,
+    "fname": "John",
+    "lname": "Doe",
+    "email": ["john@example.com", "johndoe@example.com"]
+}
+```
+<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/get-started.png">
+</li>
+
+</ol>
+<img width="1000" height="1">
+<br>
+<strong>⚡️ Hacks and Tips:</strong><br>
+<ul>
+	<li>Comment your dums with <code>#</code> character.</li>
+	<li>Only single lines comments are supported.</li>
+	<li>If you need comment after the body, use period (full stop) character <code>#</code> to mark end of body.</li>
+	<li>Don't miss a single carriage return between headers and body!</li>
+</ul>
+<strong>💡 See Also:</strong>
+<ul>
+	<li><a href="#hello-world">Hello, World!</h2></a></li>
 <ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
@@ -108,6 +184,132 @@ Content-Type: text/html
     Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!
 </body>
 </html>
+```
+</li>
+
+<li>
+Start server:
+	
+```
+java -jar df.jar --dump dump.txt
+```
+</li>
+<li>
+Navigate to:<br>
+<a href="http://localhost:8080/form1.html">http://localhost:8080/form1.html</a>
+</li>
+<li>
+Fill in input fields. Eg.: John Doe
+</li>
+
+<li>
+Get response:
+
+```text
+Hello John Doe!
+```
+</li>
+
+</ol>
+<img width="1000" height="1">
+<br>
+<strong>⚡️ Hacks and Tips:</strong><br>
+<ul>
+	<li>DeepfakeHTTP supports <code>GET</code>, <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc. methods</li>
+	<li>Don't miss a single carriage return between headers and body!</li>
+</ul>
+<strong>💡 See Also:</strong>
+<ul>
+	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
+	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
+	<li><a href="#random-data-in-template">Random data in template</a></li>
+	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
+<ul>
+</td></tr></table>
+<!-- -------------------------------------------------------------------- -->
+
+#
+# Math headers
+#
+#
+# Example:
+#
+# http://localhost:8080/api/customer/5
+#
+
+
+# First request-response entry
+
+# Client request
+GET /api/customer/5 HTTP/1.1
+Accept-Language: ru;*
+
+.
+# Server response
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": 5,
+    "name": "Джон Доу"
+}
+.
+
+# Second request-response entry
+
+# Client request
+GET /api/customer/5 HTTP/1.1
+
+.
+# Server response
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": 5,
+    "name": "John Doe"
+}
+.
+
+<!-- -------------------------------------------------------------------- -->
+<br>
+<table><tr><td>
+<h2 id="math-headers">💡 Math headers</h2>
+
+<ol>
+
+<li>
+Prepare file <code>dump.txt</code>:
+
+```http
+GET /api/customer/5 HTTP/1.1
+Accept-Language: ru;*
+
+.
+# Server response
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": 5,
+    "name": "Джон Доу"
+}
+.
+
+# Second request-response entry
+
+# Client request
+GET /api/customer/5 HTTP/1.1
+
+.
+# Server response
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": 5,
+    "name": "John Doe"
+}
 ```
 </li>
 
