@@ -3,7 +3,7 @@
 <!-- -------------------------------------------------------------------- -->
 <br>
 <table><tr><td>
-<h2 id="req-param-template">💡 Hello, World!</h2>
+<h2 id="hello-world">💡 Hello, World!</h2>
 
 <ol>
 
@@ -58,6 +58,91 @@ Get response:
 <strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
 	<li>DeepfakeHTTP also supports <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc. methods</li>
+</ul>
+<strong>💡 See Also:</strong>
+<ul>
+	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
+	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
+	<li><a href="#random-data-in-template">Random data in template</a></li>
+	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
+<ul>
+</td></tr></table>
+
+<!-- -------------------------------------------------------------------- -->
+
+<!-- -------------------------------------------------------------------- -->
+<br>
+<table><tr><td>
+<h2 id="process-form-data1">💡 Process Form data</h2>
+
+<ol>
+
+<li>
+Prepare file <code>dump.txt</code>:
+
+```http
+GET /form1.html HTTP/1.1
+
+HTTP/1.1 200 OK
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <form action="/action_page.php" method="POST">
+        <label for="fname">First name:</label><input type="text" name="fname"><br>
+        <br>
+        <label for="lname">Last name: </label><input type="text" name="lname"><br>
+        <br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
+
+POST /action_page.php HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+HTTP/1.1 200 OK
+Content-Type: text/html
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    Hello ${request.parameters.fname[0]} ${request.parameters.lname[0]}!
+</body>
+</html>
+```
+</li>
+
+<li>
+Start server:
+	
+```
+java -jar df.jar --dump dump.txt
+```
+</li>
+<li>
+Navigate to:<br>
+<a href="http://localhost:8080/form1.html">http://localhost:8080/form1.html</a>
+</li>
+<li>
+Fill in input fields. Eg.: John Doe
+</li>
+
+<li>
+Get response:
+
+```text
+Hello John Doe!
+```
+</li>
+
+</ol>
+<img width="1000" height="1">
+<br>
+<strong>⚡️ Hacks and Tips:</strong><br>
+<ul>
+	<li>DeepfakeHTTP supports <code>GET</code>, <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc. methods</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
