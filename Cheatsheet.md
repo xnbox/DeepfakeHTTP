@@ -433,10 +433,13 @@ The <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/favi
 <br>
 <strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
+	<li>Serve any media type by using <code>X-Body-Type: text/uri-list</code> and appropriate <code>Content-Type</code>response headers.</li>
 	<li>With <code>X-Body-Type: text/uri-list</code> response header you can use also <code>http://</code>, <code>https://</code> and <code>file://</code> URLs.</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
+	<li><a href="#req-param-template">Response with binary data</a></li>
+	<li><a href="#req-param-template">Generate PDF document and populate it with request parameters</a></li>
 <ul>
 </td></tr></table>
 
@@ -573,10 +576,222 @@ Get response:<br>
 <br>
 <strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
+	<li>Serve any media type by using <code>X-Body-Type: text/uri-list</code> and appropriate <code>Content-Type</code>response headers.</li>
 	<li>With <code>X-Body-Type: text/uri-list</code> response header you can use also <code>http://</code>, <code>https://</code> and <code>file://</code> URLs.</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
+	<li><a href="#req-param-template">Provide favicon as binary data</a></li>
+	<li><a href="#req-param-template">Generate PDF document and populate it with request parameters</a></li>
+<ul>
+</td></tr></table>
+
+<!-- -------------------------------------------------------------------- -->
+
+<!-- -------------------------------------------------------------------- -->
+<br>
+<table><tr><td>
+<h2 id="req-param-template">💡 Generate PDF document and populate it with request parameters</h2>
+
+<ol>
+
+<li>
+Prepare file <code>dump.txt</code>:
+
+```http
+GET /customers/{id}/purchases/{date}/report?format=pdf HTTP/1.1
+
+HTTP/1.1 200 OK
+Content-Type: application/pdf
+
+%PDF-1.3
+1 0 obj
+<<
+/Type /Catalog
+/Outlines 2 0 R
+/Pages 3 0 R
+>>
+endobj
+
+2 0 obj
+<<
+/Type /Outlines
+/Count 0
+>>
+endobj
+
+3 0 obj
+<<
+/Type /Pages
+/Count 2
+/Kids [ 4 0 R 6 0 R ] 
+>>
+endobj
+
+4 0 obj
+<<
+/Type /Page
+/Parent 3 0 R
+/Resources <<
+/Font <<
+/F1 9 0 R 
+>>
+/ProcSet 8 0 R
+>>
+/MediaBox [0 0 612.0000 792.0000]
+/Contents 5 0 R
+>>
+endobj
+
+5 0 obj
+<< /Length 1074 >>
+stream
+2 J
+BT
+0 0 0 rg
+/F1 0027 Tf
+57.3750 722.2800 Td
+( Customer ID: ${request.parameters.id[0]}) Tj
+ET
+BT
+/F1 0010 Tf
+69.2500 688.6080 Td
+( Date: ${request.parameters.date[0]} ) Tj
+ET
+BT
+/F1 0010 Tf
+69.2500 664.7040 Td
+( Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore ) Tj
+ET
+BT
+/F1 0010 Tf
+69.2500 652.7520 Td
+( et dolore magna aliq ua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi. ) Tj
+ET
+endstream
+endobj
+
+6 0 obj
+<<
+/Type /Page
+/Parent 3 0 R
+/Resources <<
+/Font <<
+/F1 9 0 R 
+>>
+/ProcSet 8 0 R
+>>
+/MediaBox [0 0 612.0000 792.0000]
+/Contents 7 0 R
+>>
+endobj
+
+7 0 obj
+<< /Length 676 >>
+stream
+2 J
+BT
+0 0 0 rg
+/F1 0027 Tf
+57.3750 722.2800 Td
+( Customer ID: ${request.parameters.id[0]}) Tj
+ET
+BT
+/F1 0010 Tf
+69.2500 688.6080 Td
+( Date: ${request.parameters.date[0]} ) Tj
+ET
+BT
+/F1 0010 Tf
+69.2500 664.7040 Td
+( More text... ) Tj
+ET
+endstream
+endobj
+
+8 0 obj
+[/PDF /Text]
+endobj
+
+9 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/Name /F1
+/BaseFont /Helvetica
+/Encoding /WinAnsiEncoding
+>>
+endobj
+
+10 0 obj
+<<
+/Creator (DeepfakeHTTP \(https://github.com/xnbox/DeepfakeHTTP))
+/Producer (DeepfakeHTTP)
+/CreationDate (D:20210925043107)
+>>
+endobj
+
+xref
+0 11
+0000000000 65535 f
+0000000019 00000 n
+0000000093 00000 n
+0000000147 00000 n
+0000000222 00000 n
+0000000390 00000 n
+0000001522 00000 n
+0000001690 00000 n
+0000002423 00000 n
+0000002456 00000 n
+0000002574 00000 n
+
+trailer
+<<
+/Size 11
+/Root 1 0 R
+/Info 10 0 R
+>>
+
+startxref
+2714
+%%EOF
+
+```
+</li>
+
+<li>
+Start server:
+	
+```
+java -jar df.jar --dump dump.txt
+```
+</li>
+<li>
+
+Navigate to:<br>
+<a href="http://localhost:8080/customers/123456/purchases/2018-07-29/report?format=pdf">http://localhost:8080/customers/123456/purchases/2018-07-29/report?format=pdf</a>
+</li>
+
+<li>
+Get response:<br>
+<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/report.pdf">
+</li>
+
+</ol>
+<img width="1000" height="1">
+<br>
+<strong>⚡️ Hacks and Tips:</strong><br>
+<ul>
+	<li>If response body content is a plain character data you don't need <code>X-Body-Type</code> header.</li>
+	<li>Serve any media type by using <code>X-Body-Type: text/uri-list</code> and appropriate <code>Content-Type</code>response headers.</li>
+	<li>With <code>X-Body-Type: text/uri-list</code> response header you can use also <code>http://</code>, <code>https://</code> and <code>file://</code> URLs.</li>
+</ul>
+<strong>💡 See Also:</strong>
+<ul>
+	<li><a href="#req-param-template">Response with binary data</a></li>
+	<li><a href="#req-param-template">Provide favicon as binary data</a></li>
+	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
+	<li><a href="#req-param-template">Request parameters in template</a></li>
 <ul>
 </td></tr></table>
 
