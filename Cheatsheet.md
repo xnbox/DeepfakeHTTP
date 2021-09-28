@@ -1,9 +1,5 @@
-<h1><a href="#">DeepfakeHTTP Cheatsheet</a></h1>
-
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="hello-world">💡 Hello, World!</h2>
+<br><table><tr><td><h2 id="hello-world">💡 Hello, World!</h2>
 
 <ol>
 
@@ -71,9 +67,7 @@ Get response:
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="comments">💡 Comments in dump</h2>
+<br><table><tr><td><h2 id="comments">💡 Comments in dump</h2>
 
 <ol>
 
@@ -145,9 +139,7 @@ Get response:
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="process-form-data1">💡 Process Form data</h2>
+<br><table><tr><td><h2 id="process-form-data1">💡 Process Form data</h2>
 
 <ol>
 
@@ -228,9 +220,7 @@ Hello John Doe!
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="process-form-data2">💡 Process Form data with parameters matching</h2>
+<br><table><tr><td><h2 id="process-form-data2">💡 Process Form data with parameters matching</h2>
 
 <ol>
 
@@ -326,9 +316,7 @@ Request failed with status: <code>400 Bad request</code>
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="math-headers">💡 Math headers</h2>
+<br><table><tr><td><h2 id="math-headers">💡 Math headers</h2>
 
 <ol>
 
@@ -416,9 +404,7 @@ Expected result:
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="req-param-template">💡 Request parameters in template</h2>
+<br><table><tr><td><h2 id="req-param-template">💡 Request parameters in template</h2>
 
 <ol>
 
@@ -486,9 +472,7 @@ Get response:
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="mult-req-param">💡 Multivalued request parameters</h2>
+<br><table><tr><td><h2 id="mult-req-param">💡 Multivalued request parameters</h2>
 
 <ol>
 
@@ -556,9 +540,7 @@ Get response:
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="openapi-param-in-path">💡 OpenAPI-style parameters in path</h2>
+<br><table><tr><td><h2 id="openapi-param-in-path">💡 OpenAPI-style parameters in path</h2>
 
 <ol>
 
@@ -624,9 +606,7 @@ Get response:
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="ext-data-in-template">💡 External data and request parameters in template</h2>
+<br><table><tr><td><h2 id="ext-data-in-template">💡 External data and request parameters in template</h2>
 
 <ol>
 
@@ -707,9 +687,7 @@ Get response:
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="random-data-in-template">💡 Random data in template</h2>
+<br><table><tr><td><h2 id="random-data-in-template">💡 Random data in template</h2>
 
 <ol>
 
@@ -785,9 +763,7 @@ Get response:
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="favicon-as-binary-data">💡 Provide favicon as binary data</h2>
+<br><table><tr><td><h2 id="favicon-as-binary-data">💡 Provide favicon as binary data</h2>
 
 <ol>
 
@@ -856,9 +832,7 @@ The <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/favi
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="resp-with-binary-data">💡 Response with binary data</h2>
+<br><table><tr><td><h2 id="resp-with-binary-data">💡 Response with binary data</h2>
 
 <ol>
 
@@ -996,9 +970,7 @@ Get response:<br>
 <!-- -------------------------------------------------------------------- -->
 
 <!-- -------------------------------------------------------------------- -->
-<br>
-<table><tr><td>
-<h2 id="gen-pdf">💡 Generate PDF document and populate it with request parameters</h2>
+<br><table><tr><td><h2 id="gen-pdf">💡 Generate PDF document and populate it with request parameters</h2>
 
 <ol>
 
