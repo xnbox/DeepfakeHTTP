@@ -775,8 +775,9 @@ Navigate to:<br>
 <li>
 Get response:<br>
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/report-screenshot.png">
-<br>
-View produced document: <a href="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/report.pdf">report.pdf</a>
+</li>
+<li>
+View generated <a href="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/report.pdf">document</a>
 </li>
 
 </ol>
