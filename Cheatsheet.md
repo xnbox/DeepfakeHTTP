@@ -14,7 +14,7 @@
 	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
 	<li><a href="#gen-pdf">Generate PDF document and populate it with request parameters</a></li>
 </ul>
-
+<br>
 <!-- -------------------------------------------------------------------- -->
 <table><tr><td><h2 id="hello-world">Hello, World!</h2>
 
