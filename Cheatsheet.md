@@ -283,7 +283,7 @@ Get response:
 	<li>The data file can be organized as an object or an array.</li>
 	<li>You can select a random record from the data file.</li>
 	<li>Multiple data files are supported with the <code>--data</code> option.</li>
-	<li>Supports JSON, YAML and CSV data files.</li>
+	<li>DeepfakeHTTP supports JSON, YAML and CSV data files.</li>
 	<li>By default, data files are watched for changes. Use <code>--no-watch</code> option to disable watching.</li>
 </ul>
 <strong>💡 See Also:</strong>
@@ -362,7 +362,7 @@ Get response:
 	<li>The data file can be organized as an object or an array.</li>
 	<li>You can select record from the data file by index.</li>
 	<li>Multiple data files are supported with the <code>--data</code> option.</li>
-	<li>Supports JSON, YAML and CSV data files.</li>
+	<li>DeepfakeHTTP supports JSON, YAML and CSV data files.</li>
 	<li>By default, data files are watched for changes. Use <code>--no-watch</code> option to disable watching.</li>
 </ul>
 <strong>💡 See Also:</strong>
@@ -376,7 +376,7 @@ Get response:
 <!-- -------------------------------------------------------------------- -->
 <br>
 <table><tr><td>
-<h2 id="req-param-template">💡 Provide favicon as binary data</h2>
+<h2 id="favicon-as-binary-data">💡 Provide favicon as binary data</h2>
 
 <ol>
 
@@ -438,8 +438,8 @@ The <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/favi
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
-	<li><a href="#req-param-template">Response with binary data</a></li>
-	<li><a href="#req-param-template">Generate PDF document and populate it with request parameters</a></li>
+	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
+	<li><a href="#gen-pdf">Generate PDF document and populate it with request parameters</a></li>
 <ul>
 </td></tr></table>
 
@@ -448,7 +448,7 @@ The <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/favi
 <!-- -------------------------------------------------------------------- -->
 <br>
 <table><tr><td>
-<h2 id="req-param-template">💡 Response with binary data</h2>
+<h2 id="resp-with-binary-data">💡 Response with binary data</h2>
 
 <ol>
 
@@ -581,8 +581,8 @@ Get response:<br>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
-	<li><a href="#req-param-template">Provide favicon as binary data</a></li>
-	<li><a href="#req-param-template">Generate PDF document and populate it with request parameters</a></li>
+	<li><a href="#favicon-as-binary-data">Provide favicon as binary data</a></li>
+	<li><a href="#gen-pdf">Generate PDF document and populate it with request parameters</a></li>
 <ul>
 </td></tr></table>
 
@@ -591,7 +591,7 @@ Get response:<br>
 <!-- -------------------------------------------------------------------- -->
 <br>
 <table><tr><td>
-<h2 id="req-param-template">💡 Generate PDF document and populate it with request parameters</h2>
+<h2 id="gen-pdf">💡 Generate PDF document and populate it with request parameters</h2>
 
 <ol>
 
@@ -788,8 +788,8 @@ Get response:<br>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
-	<li><a href="#req-param-template">Response with binary data</a></li>
-	<li><a href="#req-param-template">Provide favicon as binary data</a></li>
+	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
+	<li><a href="#favicon-as-binary-data">Provide favicon as binary data</a></li>
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
 	<li><a href="#req-param-template">Request parameters in template</a></li>
 <ul>
