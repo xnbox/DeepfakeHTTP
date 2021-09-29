@@ -66,7 +66,7 @@ java -jar df.jar --dump dump.txt
 </ol>
 That's it!
 <br>
-💡 For more examples see <a href="Cheatsheet.md">cheatsheet</a>.
+For more examples, see the <a href="Cheatsheet.md">cheatsheet</a>.
 <br><br>
 
 <h2>Usage</h2>
