@@ -36,20 +36,21 @@ E-Mail: xnbox.team@outlook.com
 
 	<target name="main">
 		<property name="dollar" value="$" />
-		<property name="build.version" value="3.1.1" />
-		<property name="tmpAppWar" value="${java.io.tmpdir}/app.war" />
-		<property name="tmpMetaInfDir" value="${java.io.tmpdir}/DeepfakeHTTP/META-INF" />
+		<property name="build.version" value="3.2.1" />
+		<property name="tmpDir" value="${java.io.tmpdir}" />
+		<property name="tmpAppWar" value="${tmpDir}/app.war" />
+		<property name="tmpMetaInfDir" value="${tmpDir}/DeepfakeHTTP/META-INF" />
 		<property name="tmpManifest" value="${tmpMetaInfDir}/MANIFEST.MF" />
 		<property name="releaseJar" value="${basedir}/RELEASE/df-${build.version}.jar" />
 
 		<delete file="${tmpAppWar}" failonerror="false" />
-		<war destfile="${tmpAppWar}" webxml="${basedir}/WEB-INF/web.xml" manifest="${basedir}/META-INF/MANIFEST.MF">
+		<war destfile="${tmpAppWar}" webxml="${basedir}/WEB-INF/web.xml" manifest="${basedir}/META-INF/MANIFEST.MF" level="9">
 			<classes dir="${basedir}/bin" />
 			<lib dir="${basedir}/lib" />
 		</war>
 
-		<delete dir="${java.io.tmpdir}/DeepfakeHTTP" />
-		<unzip src="${basedir}/../tommy/RELEASE/tommy-10.0.10.jar" dest="${java.io.tmpdir}/DeepfakeHTTP" />
+		<delete dir="${tmpDir}/DeepfakeHTTP" />
+		<unzip src="${basedir}/../tommy/RELEASE/tommy-10.0.10.jar" dest="${tmpDir}/DeepfakeHTTP" />
 
 		<tstamp>
 			<format property="build.timestamp" pattern="yyyy-MM-dd HH:mm:ss" />
@@ -61,13 +62,16 @@ E-Mail: xnbox.team@outlook.com
 		<replace file="${tmpManifest}" token="${dollar}{build.version}" value="v${build.version}" />
 		<replace file="${tmpManifest}" token="${dollar}{build.timestamp}" value="${build.timestamp}" />
 
-		<delete file="${java.io.tmpdir}/DeepfakeHTTP/org/tommy/main/CustomMain.class" />
+		<delete file="${tmpDir}/DeepfakeHTTP/org/tommy/main/CustomMain.class" />
 
 		<delete file="${releaseJar}" failonerror="false" />
 		<zip destfile="${releaseJar}" level="9">
-			<zipfileset prefix="" dir="${java.io.tmpdir}/DeepfakeHTTP" />
+			<zipfileset prefix="" dir="${tmpDir}/DeepfakeHTTP" />
 			<zipfileset prefix="" dir="${basedir}/bin" />
 			<zipfileset prefix="" file="${tmpAppWar}" />
 		</zip>
+
+		<delete file="${tmpAppWar}" failonerror="false" />
+		<delete dir="${tmpMetaInfDir}" />
 	</target>
 </project>
