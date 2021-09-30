@@ -776,10 +776,7 @@ Prepare file <code>dump.txt</code>:
 GET /favicon.ico HTTP/1.1
 
 HTTP/1.1 200 OK
-Content-Type: image/vnd.microsoft.icon
-X-Body-Type: text/uri-list
-
-data:image/vnd.microsoft.icon;base64,AAABAAEAEBAAAAEAGABoAwAAFgAAACgAAAAQAA
+X-Content-Source: data:image/vnd.microsoft.icon;base64,AAABAAEAEBAAAAEAGABoAwAAFgAAACgAAAAQAA
  AAIAAAAAEAGAAAAAAAAAMAABILAAASCwAAAAAAAAAAAAASVuwSVuwSVuwSVuwAif8Aif8Aif8A
  if8Aif8Aif8Aif8Aif8SVuwSVuwSVuwSVuwSVuwSVuwAif8Aif8Aif8Aif8Aif8Aif8Aif8Aif
  8Aif8Aif8Aif8Aif8SVuwSVuwSVuwAif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8Aif8A
@@ -821,8 +818,8 @@ The <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/favi
 <br>
 <strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
-	<li>Serve any media type by using <code>X-Body-Type: text/uri-list</code> and appropriate <code>Content-Type</code>response headers.</li>
-	<li>With <code>X-Body-Type: text/uri-list</code> response header you can use also <code>http://</code>, <code>https://</code> and <code>file://</code> URLs.</li>
+	<li>Serve any media type by using <code>X-Content-Source</code> response header.</li>
+	<li>With <code>X-Content-Source</code></code> response header you can use also <code>http://</code>, <code>https://</code>, <code>file://</code>, and <code>data://</code> URLs.</li>
 	<li>Don't miss a single carriage return between headers and body!</li>
 </ul>
 <strong>💡 See Also:</strong>
@@ -844,9 +841,7 @@ GET /Albert_Einstein.jpeg HTTP/1.1
 
 HTTP/1.1 200 OK
 Content-Type: image/jpeg
-X-Body-Type: text/uri-list
-
-data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAZABkAAD/2wBDAAMCAgICAgMCAgIDAwMDB
+X-Content-Source: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAZABkAAD/2wBDAAMCAgICAgMCAgIDAwMDB
  AYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDA
  wQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE
  BAQEBD/wgARCABkAGQDASIAAhEBAxEB/8QAHAAAAQQDAQAAAAAAAAAAAAAABwADBQYCBAgB/8QAG
@@ -958,8 +953,8 @@ Get response:<br>
 <br>
 <strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
-	<li>Serve any media type by using <code>X-Body-Type: text/uri-list</code> and appropriate <code>Content-Type</code>response headers.</li>
-	<li>With <code>X-Body-Type: text/uri-list</code> response header you can use also <code>http://</code>, <code>https://</code> and <code>file://</code> URLs.</li>
+	<li>Serve any media type by using <code>X-Content-Source</code> response header.</li>
+	<li>With <code>X-Content-Source</code></code> response header you can use also <code>http://</code>, <code>https://</code>, <code>file://</code>, and <code>data://</code> URLs.</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
@@ -1162,9 +1157,8 @@ View generated <a href="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/mai
 <strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
 	<li>Parameters are always treated as strings.</li>
-	<li>If response body content is a plain character data you don't need <code>X-Body-Type</code> header.</li>
-	<li>Serve any media type by using <code>X-Body-Type: text/uri-list</code> and appropriate <code>Content-Type</code>response headers.</li>
-	<li>With <code>X-Body-Type: text/uri-list</code> response header you can use also <code>http://</code>, <code>https://</code> and <code>file://</code> URLs.</li>
+	<li>Serve any media type by using <code>X-Content-Source</code> response header.</li>
+	<li>With <code>X-Content-Source</code></code> response header you can use also <code>http://</code>, <code>https://</code>, <code>file://</code>, and <code>data://</code> URLs.</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
@@ -1219,6 +1213,7 @@ java -jar df.jar --print-openapi --openapi-title 'Acme CRM REST API' --dump dump
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
-</ul>
+	<li><a href="#">Work in progress</a></li>
+<ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->

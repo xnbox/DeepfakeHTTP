@@ -2,7 +2,7 @@
 Your 100% static dynamic backend</h1>
 
 <a title="License MIT" href="https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
-<a title="Release 3.2.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-3.2.1-4DC71F?style=flat-square"></a>
+<a title="Release 4.1.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-4.1.1-4DC71F?style=flat-square"></a>
 <a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
 
 <p align="center">
@@ -18,7 +18,7 @@ Your 100% static dynamic backend</h1>
 <td>
 <h3>What are people using it for?</h3>
 <ul>
-    <li>Creating the product POC or demo before even starting out with the backend</li>
+    <li>Creating the product PoC or demo before even starting out with the backend</li>
     <li>REST, GraphQL, and other APIs mocking and testing</li>
     <li>Hiding critical enterprise infrastructure behind a simple static facade</li>
     <li>Hacking and fine-tuning HTTP communications on both server and client sides</li>
@@ -75,35 +75,38 @@ For more examples, see the <a href="Cheatsheet.md">cheatsheet</a>.
 ```
 java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS]
 
-OPTIONS:
-    --port <number>        HTTP TCP port number, default: 8080
-    --port-ssl <number>    HTTPS TCP port number, default: 8443
-    --dump <file|url>...   dump text file(s) and/or OpenAPI json/yaml file(s)
-    --data <file|url>...   json/yaml/csv data file(s) to populate templates
-    --openapi-path <path>  serve OpenAPI client at specified context path
-    --openapi-title <text> provide custom OpenAPI spec title
-    --collect <file>       collect live request/response to file
-    --format <json|yaml>   output format for --print-* commands, default: json
-    --status <number>      status code for non-matching requests, default: 400
-
-FLAGS:
-    --no-log               disable request/response console logging
-    --no-cors              disable CORS headers
-    --no-etag              disable 'ETag' header
-    --no-powered-by        disable 'X-Powered-By' header
-    --no-watch             disable watch files for changes
-    --no-color             disable ANSI color output for --print-* commands
-    --no-pretty            disable prettyprint for --print-* commands
-    --no-template          disable template processing
-    --no-wildcard          disable wildcard processing
-    --strict-json          enable strict JSON comparison
-    --redirect             enable redirect HTTP to HTTPS
-
-COMMANDS:
-    --help                 print help message
-    --print-info           print dump files statistics to stdout as json/yaml
-    --print-requests       print dump requests to stdout as json/yaml
-    --print-openapi        print OpenAPI specification to stdout as json/yaml
+OPTIONS:                                                                      
+   --port <number>         HTTP TCP port number, default: 8080                
+   --port-ssl <number>     HTTPS TCP port number, default: 8443               
+   --dump <file|url>...    dump text file(s) and/or OpenAPI json/yaml file(s) 
+   --data <file|url>...    json/yaml/csv data file(s) to populate templates   
+   --openapi-path <path>   serve OpenAPI client at specified context path     
+   --openapi-title <text>  provide custom OpenAPI spec title                  
+   --collect <file>        collect live request/response to file              
+   --format <json|yaml>    output format for --print-* commands, default: json
+   --status <number>       status code for non-matching requests, default: 400
+   --max-log-body <number> max body bytes in console log, default: unlimited  
+                                                                              
+FLAGS:                                                                        
+   --no-log                disable request/response console logging           
+   --no-log-headers        disable request/response headers in console logging
+   --no-log-body           disable request/response body in console logging   
+   --no-cors               disable CORS headers                               
+   --no-etag               disable 'ETag' header                              
+   --no-powered-by         disable 'X-Powered-By' header                      
+   --no-watch              disable watch files for changes                    
+   --no-color              disable ANSI color output for --print-* commands   
+   --no-pretty             disable prettyprint for --print-* commands         
+   --no-template           disable template processing                        
+   --no-wildcard           disable wildcard processing                        
+   --strict-json           enable strict JSON comparison                      
+   --redirect              enable redirect HTTP to HTTPS                      
+                                                                              
+COMMANDS:                                                                     
+   --help                  print help message                                 
+   --print-info            print dump files statistics to stdout as json/yaml 
+   --print-requests        print dump requests to stdout as json/yaml         
+   --print-openapi         print OpenAPI specification to stdout as json/yaml 
 ```
 
 <h2>Usage Exampes</h2>
@@ -171,23 +174,19 @@ java -jar df.jar --print-openapi --dump dump.txt
 
 <h2>How does it work?</h2>
 <ol>
-    <li>Got client request</li>
-    <li>Search dump entries (request-response pairs) for appropriate entry by matching all specified request parts:<br>
-    method, URI, headers, and body</li>
-    <li>If entry is found, the server generates a corresponded response and sends it to the client</li>
-    <li>If entry is not found, the server search dump entries for response with status <code>400</code> (Bad request).</li>
-    <li>If entry is found, the server send entry to the client
-    <li>If entry is not found, the server sends status <code>400</code> with no body.</li>
+	<li>Got the client's request.</li>
+	<li>Search the dump for corresponded entry (request-response pair) by matching all specified request's parts:<br>
+	<i>method</i>, <i>URI</i>, <i>headers</i>, and <i>body</i>.</li>
+	<li>If the entry was found, the server sends the appropriate response to the client.</li>
+	<li>If the entry was not found, the server sends a status <code>400</code> (400 Bad request).</li>
 </ol>
 That's all.
 
 <h2>Features</h2>
 <ul>
-    <li>No dependencies</li>
-    <li>No installation</li>
-    <li>No configuration files</li>
-    <li>Single-file executable</li>
-    <li>Retrieve response data from HTTP dumps and/or OpenAPI json/yaml</li>
+    <li>No dependencies, no installation, no configs</li>
+    <li>Crossplatform single-file executable</li>
+    <li>Retrieve response data from HTTP dumps and/or OpenAPI JSON/YAML</li>
 </ul>
 <details>
 <summary>
@@ -199,12 +198,11 @@ That's all.
     <li>Asynchronous requests and responses</li>
     <li>HTTP message formats (RFC 7230)</li>
     <li>Unlimited number of request/response pairs in the dump</li>
-    <li>Scriptable response body</li>
     <li>Supports methods: <code>GET</code>, <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc.</li>
     <li>Multi-line and multi-value headers (RFC 7230).</li>
     <li>OpenAPI-styled templates in paths</li>
     <li>Wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in query string and header values</li>
-    <li>Templates in response body</li>
+    <li>Templates in URI, headers, body</li>
     <li>JSON/YAML/CSV data files to populate templates</li>
     <li>Response body fetching from external sources like URLs, local files, and data URI</li>
     <li>Per entry user-defined request and response delays</li>
@@ -222,22 +220,34 @@ That's all.
 </ul>
 </details>
 
-<h2>Legal</h2>
-<ul>
-<li>The DeepfakeHTTP is released under the <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/LICENSE">MIT</a> license.</li>
-<li>Third-party products: <a href="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/THIRD-PARTY">THIRD-PARTY</a></li>
-</ul>
+<h2>LICENSE</h2>
+The DeepfakeHTTP is released under the <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/LICENSE">MIT</a> license.
 <br><br>
 <h1></h1>
 <br><br>
 <h2>
 APPENDIX A.
 <br>
-Optional request headers (OpenAPI)
+Optional request headers
 </h2>
 <table>
     <tr><th width="220rem">Header</th><th>Description</th></tr>
-    <tr></tr>
+<tr></tr>
+    <tr><td valign="top"><code>X-Delay</code></td>
+    <td><p>Request delay (in milliseconds).</p>
+    <i>Example:</i>
+    <br>
+
+```http
+# Two seconds request delay.
+
+HTTP/1.1 200 OK
+X-Delay: 2000
+
+{"id": 5, "name": "John Doe"}
+```
+</td></tr>
+<tr></tr>
     <tr><td valign="top"><code>X-OpenAPI-Summary</code></td>
     <td>
     <p>OpenAPI request summary text.</p>
@@ -285,8 +295,9 @@ X-OpenAPI-Tags: Work with customer, Buyers, Login info
 ```
 <img width="1000" height="0">
 </td></tr>
+
 </table>
-<strong>NOTE:  </strong>Optional request headers are used as OpenAPI annotations and will <strong>not</strong> be sent to the server engine.
+<strong>NOTE: </strong>Optional request headers will <strong>not</strong> be sent to the server engine.
 <br><br>
 
 
@@ -297,80 +308,8 @@ Optional response headers
 </h2>
 <table>
     <tr><th width="220rem">Header</th><th>Description</th></tr>
-    <tr></tr>
-    <tr><td valign="top"><code>X-Body-Type     </code></td>
-    <td>
-    <p>Tells the server what the content type (media type) of the body content actually is. Value of this header has same rules as value of standard HTTP <code>Content-Type</code> header.</p>
-    <p>This header is useful when you want to use binary data or script as a response body.</p>
-    <i>Examples:</i>
-<br><br>
-
-A response body is a character data (default).<br>
-No <code>X-Body-Type</code> header is needed.
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-{"id": 5, "name": "John Doe"}
-```
-
-<h2></h2>
-
-Get a response body from a remote server.<br>
-Body type is <code>text/uri-list</code> (RFC 2483)
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-X-Body-Type: text/uri-list
-
-http://example.com/api/car/1234.json
-```
-
-<h2></h2>
-
-Get a response body from a file.<br>
-Body type is <code>text/uri-list</code> (RFC 2483)
-
-```http
-HTTP/1.1 200 OK
-Content-Type: image/jpeg
-X-Body-Type: text/uri-list
-
-file:///home/john/photo.jpeg
-```
-
-<h2></h2>
-
-Get a response body from a data URI.<br>
-Body type is <code>text/uri-list</code> (RFC 2483)
-
-```http
-HTTP/1.1 200 OK
-Content-Type: image/gif
-X-Body-Type: text/uri-list
-
-data:image/gif;base64,R0lGODlhAQABAIAAAP...
-```
-</td></tr>
 <tr></tr>
-    <tr><td valign="top"><code>X-Request-Delay</code></td>
-    <td><p>Request delay (in milliseconds).</p>
-    <i>Example:</i>
-    <br>
-
-```http
-# Two seconds request delay.
-
-HTTP/1.1 200 OK
-X-Request-Delay: 2000
-
-{"id": 5, "name": "John Doe"}
-```
-</td></tr>
-<tr></tr>
-    <tr><td valign="top"><code>X-Response-Delay</code></td>
+    <tr><td valign="top"><code>X-Delay</code></td>
     <td><p>Response delay (in milliseconds).</p>
     <i>Example:</i>
     <br>
@@ -379,12 +318,68 @@ X-Request-Delay: 2000
 # Two seconds response delay.
 
 HTTP/1.1 200 OK
-X-Response-Delay: 2000
+X-Delay: 2000
 
 {"id": 5, "name": "John Doe"}
 ```
-<img width="1000" height="0">
+
 </td></tr>
+<tr></tr>
+    <tr><td valign="top"><code>X-Content-Source</code></td>
+    <td>
+    <p>
+    The URL of the externally hosted content. The content from the URL will be sent as the response body.
+    Supported protocols: <code>http:</code>, <code>https:</code>, <code>file:</code>, <code>data:</code>.<br>
+    If the URL provides its own content type and there is no <code>Content-Type</code> header in the dump, the original <code>Content-Type</code> header received from the URL will be sent along with other response headers.
+    </p>
+    <p>
+    This header is useful when you want to send content hosted on a remote server or just send binary data as a response body.
+    </p>
+    <i>Examples:</i>
+<br><br>
+
+Get a response body from a remote server.<br>
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+X-Content-Source: http://example.com/api/car/1234.json
+```
+
+<h2></h2>
+
+Get a response body from a file.<br>
+
+```http
+HTTP/1.1 200 OK
+Content-Type: image/jpeg
+X-Content-Source: file:///home/john/photo.jpeg
+```
+
+<h2></h2>
+
+Get a response body from a data URI.<br>
+
+```http
+HTTP/1.1 200 OK
+Content-Type: image/gif
+X-Content-Source: data:image/gif;base64,R0lGODlhAQABAIAAAP...
+```
+</td></tr>
+<tr></tr>
+        <tr><td valign="top"><code>X-CGI</code></td>
+    <td>
+    <p>CGI (Common Gateway Interface) program.</p>
+    <i>Example:</i>
+<br>
+
+```http
+HTTP/1.1 000
+X-CGI: /home/john/myprog.sh param1 param2
+```
+<img width="1000" height="0">
+	</td>
+	</td></tr>
 </table>
 <strong>NOTE:  </strong>Optional response headers will <strong>not</strong> be sent to clients.
 <br><br>
