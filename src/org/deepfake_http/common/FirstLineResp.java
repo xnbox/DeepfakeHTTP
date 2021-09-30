@@ -49,7 +49,11 @@ public class FirstLineResp {
 		if (pos2 == -1)
 			pos2 = firstLineRespStr.length();
 		try {
-			status = Integer.parseInt(firstLineRespStr.substring(pos + 1, pos2));
+			String statusStr = firstLineRespStr.substring(pos + 1, pos2);
+			if (ParseDumpUtils.isZeroStatus(statusStr))
+				status = 0;
+			else
+				status = Integer.parseInt(statusStr);
 		} catch (Exception e) {
 			throw new Exception("Bad HTTP status");
 		}

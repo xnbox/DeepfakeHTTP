@@ -175,7 +175,7 @@ public class CustomMain {
 	 * @throws Throwable
 	 */
 	private static List<ReqResp> getDumpReqResp(String dumpFile) throws Throwable {
-		String dump = UrlUtils.urlToText(dumpFile);
+		String dump = UrlUtils.fileOrUrlToText(dumpFile);
 		dump = dump.stripLeading();
 		List<ReqResp> reqResps;
 		if (dump.startsWith("{") || dump.startsWith("---")) {

@@ -31,4 +31,5 @@ public interface IProtocol {
 	String FILE  = "file:";
 	String HTTP  = "http:";
 	String HTTPS = "https:";
+	String DATA  = "data:";
 }

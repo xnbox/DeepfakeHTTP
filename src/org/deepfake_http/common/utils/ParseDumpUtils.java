@@ -104,8 +104,12 @@ public class ParseDumpUtils {
 			boolean responseStatusOk;
 			try {
 				String statusStr = firstLineCandidateArr[1];
-				int    status    = Integer.parseInt(statusStr);
-				responseStatusOk = status >= 100 && status <= 599;
+				int    status;
+				if (isZeroStatus(statusStr))
+					status = 0;
+				else
+					status = Integer.parseInt(statusStr);
+				responseStatusOk = status == 0 || (status >= 100 && status <= 599);
 			} catch (Exception e) {
 				responseStatusOk = false;
 			}
@@ -116,7 +120,7 @@ public class ParseDumpUtils {
 				if (first)
 					first = false;
 				else {
-					reqResp.request.body = trimLastLineBreak(reqResp.request.body);
+					reqResp.request.body  = trimLastLineBreak(reqResp.request.body);
 					reqResp.response.body = trimLastLineBreak(reqResp.response.body);
 					list.add(reqResp);
 				}
@@ -170,7 +174,9 @@ public class ParseDumpUtils {
 								String lastHeader = reqResp.response.headers.get(lastElIndex);
 								reqResp.response.headers.set(lastElIndex, lastHeader + line.strip());
 							}
-						} else {
+						} else if (END_OF_BODY_MARKER.equals(line.stripTrailing()))
+							continue;
+						else {
 							if (inRequest)
 								reqResp.request.headers.add(line.strip());
 							else if (inResponse)
@@ -251,4 +257,7 @@ public class ParseDumpUtils {
 		return lines;
 	}
 
+	public static boolean isZeroStatus(String s) {
+		return s.equals("0") || s.equals("00") || s.equals("000");
+	}
 }

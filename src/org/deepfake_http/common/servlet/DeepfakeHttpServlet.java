@@ -33,23 +33,19 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.PosixFilePermission;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -62,7 +58,6 @@ import org.deepfake_http.common.FirstLineResp;
 import org.deepfake_http.common.Header;
 import org.deepfake_http.common.ReqResp;
 import org.deepfake_http.common.dir_watcher.DirectoryWatcher;
-import org.deepfake_http.common.utils.DataUriUtils;
 import org.deepfake_http.common.utils.HttpPathUtils;
 import org.deepfake_http.common.utils.IAnsi;
 import org.deepfake_http.common.utils.IProtocol;
@@ -74,9 +69,6 @@ import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.deepfake_http.common.utils.ResourceUtils;
 import org.deepfake_http.common.utils.TemplateUtils;
 import org.deepfake_http.common.utils.UrlUtils;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ImporterTopLevel;
-import org.mozilla.javascript.ScriptableObject;
 import org.tommy.main.CustomMain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -93,6 +85,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/*
+ * TODO:
+ * - delete custom 400 page
+ * - print first N-bytes of body
+ */
 public class DeepfakeHttpServlet extends HttpServlet {
 	/**
 	 * serialVersionUID
@@ -109,9 +106,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private static final String HTTP_HEADER_X_POWERED_BY  = "X-Powered-By"; // non-standard
 
 	/* internal, not sended with response  */
-	private static final String INTERNAL_HTTP_HEADER_X_SERVER_BODY_TYPE      = "X-Body-Type";      // response non-standard
-	private static final String INTERNAL_HTTP_HEADER_X_SERVER_REQUEST_DELAY  = "X-Request-Delay";  // response non-standard
-	private static final String INTERNAL_HTTP_HEADER_X_SERVER_RESPONSE_DELAY = "X-Response-Delay"; // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_DELAY          = "X-Delay";          // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE = "X-Content-Source"; // response non-standard
 
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY     = "X-OpenAPI-Summary";    // request non-standard
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION = "X-OpenAPI-Description";// request non-standard
@@ -134,17 +130,15 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean strictJson;
 	private int     badRequestStatus;
 
-	private String       collectFile;
-	private String       openApiPath;
-	private String       openApiTitle;
-	private List<String> dataFiles;
-	//private Path                         dataFilePath;
+	private String                       collectFile;
+	private String                       openApiPath;
+	private String                       openApiTitle;
+	private List<String>                 dataFiles;
 	private List<String /* dump file */> dumps;
 
 	private Logger logger;
 
 	private Map<Path /* dirPath */, DirectoryWatcher> directoryWatchersMap = new HashMap<>();
-	//private DirectoryWatcher                          dataFileDirectoryWatcher;
 
 	private Map<String, Object> dataMap;
 
@@ -385,7 +379,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					if (requestHeaderContentType != null && requestHeaderContentType.startsWith("application/x-www-form-urlencoded"))
 						MatchUtils.parseQuery(providedBody, providedParams);
 
-					String bodyType      = null;
+					String cgi           = null;
 					int    requestDelay  = 0;
 					int    responseDelay = 0;
 
@@ -414,18 +408,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							for (String headerStr : crr.request.headers) {
 								Header header              = new Header(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
-								if (lowerCaseHeaderName.equals(INTERNAL_HTTP_HEADER_X_SERVER_REQUEST_DELAY.toLowerCase(Locale.ENGLISH)))
+								if (lowerCaseHeaderName.equals(INTERNAL_HTTP_HEADER_X_SERVER_DELAY.toLowerCase(Locale.ENGLISH)))
 									requestDelay = Integer.parseInt(header.value);
 							}
 							for (String headerStr : crr.response.headers) {
 								Header header              = new Header(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
-								if (INTERNAL_HTTP_HEADER_X_SERVER_BODY_TYPE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
-									bodyType = header.value;
-								else if (INTERNAL_HTTP_HEADER_X_SERVER_REQUEST_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
-									requestDelay = Integer.parseInt(header.value);
-								else if (INTERNAL_HTTP_HEADER_X_SERVER_RESPONSE_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+								if (INTERNAL_HTTP_HEADER_X_SERVER_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									responseDelay = Integer.parseInt(header.value);
+								else if (INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									cgi = header.value;
 							}
 
 							/* headers from file */
@@ -545,19 +537,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						bs = new byte[0];
 
 					String              message         = firstLineResp.getMessage();
-					String              mime            = null;
-					String              encoding        = null;
+					String              contentType     = null;
 					Map<String, String> responseHeaders = new LinkedHashMap<>();
 
 					for (String headerStr : reqResp.response.headers) {
 						Header header              = new Header(headerStr);
 						String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 
-						if (INTERNAL_HTTP_HEADER_X_SERVER_BODY_TYPE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+						if (INTERNAL_HTTP_HEADER_X_SERVER_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
-						else if (INTERNAL_HTTP_HEADER_X_SERVER_REQUEST_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
-							continue;
-						else if (INTERNAL_HTTP_HEADER_X_SERVER_RESPONSE_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+						else if (INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
 
 						responseHeaders.put(header.name, header.value);
@@ -584,37 +573,57 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 						if (HTTP_HEADER_CONNECTION.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							connectionKeepAlive = "keep-alive".equals(header.value.toLowerCase(Locale.ENGLISH));
-					}
 
-					String body = reqResp.response.body.toString();
-					try {
-						if (bodyType == null)
+						if (HTTP_HEADER_CONTENT_TYPE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+							contentType = header.value;
+					}
+					if (status == badRequestStatus)
+						bs = new byte[0];
+					else {
+						if (cgi == null) {
+							String body = reqResp.response.body.toString();
 							bs = body.getBytes(StandardCharsets.UTF_8);
-						else if ("application/x-sh".equals(bodyType)) {
-							Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
-							String              json = JacksonUtils.stringifyToJsonYaml(http, JacksonUtils.FORMAT_JSON, false, false) + '\n';
-							bs = getnerateOutFromSh(body, json);
-						} else if ("application/javascript".equals(bodyType)) {
-							Map<String, Object> http = createHttpObject(method, providedPath, protocol, providedParams, providedHeaderValuesMap, providedBody.getBytes(StandardCharsets.UTF_8), protocol, status, message, responseHeaders, new byte[0]);
-							bs = getnerateOutFromJs(body, providedFirstLineStr, http);
-						} else if ("text/uri-list".equals(bodyType)) {
-							String[] mimeArr     = new String[1];
-							String[] encodingArr = new String[1];
-							bs       = getnerateOutFromUrl(body, mimeArr, encodingArr);
-							mime     = mimeArr[0];
-							encoding = encodingArr[0];
-						} else // Unknown bodyType
-							throw new IllegalArgumentException(MessageFormat.format("\"X-Body-Type: {0}\" is not supported.", bodyType));
-					} catch (Exception e) {
-						bs      = new byte[0];
-						status  = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;                                                                                                                             // 500
-						message = MessageFormat.format("Error while generating response body. Dump file: {0}, Line number: {1}, Message: ", reqResp.dumpFile, reqResp.response.lineNumber + e.getMessage());
+						} else {
+							if (cgi.startsWith(IProtocol.FILE) || cgi.startsWith(IProtocol.HTTP) || cgi.startsWith(IProtocol.HTTPS)) {
+								String[] contentTypeArr = new String[1];
+								bs = UrlUtils.getUrlContent(cgi, contentTypeArr);
+								if (contentType == null)
+									contentType = contentTypeArr[0];
+							} else if (cgi.startsWith(IProtocol.DATA)) {
+								String[] contentTypeArr = new String[1];
+								bs = UrlUtils.getDataUrlContent(cgi, contentTypeArr);
+								if (contentType == null)
+									contentType = contentTypeArr[0];
+							} else {
+								byte[]        requestBs        = createRequestBytes(providedFirstLineStr, providedHeaderValuesMap, providedBodyBs);
+								byte[]        outBs            = runCgi(cgi, requestBs);
+								String        outStr           = new String(outBs);
+								int           pos              = outStr.indexOf('\n');
+								String        firstLineRespStr = outStr.substring(0, pos).strip();
+								FirstLineResp firstLineRespCgi = new FirstLineResp(firstLineRespStr);
+								if (status == 0) {
+									status  = firstLineRespCgi.getStatus();
+									message = firstLineRespCgi.getMessage();
+								}
+								String   headersAndBodyStr = outStr.substring(pos + 1);
+								int      pos2              = headersAndBodyStr.indexOf("\n\n");
+								String   headersStr        = headersAndBodyStr.substring(0, pos2);
+								String[] headers           = headersStr.split("\\n");
+								for (String headerStr : headers) {
+									Header header = new Header(headerStr);
+									if (!responseHeaders.containsKey(header.name))
+										responseHeaders.put(header.name, header.value);
+								}
+								bs = new byte[outBs.length - (pos + pos2 + 2)];
+								System.arraycopy(outBs, pos + pos2 + 2, bs, 0, bs.length);
+							}
+						}
 					}
 					if (responseDelay != 0)
 						Thread.sleep(responseDelay);
 
-					if (mime != null)
-						responseHeaders.put(HTTP_HEADER_CONTENT_TYPE, mime + (encoding == null ? "" : "; charset=" + encoding));
+					if (contentType != null)
+						responseHeaders.put(HTTP_HEADER_CONTENT_TYPE, contentType);
 					if (!responseHeaders.containsKey(HTTP_HEADER_CONTENT_LENGTH))
 						responseHeaders.put(HTTP_HEADER_CONTENT_LENGTH, Integer.toString(bs.length));
 
@@ -649,7 +658,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					responseOutputStream.flush();
 				} catch (Throwable e) {
 					e.printStackTrace();
-					String       message = MessageFormat.format("Error while generating response body. Dump file: {0}. Line number: {1}. Message: ", reqResp.dumpFile, reqResp.response.lineNumber + e.getMessage());
+					String       message = MessageFormat.format("Error while generating response body. Dump file: {0}. Line number: {1}. Message: {2}", reqResp.dumpFile, reqResp.response.lineNumber, e.getMessage());
 					OutputStream responseOutputStream;
 					try {
 						response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message); //TODO
@@ -859,25 +868,41 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		asyncContext.complete();
 	}
 
-	private byte[] getnerateOutFromSh(String body, String json) throws InterruptedException, IOException {
-		Path tmpFile = Files.createTempFile("df-", "tmp");
-		Files.write(tmpFile, body.getBytes(StandardCharsets.UTF_8));
-		Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
-		Files.setPosixFilePermissions(tmpFile, perms);
+	//	private byte[] getnerateOutFromJs(String body, String providedFirstLineStr, Map<String, Object> http) throws IOException {
+	//		PrintStream stdout = System.out;
+	//		try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); PrintStream ps = new PrintStream(baos);) {
+	//			System.setOut(ps);
+	//			Context cx = Context.enter();
+	//			cx.setLanguageVersion(Context.VERSION_1_8);
+	//			cx.setOptimizationLevel(9);
+	//			cx.getWrapFactory().setJavaPrimitiveWrap(true);
+	//			ScriptableObject scope = new ImporterTopLevel(cx);
+	//			scope = (ScriptableObject) cx.initStandardObjects(scope);
+	//			Object obj = Context.javaToJS(http, scope);
+	//			ScriptableObject.putProperty(scope, "http", obj);
+	//			cx.evaluateString(scope, body, providedFirstLineStr, 0, null);
+	//			return baos.toByteArray();
+	//		} finally {
+	//			Context.exit();
+	//			System.setOut(stdout);
+	//		}
+	//	}
+
+	private byte[] runCgi(String cmd, byte[] requestBs) throws IOException, InterruptedException {
 		ProcessBuilder pb = new ProcessBuilder() //
 				.directory(new File(System.getProperty("user.home"))) //
-				.command(new String[] { "sh", "-c", tmpFile.toString() }); //
+				.command(new String[] { "sh", "-c", cmd }); //
+		logger.log(Level.INFO, cmd);
 
 		Process process = pb.start();
 
-		try (InputStream is = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)); OutputStream po = process.getOutputStream()) {
+		try (InputStream is = new ByteArrayInputStream(requestBs); OutputStream po = process.getOutputStream()) {
 			is.transferTo(po);
 		}
 		try (InputStream is = process.getInputStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
 			is.transferTo(baos);
 			byte[] bs       = baos.toByteArray();
 			int    exitCode = process.waitFor();
-			Files.deleteIfExists(tmpFile);
 			logger.log(exitCode == 0 ? Level.INFO : Level.WARNING, "Exit code: {0}", exitCode);
 			return bs;
 		} finally {
@@ -885,125 +910,107 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		}
 	}
 
-	private byte[] getnerateOutFromJs(String body, String providedFirstLineStr, Map<String, Object> http) throws IOException {
-		PrintStream stdout = System.out;
-		try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); PrintStream ps = new PrintStream(baos);) {
-			System.setOut(ps);
-			Context cx = Context.enter();
-			cx.setLanguageVersion(Context.VERSION_1_8);
-			cx.setOptimizationLevel(9);
-			cx.getWrapFactory().setJavaPrimitiveWrap(true);
-			ScriptableObject scope = new ImporterTopLevel(cx);
-			scope = (ScriptableObject) cx.initStandardObjects(scope);
-			Object obj = Context.javaToJS(http, scope);
-			ScriptableObject.putProperty(scope, "http", obj);
-			cx.evaluateString(scope, body, providedFirstLineStr, 0, null);
-			return baos.toByteArray();
-		} finally {
-			Context.exit();
-			System.setOut(stdout);
-		}
-	}
+	private static byte[] createRequestBytes(String providedFirstLineStr, Map<String, List<String>> providedHeaderValuesMap, byte[] providedBodyBs) throws IOException {
+		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+			os.write((providedFirstLineStr + "\n").getBytes(StandardCharsets.UTF_8));
 
-	private byte[] getnerateOutFromUrl(String body, String[] mimeArr, String[] encodingArr) throws IOException {
-		if (body.startsWith(IProtocol.FILE) || body.startsWith(IProtocol.HTTP) || body.startsWith(IProtocol.HTTPS)) {
-			try (InputStream is = new URL(body).openStream()) {
-				return is.readAllBytes();
+			for (Entry<String, List<String>> entry : providedHeaderValuesMap.entrySet()) {
+				String key = entry.getKey();
+				os.write((key + ": ").getBytes(StandardCharsets.UTF_8));
+				List<String> values = entry.getValue();
+				boolean      first  = true;
+				for (String value : values) {
+					if (first)
+						first = false;
+					else
+						os.write(", ".getBytes(StandardCharsets.UTF_8));
+					os.write(value.getBytes(StandardCharsets.UTF_8));
+				}
+				os.write("\n".getBytes(StandardCharsets.UTF_8));
 			}
-		} else if (body.startsWith("data:")) { // data URI
-			StringBuilder mediatypeSb = new StringBuilder();
-			StringBuilder encodingSb  = new StringBuilder();
-			String        mimeStr     = mediatypeSb.toString().strip();
-			if (!mimeStr.isEmpty())
-				mimeArr[0] = mimeStr;
-			String encodingStr = encodingSb.toString().strip();
-			if (!encodingStr.isEmpty())
-				encodingArr[0] = encodingStr;
-			return DataUriUtils.parseDataUri(body, mimeArr, encodingArr);
-		} else { // fallback to ignored bodyType
-			logger.log(Level.WARNING, "\"X-Body-Type: text/uri-list\", but body content is not valid URL or URL protocol is not supported. Ignored. Valid URL protocols: file, http, https, data");
-			throw new IllegalArgumentException();
+			os.write(providedBodyBs);
+			return os.toByteArray();
 		}
 	}
 
-	/**
-	 * Create http object
-	 * 
-	 * @param requestMethod
-	 * @param requestPath
-	 * @param requestProtocol
-	 * @param requestParameters
-	 * @param requestHeaderValuesMap
-	 * @param requestBs
-	 * @param responseProtocol
-	 * @param responseStatus
-	 * @param responseMessage
-	 * @param responseHeaders
-	 * @param responseBs
-	 * @return
-	 *
-	 *
-	 * Example:
-	 * 
-	 * {
-	 *   "request": {
-	 *     "method": "POST",
-	 *     "uri": "/form.html",
-	 *     "protocol": "HTTP/1.1",
-	 *     "parameters": {
-	 *       "fname": ["John"],
-	 *       "lname": ["Doe"]
-	 *     },
-	 *     "body": "fname=John&lname=Doe",
-	 *     "headers": {
-	 *       "host": ["localhost:8080"],
-	 *       "connection": ["keep-alive"],
-	 *       "content-length": ["21"],
-	 *       "cache-control": ["max-age=0"],
-	 *       "upgrade-insecure-requests": ["1"],
-	 *       "origin": ["http://localhost:8080"],
-	 *       "content-type": ["application/x-www-form-urlencoded"],
-	 *       "user-agent": ["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML", "like Gecko) Chrome/91.0.4472.101 Safari/537.36"],
-	 *       "accept": ["text/html", "application/xhtml+xml", "application/xml;q=0.9", "image/avif", "image/webp", "image/apng"],
-	 *       "referer": ["http://localhost:8080/form.html"],
-	 *       "accept-encoding": ["gzip", "deflate", "br"],
-	 *       "accept-language": ["en-GB", "en;q=0.9", "ru;q=0.8", "en-US;q=0.7"]
-	 *     },
-	 *     "response": {
-	 *       "headers": {
-	 *         "Content-Type": "text/html"
-	 *       },
-	 *       "protocol": "HTTP/1.1",
-	 *       "message": "OK",
-	 *       "body": "<!DOCTYPE html><html lang=en><body><h1>Hello, John Doe!</h1></body></html>",
-	 *       "status": 200
-	 *     }
-	 *   }
-	 * }
-	 * 
-	 */
-	private Map<String, Object> createHttpObject(String requestMethod, String requestPath, String requestProtocol, Map<String, List<String>> requestParameters, Map<String, List<String>> requestHeaderValuesMap, byte[] requestBs, String responseProtocol, int responseStatus, String responseMessage, Map<String, String> responseHeaders, byte[] responseBs) {
-		Map<String, Object> http         = new HashMap<>();
-		Map<String, Object> httpRequest  = new HashMap<>();
-		Map<String, Object> httpResponse = new HashMap<>();
-
-		http.put("request", httpRequest);
-
-		httpRequest.put("method", requestMethod);
-		httpRequest.put("uri", requestPath);
-		httpRequest.put("protocol", requestProtocol);
-		httpRequest.put("parameters", requestParameters);
-		httpRequest.put("body", requestBs);
-		httpRequest.put("headers", requestHeaderValuesMap);
-
-		http.put("response", httpResponse);
-		httpResponse.put("protocol", responseProtocol);
-		httpResponse.put("status", responseStatus);
-		httpResponse.put("message", responseMessage);
-		httpResponse.put("headers", responseHeaders);
-		httpResponse.put("body", responseBs);
-		return http;
-	}
+	//	/**
+	//	 * Create http object
+	//	 * 
+	//	 * @param requestMethod
+	//	 * @param requestPath
+	//	 * @param requestProtocol
+	//	 * @param requestParameters
+	//	 * @param requestHeaderValuesMap
+	//	 * @param requestBs
+	//	 * @param responseProtocol
+	//	 * @param responseStatus
+	//	 * @param responseMessage
+	//	 * @param responseHeaders
+	//	 * @param responseBs
+	//	 * @return
+	//	 *
+	//	 *
+	//	 * Example:
+	//	 * 
+	//	 * {
+	//	 *   "request": {
+	//	 *     "method": "POST",
+	//	 *     "uri": "/form.html",
+	//	 *     "protocol": "HTTP/1.1",
+	//	 *     "parameters": {
+	//	 *       "fname": ["John"],
+	//	 *       "lname": ["Doe"]
+	//	 *     },
+	//	 *     "body": "fname=John&lname=Doe",
+	//	 *     "headers": {
+	//	 *       "host": ["localhost:8080"],
+	//	 *       "connection": ["keep-alive"],
+	//	 *       "content-length": ["21"],
+	//	 *       "cache-control": ["max-age=0"],
+	//	 *       "upgrade-insecure-requests": ["1"],
+	//	 *       "origin": ["http://localhost:8080"],
+	//	 *       "content-type": ["application/x-www-form-urlencoded"],
+	//	 *       "user-agent": ["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML", "like Gecko) Chrome/91.0.4472.101 Safari/537.36"],
+	//	 *       "accept": ["text/html", "application/xhtml+xml", "application/xml;q=0.9", "image/avif", "image/webp", "image/apng"],
+	//	 *       "referer": ["http://localhost:8080/form.html"],
+	//	 *       "accept-encoding": ["gzip", "deflate", "br"],
+	//	 *       "accept-language": ["en-GB", "en;q=0.9", "ru;q=0.8", "en-US;q=0.7"]
+	//	 *     },
+	//	 *     "response": {
+	//	 *       "headers": {
+	//	 *         "Content-Type": "text/html"
+	//	 *       },
+	//	 *       "protocol": "HTTP/1.1",
+	//	 *       "message": "OK",
+	//	 *       "body": "<!DOCTYPE html><html lang=en><body><h1>Hello, John Doe!</h1></body></html>",
+	//	 *       "status": 200
+	//	 *     }
+	//	 *   }
+	//	 * }
+	//	 * 
+	//	 */
+	//	private Map<String, Object> createHttpObject(String requestMethod, String requestPath, String requestProtocol, Map<String, List<String>> requestParameters, Map<String, List<String>> requestHeaderValuesMap, byte[] requestBs, String responseProtocol, int responseStatus, String responseMessage, Map<String, String> responseHeaders, byte[] responseBs) {
+	//		Map<String, Object> http         = new HashMap<>();
+	//		Map<String, Object> httpRequest  = new HashMap<>();
+	//		Map<String, Object> httpResponse = new HashMap<>();
+	//
+	//		http.put("request", httpRequest);
+	//
+	//		httpRequest.put("method", requestMethod);
+	//		httpRequest.put("uri", requestPath);
+	//		httpRequest.put("protocol", requestProtocol);
+	//		httpRequest.put("parameters", requestParameters);
+	//		httpRequest.put("body", requestBs);
+	//		httpRequest.put("headers", requestHeaderValuesMap);
+	//
+	//		http.put("response", httpResponse);
+	//		httpResponse.put("protocol", responseProtocol);
+	//		httpResponse.put("status", responseStatus);
+	//		httpResponse.put("message", responseMessage);
+	//		httpResponse.put("headers", responseHeaders);
+	//		httpResponse.put("body", responseBs);
+	//		return http;
+	//	}
 
 	/**
 	 * 
@@ -1036,7 +1043,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			int    pos          = file.indexOf('.');
 			if (pos != -1)
 				file = file.substring(0, pos);
-			String dataJson          = UrlUtils.urlToText(dataFilePath.toFile().getAbsolutePath());
+			String dataJson          = UrlUtils.fileOrUrlToText(dataFilePath.toFile().getAbsolutePath());
 			Object currentDataObject = JacksonUtils.parseJsonYamlToMap(dataJson);
 			map.put(file, currentDataObject);
 		}

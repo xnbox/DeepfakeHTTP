@@ -29,9 +29,12 @@ package org.deepfake_http.common.utils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 public class UrlUtils {
 
@@ -40,7 +43,7 @@ public class UrlUtils {
 	 * @param s
 	 * @return
 	 */
-	public static String urlToText(String s) {
+	public static String fileOrUrlToText(String s) {
 		if (s.startsWith(IProtocol.FILE) || s.startsWith(IProtocol.HTTPS) || s.startsWith(IProtocol.HTTP))
 			try {
 				try (InputStream is = new BufferedInputStream(new URL(s).openStream())) {
@@ -50,6 +53,60 @@ public class UrlUtils {
 				return "";
 			}
 		else
-			return urlToText(new File(s).getAbsoluteFile().toURI().toString());
+			return fileOrUrlToText(new File(s).getAbsoluteFile().toURI().toString());
 	}
+
+	/**
+	 * Parse data URL
+	 *
+	 * @param url
+	 * @param contentTypeArr
+	 * @return
+	 * @throws IOException
+	 */
+	public static byte[] getDataUrlContent(String url, String[] contentTypeArr) throws IOException {
+		// data:[<mediatype>][;base64],<data>
+		String mime;
+		String encoding;
+		String data;
+		String s       = url.substring(5);
+		int    posSemi = s.indexOf(';');
+		int    pos     = posSemi;
+		if (pos == -1)
+			pos = s.indexOf(',');
+		if (pos == 0)
+			mime = null;
+		else
+			mime = s.substring(0, pos);
+		int posComa = s.indexOf(',');
+		if (posSemi == -1)
+			encoding = null;
+		else
+			encoding = s.substring(posSemi + 1, posComa);
+		data = s.substring(posComa + 1);
+		byte[] bs;
+		if ("base64".equals(encoding))
+			bs = Base64.getMimeDecoder().decode(data);
+		else
+			bs = data.getBytes(StandardCharsets.UTF_8);
+		if (mime != null)
+			contentTypeArr[0] = mime + (encoding == null ? "" : "; charset=" + encoding);
+		return bs;
+	}
+
+	/**
+	 * 
+	 * @param url
+	 * @param contentTypeArr
+	 * @return
+	 * @throws IOException
+	 */
+	public static byte[] getUrlContent(String url, String[] contentTypeArr) throws IOException {
+		URLConnection connection = new URL(url).openConnection();
+		contentTypeArr[0] = connection.getContentType();
+		try (InputStream is = connection.getInputStream()) {
+			return is.readAllBytes();
+		}
+	}
+
 }

@@ -27,6 +27,8 @@ E-Mail: xnbox.team@outlook.com
 
 package org.deepfake_http.common;
 
+import java.text.MessageFormat;
+
 public class Header {
 	private String headerLine;
 
@@ -38,7 +40,7 @@ public class Header {
 
 		int pos = headerLine.indexOf(':');
 		if (pos == -1)
-			throw new Exception("Invalid header (missing ':')!");
+			throw new Exception(MessageFormat.format("Invalid header {0} (missing ':')!", headerLine));
 		name = headerLine.substring(0, pos).strip();
 		if (name.isEmpty())
 			throw new Exception("Invalid header (missing header name)!");
