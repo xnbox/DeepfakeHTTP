@@ -1198,7 +1198,7 @@ Content-Type: application/json
 Print OpenAPI spec JSON to stdout:
 
 ```
-java -jar df.jar --print-openapi --openapi-title 'Acme CRM REST API' --dump dump.txt
+java -jar df.jar --print-openapi --openapi-title 'Acme-CRM REST API v1.2.3' --dump dump.txt
 ```
 </li>
 
