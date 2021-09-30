@@ -80,7 +80,7 @@ OPTIONS:
    --port-ssl <number>     HTTPS TCP port number, default: 8443               
    --dump <file|url>...    dump text file(s) and/or OpenAPI json/yaml file(s) 
    --data <file|url>...    json/yaml/csv data file(s) to populate templates   
-   --openapi-path <path>   serve OpenAPI client at specified context path     
+   --openapi-path <path>   serve built-in OpenAPI client at specified context
    --openapi-title <text>  provide custom OpenAPI spec title                  
    --collect <file>        collect live request/response to file              
    --format <json|yaml>    output format for --print-* commands, default: json

@@ -119,7 +119,7 @@ public class CustomMain {
 		sb.append("    --port-ssl <number>     HTTPS TCP port number, default: 8443               \n");
 		sb.append("    --dump <file|url>...    dump text file(s) and/or OpenAPI json/yaml file(s) \n");
 		sb.append("    --data <file|url>...    json/yaml/csv data file(s) to populate templates   \n");
-		sb.append("    --openapi-path <path>   serve OpenAPI client at specified context path     \n");
+		sb.append("    --openapi-path <path>   serve built-in OpenAPI client at specified context \n");
 		sb.append("    --openapi-title <text>  provide custom OpenAPI spec title                  \n");
 		sb.append("    --collect <file>        collect live request/response to file              \n");
 		sb.append("    --format <json|yaml>    output format for --print-* commands, default: json\n");
