@@ -1213,7 +1213,7 @@ java -jar df.jar --print-openapi --openapi-title 'Acme CRM REST API' --dump dump
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
-	<li><a href="#">Work in progress</a></li>
+	<li><a href="">Work in progress...</a></li>
 <ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
