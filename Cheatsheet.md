@@ -1217,3 +1217,5 @@ java -jar df.jar --print-openapi --openapi-title 'Acme-CRM REST API v1.2.3' --du
 <ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
+
+<strong>Couldn't find an example for your use case? Create a new issue!</strong>
