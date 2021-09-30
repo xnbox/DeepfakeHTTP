@@ -27,9 +27,6 @@ E-Mail: xnbox.team@outlook.com
 
 package org.deepfake_http.common.utils;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +106,9 @@ public class ParseCommandLineUtils {
 	public static final String ARGS_NO_PRETTY      = "--no-pretty";      // disable prettyprint for --print-* commands
 	public static final String ARGS_NO_TEMPLATE    = "--no-template";    // disable template processing
 	public static final String ARGS_NO_WILDCARD    = "--no-wildcard";    // disable wildcard processing
+	public static final String ARGS_MAX_LOG_BODY   = "--max-log-body";   // max body bytes in console log, default: unlimited  \n");
+	public static final String ARGS_NO_LOG_HEADERS = "--no-log-headers"; // disable request/response headers in console logging\n");
+	public static final String ARGS_NO_LOG_BODY    = "--no-log-body";    // disable request/response body in console logging   \n");
 
 	/**
 	 * 
@@ -144,6 +144,9 @@ public class ParseCommandLineUtils {
 		paramMap.put(ARGS_OPENAPI_TITLE, "");
 		paramMap.put(ARGS_FORMAT, "json");
 		paramMap.put(ARGS_STATUS, HttpServletResponse.SC_BAD_REQUEST); // 400
+		paramMap.put(ARGS_MAX_LOG_BODY, Integer.MAX_VALUE); // unlimited
+		paramMap.put(ARGS_NO_LOG_HEADERS, false);
+		paramMap.put(ARGS_NO_LOG_BODY, false);
 
 		for (int i = 0; i < args.length; i++) {
 			/* skip original Tommy options */
@@ -170,6 +173,10 @@ public class ParseCommandLineUtils {
 			else if (args[i].equals(ARGS_NO_ETAG))
 				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_NO_LOG))
+				paramMap.put(args[i], true);
+			else if (args[i].equals(ARGS_NO_LOG_HEADERS))
+				paramMap.put(args[i], true);
+			else if (args[i].equals(ARGS_NO_LOG_BODY))
 				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_NO_CORS))
 				paramMap.put(args[i], true);
@@ -234,6 +241,9 @@ public class ParseCommandLineUtils {
 				if (i < args.length - 1)
 					paramMap.put(args[i], args[++i].toLowerCase(Locale.ENGLISH));
 			} else if (args[i].equals(ARGS_STATUS)) {
+				if (i < args.length - 1)
+					paramMap.put(args[i], Integer.parseInt(args[++i]));
+			} else if (args[i].equals(ARGS_MAX_LOG_BODY)) {
 				if (i < args.length - 1)
 					paramMap.put(args[i], Integer.parseInt(args[++i]));
 			} else {

@@ -85,11 +85,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/*
- * TODO:
- * - delete custom 400 page
- * - print first N-bytes of body
- */
 public class DeepfakeHttpServlet extends HttpServlet {
 	/**
 	 * serialVersionUID
@@ -108,6 +103,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	/* internal, not sended with response  */
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_DELAY          = "X-Delay";          // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE = "X-Content-Source"; // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CGI            = "X-CGI";            // response non-standard
 
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY     = "X-OpenAPI-Summary";    // request non-standard
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION = "X-OpenAPI-Description";// request non-standard
@@ -122,6 +118,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noWatch;
 	private boolean noEtag;
 	private boolean noLog;
+	private boolean noLogBody;
+	private boolean noLogHeaders;
 	private boolean noCors;
 	private boolean noPoweredBy;
 	private boolean noColor;
@@ -129,6 +127,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noWildcard;
 	private boolean strictJson;
 	private int     badRequestStatus;
+	private int     maxLogBody;
 
 	private String                       collectFile;
 	private String                       openApiPath;
@@ -143,7 +142,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private Map<String, Object> dataMap;
 
 	private List<ReqResp> allReqResps;
-	private ReqResp       badRequest400;
 
 	private Configuration freeMarkerConfiguration;
 
@@ -181,6 +179,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			noWatch          = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_WATCH);
 			noEtag           = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_ETAG);
 			noLog            = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG);
+			noLogHeaders     = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG_HEADERS);
+			noLogBody        = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG_BODY);
 			noCors           = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_CORS);
 			noPoweredBy      = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_POWERED_BY);
 			noColor          = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_COLOR);
@@ -191,6 +191,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			openApiPath      = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_PATH);
 			openApiTitle     = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_TITLE);
 			badRequestStatus = (int) paramMap.get(ParseCommandLineUtils.ARGS_STATUS);
+			maxLogBody       = (int) paramMap.get(ParseCommandLineUtils.ARGS_MAX_LOG_BODY);
 
 			if (openApiTitle == null)
 				openApiTitle = "";
@@ -379,6 +380,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					if (requestHeaderContentType != null && requestHeaderContentType.startsWith("application/x-www-form-urlencoded"))
 						MatchUtils.parseQuery(providedBody, providedParams);
 
+					String contentSource = null;
 					String cgi           = null;
 					int    requestDelay  = 0;
 					int    responseDelay = 0;
@@ -405,6 +407,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						pathOk && //
 						queryStringOk //
 						) {
+							Map<String, Object> tmpDataMap = new LinkedHashMap<>(dataMap);
+							Map<String, Object> requestMap = new LinkedHashMap<>();
+							requestMap.put("parameters", providedParams);
+							requestMap.put("method", method);
+							requestMap.put("path", providedPath);
+							requestMap.put("query", providedQueryString);
+							tmpDataMap.put("request", requestMap);
+
+							processResp(!noTemplate, freeMarkerConfiguration, crr, tmpDataMap);
+
 							for (String headerStr : crr.request.headers) {
 								Header header              = new Header(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
@@ -417,6 +429,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 								if (INTERNAL_HTTP_HEADER_X_SERVER_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									responseDelay = Integer.parseInt(header.value);
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									contentSource = header.value;
+								else if (INTERNAL_HTTP_HEADER_X_SERVER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									cgi = header.value;
 							}
 
@@ -431,6 +445,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 								if (INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									continue;
 								if (INTERNAL_HTTP_HEADER_X_OPENAPI_TAGS.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									continue;
+								if (INTERNAL_HTTP_HEADER_X_SERVER_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									continue;
 
 								List<String> headerValuesList = headerValuesMap.get(lowerCaseHeaderName);
@@ -508,34 +524,18 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							}
 						}
 					}
-					if (reqResp == null) // request-reponse pair not found
-						reqResp = badRequest400; // may be null
 
-					boolean simpleBadRequest400;
-					if (reqResp == null) {
+					if (reqResp == null) { // request-reponse pair not found
 						reqResp                    = new ReqResp();
 						reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + badRequestStatus + ' ' + "Bad request";
-						simpleBadRequest400        = true;
-					} else
-						simpleBadRequest400 = false;
-
-					if (!dataMap.isEmpty() || !providedParams.isEmpty()) {
-						Map<String, Object> tmpDataMap = new LinkedHashMap<>(dataMap);
-						Map<String, Object> requestMap = new LinkedHashMap<>();
-						requestMap.put("parameters", providedParams);
-						tmpDataMap.put("request", requestMap);
-
-						processResp(!noTemplate, freeMarkerConfiguration, reqResp, tmpDataMap);
 					}
 
 					String        responseFirstLineStr = reqResp.response.firstLine;
 					FirstLineResp firstLineResp        = new FirstLineResp(responseFirstLineStr);
 
-					byte[] bs;
-					int    status = firstLineResp.getStatus();
-					if (simpleBadRequest400)
-						bs = new byte[0];
+					int status = firstLineResp.getStatus();
 
+					byte[]              bs;
 					String              message         = firstLineResp.getMessage();
 					String              contentType     = null;
 					Map<String, String> responseHeaders = new LinkedHashMap<>();
@@ -547,6 +547,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						if (INTERNAL_HTTP_HEADER_X_SERVER_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
 						else if (INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+							continue;
+						else if (INTERNAL_HTTP_HEADER_X_SERVER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
 
 						responseHeaders.put(header.name, header.value);
@@ -580,43 +582,44 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					if (status == badRequestStatus)
 						bs = new byte[0];
 					else {
-						if (cgi == null) {
+						if (contentSource != null) {
+							if (contentSource.startsWith(IProtocol.FILE) || contentSource.startsWith(IProtocol.HTTP) || contentSource.startsWith(IProtocol.HTTPS)) {
+								String[] contentTypeArr = new String[1];
+								bs = UrlUtils.getUrlContent(contentSource, contentTypeArr);
+								if (contentType == null)
+									contentType = contentTypeArr[0];
+							} else if (contentSource.startsWith(IProtocol.DATA)) {
+								String[] contentTypeArr = new String[1];
+								bs = UrlUtils.getDataUrlContent(contentSource, contentTypeArr);
+								if (contentType == null)
+									contentType = contentTypeArr[0];
+							} else
+								throw new IllegalArgumentException(MessageFormat.format("Bad {0} value: {1}", INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE, contentSource));
+						} else if (cgi != null) {
+							byte[]        requestBs        = createRequestBytes(providedFirstLineStr, providedHeaderValuesMap, providedBodyBs);
+							byte[]        outBs            = runCgi(cgi, requestBs);
+							String        outStr           = new String(outBs);
+							int           pos              = outStr.indexOf('\n');
+							String        firstLineRespStr = outStr.substring(0, pos).strip();
+							FirstLineResp firstLineRespCgi = new FirstLineResp(firstLineRespStr);
+							if (status == 0) {
+								status  = firstLineRespCgi.getStatus();
+								message = firstLineRespCgi.getMessage();
+							}
+							String   headersAndBodyStr = outStr.substring(pos + 1);
+							int      pos2              = headersAndBodyStr.indexOf("\n\n");
+							String   headersStr        = headersAndBodyStr.substring(0, pos2);
+							String[] headers           = headersStr.split("\\n");
+							for (String headerStr : headers) {
+								Header header = new Header(headerStr);
+								if (!responseHeaders.containsKey(header.name))
+									responseHeaders.put(header.name, header.value);
+							}
+							bs = new byte[outBs.length - (pos + pos2 + 2)];
+							System.arraycopy(outBs, pos + pos2 + 2, bs, 0, bs.length);
+						} else {
 							String body = reqResp.response.body.toString();
 							bs = body.getBytes(StandardCharsets.UTF_8);
-						} else {
-							if (cgi.startsWith(IProtocol.FILE) || cgi.startsWith(IProtocol.HTTP) || cgi.startsWith(IProtocol.HTTPS)) {
-								String[] contentTypeArr = new String[1];
-								bs = UrlUtils.getUrlContent(cgi, contentTypeArr);
-								if (contentType == null)
-									contentType = contentTypeArr[0];
-							} else if (cgi.startsWith(IProtocol.DATA)) {
-								String[] contentTypeArr = new String[1];
-								bs = UrlUtils.getDataUrlContent(cgi, contentTypeArr);
-								if (contentType == null)
-									contentType = contentTypeArr[0];
-							} else {
-								byte[]        requestBs        = createRequestBytes(providedFirstLineStr, providedHeaderValuesMap, providedBodyBs);
-								byte[]        outBs            = runCgi(cgi, requestBs);
-								String        outStr           = new String(outBs);
-								int           pos              = outStr.indexOf('\n');
-								String        firstLineRespStr = outStr.substring(0, pos).strip();
-								FirstLineResp firstLineRespCgi = new FirstLineResp(firstLineRespStr);
-								if (status == 0) {
-									status  = firstLineRespCgi.getStatus();
-									message = firstLineRespCgi.getMessage();
-								}
-								String   headersAndBodyStr = outStr.substring(pos + 1);
-								int      pos2              = headersAndBodyStr.indexOf("\n\n");
-								String   headersStr        = headersAndBodyStr.substring(0, pos2);
-								String[] headers           = headersStr.split("\\n");
-								for (String headerStr : headers) {
-									Header header = new Header(headerStr);
-									if (!responseHeaders.containsKey(header.name))
-										responseHeaders.put(header.name, header.value);
-								}
-								bs = new byte[outBs.length - (pos + pos2 + 2)];
-								System.arraycopy(outBs, pos + pos2 + 2, bs, 0, bs.length);
-							}
 						}
 					}
 					if (responseDelay != 0)
@@ -649,9 +652,9 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						response.setHeader(entry.getKey(), entry.getValue());
 
 					if (collectFile != null)
-						logReqRespToFile(request, providedFirstLineStr, providedBodyBs, simpleBadRequest400, bs, status, message, responseHeaders);
+						logReqRespToFile(request, providedFirstLineStr, providedBodyBs, bs, status, message, responseHeaders);
 					if (!noLog)
-						logReqRespToConsole(request, providedFirstLineStr, providedBodyBs, simpleBadRequest400, bs, status, message, responseHeaders, !noColor);
+						logReqRespToConsole(request, providedFirstLineStr, providedBodyBs, bs, status, message, responseHeaders, !noColor, !noLogHeaders, !noLogBody, maxLogBody);
 
 					OutputStream responseOutputStream = response.getOutputStream();
 					responseOutputStream.write(bs);
@@ -681,7 +684,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 	}
 
-	private void logReqRespToFile(HttpServletRequest request, String providedFirstLineStr, byte[] providedBodyBs, boolean simpleBadRequest400, byte[] bs, int status, String message, Map<String, String> responseHeaders) throws IOException {
+	private void logReqRespToFile(HttpServletRequest request, String providedFirstLineStr, byte[] providedBodyBs, byte[] bs, int status, String message, Map<String, String> responseHeaders) throws IOException {
 		byte[] logBs = null;
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 			baos.write(providedFirstLineStr.getBytes(StandardCharsets.UTF_8));
@@ -712,13 +715,11 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			String firstLineRespStr = ParseDumpUtils.HTTP_1_1 + ' ' + Integer.toString(status) + (message == null ? "" : ' ' + message);
 			baos.write(firstLineRespStr.getBytes(StandardCharsets.UTF_8));
 			baos.write('\n');
-			if (!simpleBadRequest400) {
-				/* provided headers */
-				for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
-					String headerStr = processHeaderName(entry.getKey()) + ": " + entry.getValue();
-					baos.write(headerStr.getBytes(StandardCharsets.UTF_8));
-					baos.write('\n');
-				}
+			/* provided headers */
+			for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
+				String headerStr = processHeaderName(entry.getKey()) + ": " + entry.getValue();
+				baos.write(headerStr.getBytes(StandardCharsets.UTF_8));
+				baos.write('\n');
 			}
 			if (bs.length != 0) {
 				baos.write('\n');
@@ -732,63 +733,58 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		Files.write(new File(collectFile).toPath(), logBs, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 	}
 
-	private void logReqRespToConsole(HttpServletRequest request, String providedFirstLineStr, byte[] providedBodyBs, boolean simpleBadRequest400, byte[] bs, int status, String message, Map<String, String> responseHeaders, boolean color) throws IOException {
+	private void logReqRespToConsole(HttpServletRequest request, String providedFirstLineStr, byte[] providedBodyBs, byte[] bs, int status, String message, Map<String, String> responseHeaders, boolean color, boolean logHeaders, boolean logBody, int maxLogBody) throws IOException {
 		byte[] logBs = null;
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-			String firstLineColor;
-			String headersColor;
-			String contentColor;
+			String firstLineColor = IAnsi.CYAN_BOLD_BRIGHT;
+			String headersColor   = IAnsi.CYAN;
+			String contentColor   = IAnsi.CYAN_BRIGHT;
 
-			if (status == badRequestStatus) {
-				firstLineColor = IAnsi.CYAN_BOLD_BRIGHT;
-				headersColor   = IAnsi.CYAN;
-				contentColor   = IAnsi.CYAN_BRIGHT;
-			} else {
-				firstLineColor = IAnsi.CYAN_BOLD_BRIGHT;
-				headersColor   = IAnsi.CYAN;
-				contentColor   = IAnsi.CYAN_BRIGHT;
-			}
 			StringBuilder reqSb = new StringBuilder();
 			if (color)
 				reqSb.append(IAnsi.RESET + IAnsi.BLACK_BRIGHT);
-			reqSb.append("--------------------------------------------------------------------------------");
+			reqSb.append("================================================================================");
 			if (color)
 				reqSb.append(IAnsi.RESET + firstLineColor);
 			reqSb.append('\n');
 			reqSb.append(providedFirstLineStr);
-			if (color)
-				reqSb.append(IAnsi.RESET + headersColor);
 			reqSb.append('\n');
-			/* provided headers */
-			for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
-				String headerName = headerNames.nextElement();
-				reqSb.append(processHeaderName(headerName) + ": ");
-				boolean first = true;
-				for (Enumeration<String> headerValues = request.getHeaders(headerName); headerValues.hasMoreElements();) {
-					String headerValue = headerValues.nextElement();
-					if (first)
-						first = false;
-					else
-						reqSb.append(';');
-					reqSb.append(headerValue);
+			if (logHeaders) {
+				if (color)
+					reqSb.append(IAnsi.RESET + headersColor);
+				/* provided headers */
+				for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
+					String headerName = headerNames.nextElement();
+					reqSb.append(processHeaderName(headerName) + ": ");
+					boolean first = true;
+					for (Enumeration<String> headerValues = request.getHeaders(headerName); headerValues.hasMoreElements();) {
+						String headerValue = headerValues.nextElement();
+						if (first)
+							first = false;
+						else
+							reqSb.append(';');
+						reqSb.append(headerValue);
+					}
+					reqSb.append('\n');
 				}
-				reqSb.append('\n');
 			}
-			if (color)
-				reqSb.append(IAnsi.RESET + contentColor);
 			baos.write(reqSb.toString().getBytes(StandardCharsets.UTF_8));
-			if (providedBodyBs.length != 0) {
-				baos.write('\n');
-				baos.write(providedBodyBs);
+			if (logBody) {
+				if (color)
+					baos.write((IAnsi.RESET + contentColor).getBytes(StandardCharsets.UTF_8));
+				if (providedBodyBs.length != 0) {
+					baos.write('\n');
+					int len = providedBodyBs.length;
+					if (len > maxLogBody)
+						len = maxLogBody;
+					baos.write(providedBodyBs, 0, len);
+				}
 			}
-			baos.write('\n');
-			if (color)
-				baos.write(IAnsi.RESET.getBytes(StandardCharsets.UTF_8));
 
 			if (status == badRequestStatus) {
 				firstLineColor = IAnsi.RED_BOLD_BRIGHT;
-				headersColor   = IAnsi.PURPLE;
-				contentColor   = IAnsi.PURPLE_BRIGHT;
+				headersColor   = IAnsi.RED;
+				contentColor   = IAnsi.RED_BRIGHT;
 			} else {
 				firstLineColor = IAnsi.PURPLE_BOLD_BRIGHT;
 				headersColor   = IAnsi.PURPLE;
@@ -797,23 +793,34 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 			StringBuilder respSb = new StringBuilder();
 			if (color)
+				baos.write((IAnsi.RESET + IAnsi.BLACK_BRIGHT).getBytes(StandardCharsets.UTF_8));
+			respSb.append('\n');
+			respSb.append("--------------------------------------------------------------------------------");
+			respSb.append('\n');
+
+			if (color)
 				respSb.append(IAnsi.RESET + firstLineColor);
 			String firstLineRespStr = ParseDumpUtils.HTTP_1_1 + ' ' + Integer.toString(status) + (message == null ? "" : ' ' + message);
 			respSb.append(firstLineRespStr);
-			if (color)
-				respSb.append(IAnsi.RESET + headersColor);
 			respSb.append('\n');
-			if (!simpleBadRequest400) {
+			if (logHeaders) {
+				if (color)
+					respSb.append(IAnsi.RESET + headersColor);
 				/* provided headers */
 				for (Map.Entry<String, String> entry : responseHeaders.entrySet())
 					respSb.append(processHeaderName(entry.getKey()) + ": " + entry.getValue() + '\n');
 			}
-			if (color)
-				respSb.append(IAnsi.RESET + contentColor);
 			baos.write(respSb.toString().getBytes(StandardCharsets.UTF_8));
-			if (bs.length != 0) {
-				baos.write('\n');
-				baos.write(bs);
+			if (logBody) {
+				if (color)
+					baos.write((IAnsi.RESET + contentColor).getBytes(StandardCharsets.UTF_8));
+				if (bs.length != 0) {
+					baos.write('\n');
+					int len = bs.length;
+					if (len > maxLogBody)
+						len = maxLogBody;
+					baos.write(bs, 0, len);
+				}
 			}
 			if (color)
 				baos.write(IAnsi.RESET.getBytes(StandardCharsets.UTF_8));
@@ -868,33 +875,17 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		asyncContext.complete();
 	}
 
-	//	private byte[] getnerateOutFromJs(String body, String providedFirstLineStr, Map<String, Object> http) throws IOException {
-	//		PrintStream stdout = System.out;
-	//		try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); PrintStream ps = new PrintStream(baos);) {
-	//			System.setOut(ps);
-	//			Context cx = Context.enter();
-	//			cx.setLanguageVersion(Context.VERSION_1_8);
-	//			cx.setOptimizationLevel(9);
-	//			cx.getWrapFactory().setJavaPrimitiveWrap(true);
-	//			ScriptableObject scope = new ImporterTopLevel(cx);
-	//			scope = (ScriptableObject) cx.initStandardObjects(scope);
-	//			Object obj = Context.javaToJS(http, scope);
-	//			ScriptableObject.putProperty(scope, "http", obj);
-	//			cx.evaluateString(scope, body, providedFirstLineStr, 0, null);
-	//			return baos.toByteArray();
-	//		} finally {
-	//			Context.exit();
-	//			System.setOut(stdout);
-	//		}
-	//	}
-
 	private byte[] runCgi(String cmd, byte[] requestBs) throws IOException, InterruptedException {
-		ProcessBuilder pb = new ProcessBuilder() //
-				.directory(new File(System.getProperty("user.home"))) //
-				.command(new String[] { "sh", "-c", cmd }); //
-		logger.log(Level.INFO, cmd);
-
-		Process process = pb.start();
+		boolean  windowsOs = System.getProperty("os.name").toLowerCase().startsWith("windows");
+		String[] command;
+		if (windowsOs)
+			command = new String[] { "cmd.exe", "/c", cmd };
+		else
+			command = new String[] { "sh", "-c", cmd };
+		ProcessBuilder pb      = new ProcessBuilder()                   //
+				.directory(new File(System.getProperty("user.home")))   //
+				.command(command);                                      //
+		Process        process = pb.start();
 
 		try (InputStream is = new ByteArrayInputStream(requestBs); OutputStream po = process.getOutputStream()) {
 			is.transferTo(po);
@@ -903,7 +894,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			is.transferTo(baos);
 			byte[] bs       = baos.toByteArray();
 			int    exitCode = process.waitFor();
-			logger.log(exitCode == 0 ? Level.INFO : Level.WARNING, "Exit code: {0}", exitCode);
+			if (exitCode != 0)
+				logger.log(Level.WARNING, MessageFormat.format("CGI program: {0} ended with exit code: {1}", cmd, exitCode));
 			return bs;
 		} finally {
 			process.destroy();
@@ -931,100 +923,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			os.write(providedBodyBs);
 			return os.toByteArray();
 		}
-	}
-
-	//	/**
-	//	 * Create http object
-	//	 * 
-	//	 * @param requestMethod
-	//	 * @param requestPath
-	//	 * @param requestProtocol
-	//	 * @param requestParameters
-	//	 * @param requestHeaderValuesMap
-	//	 * @param requestBs
-	//	 * @param responseProtocol
-	//	 * @param responseStatus
-	//	 * @param responseMessage
-	//	 * @param responseHeaders
-	//	 * @param responseBs
-	//	 * @return
-	//	 *
-	//	 *
-	//	 * Example:
-	//	 * 
-	//	 * {
-	//	 *   "request": {
-	//	 *     "method": "POST",
-	//	 *     "uri": "/form.html",
-	//	 *     "protocol": "HTTP/1.1",
-	//	 *     "parameters": {
-	//	 *       "fname": ["John"],
-	//	 *       "lname": ["Doe"]
-	//	 *     },
-	//	 *     "body": "fname=John&lname=Doe",
-	//	 *     "headers": {
-	//	 *       "host": ["localhost:8080"],
-	//	 *       "connection": ["keep-alive"],
-	//	 *       "content-length": ["21"],
-	//	 *       "cache-control": ["max-age=0"],
-	//	 *       "upgrade-insecure-requests": ["1"],
-	//	 *       "origin": ["http://localhost:8080"],
-	//	 *       "content-type": ["application/x-www-form-urlencoded"],
-	//	 *       "user-agent": ["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML", "like Gecko) Chrome/91.0.4472.101 Safari/537.36"],
-	//	 *       "accept": ["text/html", "application/xhtml+xml", "application/xml;q=0.9", "image/avif", "image/webp", "image/apng"],
-	//	 *       "referer": ["http://localhost:8080/form.html"],
-	//	 *       "accept-encoding": ["gzip", "deflate", "br"],
-	//	 *       "accept-language": ["en-GB", "en;q=0.9", "ru;q=0.8", "en-US;q=0.7"]
-	//	 *     },
-	//	 *     "response": {
-	//	 *       "headers": {
-	//	 *         "Content-Type": "text/html"
-	//	 *       },
-	//	 *       "protocol": "HTTP/1.1",
-	//	 *       "message": "OK",
-	//	 *       "body": "<!DOCTYPE html><html lang=en><body><h1>Hello, John Doe!</h1></body></html>",
-	//	 *       "status": 200
-	//	 *     }
-	//	 *   }
-	//	 * }
-	//	 * 
-	//	 */
-	//	private Map<String, Object> createHttpObject(String requestMethod, String requestPath, String requestProtocol, Map<String, List<String>> requestParameters, Map<String, List<String>> requestHeaderValuesMap, byte[] requestBs, String responseProtocol, int responseStatus, String responseMessage, Map<String, String> responseHeaders, byte[] responseBs) {
-	//		Map<String, Object> http         = new HashMap<>();
-	//		Map<String, Object> httpRequest  = new HashMap<>();
-	//		Map<String, Object> httpResponse = new HashMap<>();
-	//
-	//		http.put("request", httpRequest);
-	//
-	//		httpRequest.put("method", requestMethod);
-	//		httpRequest.put("uri", requestPath);
-	//		httpRequest.put("protocol", requestProtocol);
-	//		httpRequest.put("parameters", requestParameters);
-	//		httpRequest.put("body", requestBs);
-	//		httpRequest.put("headers", requestHeaderValuesMap);
-	//
-	//		http.put("response", httpResponse);
-	//		httpResponse.put("protocol", responseProtocol);
-	//		httpResponse.put("status", responseStatus);
-	//		httpResponse.put("message", responseMessage);
-	//		httpResponse.put("headers", responseHeaders);
-	//		httpResponse.put("body", responseBs);
-	//		return http;
-	//	}
-
-	/**
-	 * 
-	 * @param reqResps
-	 * @return
-	 * @throws Exception
-	 */
-	private ReqResp getBadRequest400(List<ReqResp> reqResps) throws Exception {
-		for (ReqResp reqResp : reqResps) {
-			FirstLineResp firstLineResp = new FirstLineResp(reqResp.response.firstLine);
-			if (firstLineResp.getStatus() == badRequestStatus)
-				return reqResp;
-		}
-		return null;
 	}
 
 	/**
@@ -1106,6 +1004,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							}
 						}
 					});
+
 					Thread dirWatcherThread = new Thread(dirWatcher);
 					dirWatcherThread.start();
 					directoryWatchersMap.put(dirPath, dirWatcher);
@@ -1113,7 +1012,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 				dirWatcher.addFile(filePath);
 			}
 		}
-		badRequest400 = getBadRequest400(allReqResps);
 	}
 
 	/**
