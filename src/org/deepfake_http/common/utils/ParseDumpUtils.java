@@ -103,12 +103,16 @@ public class ParseDumpUtils {
 			 */
 			boolean responseStatusOk;
 			try {
-				String statusStr = firstLineCandidateArr[1];
-				int    status;
-				if (isZeroStatus(statusStr))
+				int status;
+				if (firstLineCandidateArr.length == 1)
 					status = 0;
-				else
-					status = Integer.parseInt(statusStr);
+				else {
+					String statusStr = firstLineCandidateArr[1];
+					if (isZeroStatus(statusStr))
+						status = 0;
+					else
+						status = Integer.parseInt(statusStr);
+				}
 				responseStatusOk = status == 0 || (status >= 100 && status <= 599);
 			} catch (Exception e) {
 				responseStatusOk = false;
@@ -135,7 +139,7 @@ public class ParseDumpUtils {
 				inBody     = false;
 				inRequest  = true;
 				inResponse = false;
-			} else if (firstLineCandidate.length() >= MIN_RESPONSE_LENGTH && firstLineCandidate.startsWith(HTTP_1_1 + ' ') && responseStatusOk) {
+			} else if (firstLineCandidate.startsWith(HTTP_1_1) && responseStatusOk) {
 				if (inResponse)
 					throw new Exception("Response without request! Line: " + requestLineNo);
 

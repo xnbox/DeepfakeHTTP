@@ -93,7 +93,7 @@ FLAGS:
    --no-log-body           disable request/response body in console logging   
    --no-cors               disable CORS headers                               
    --no-etag               disable 'ETag' header                              
-   --no-powered-by         disable 'X-Powered-By' header                      
+   --no-server             disable 'Server' header                            
    --no-watch              disable watch files for changes                    
    --no-color              disable ANSI color output for --print-* commands   
    --no-pretty             disable prettyprint for --print-* commands         
@@ -367,6 +367,19 @@ X-Content-Source: data:image/gif;base64,R0lGODlhAQABAIAAAP...
 ```
 </td></tr>
 <tr></tr>
+        <tr><td valign="top"><code>X-Forward-To</code></td>
+    <td>
+    <p>Forward client request to specified origin. Acts as a forward proxy.</p>
+    <i>Example:</i>
+<br>
+
+```http
+HTTP/1.1
+X-Forward-To: http://example.com:8080
+```
+	</td>
+	</td></tr>
+<tr></tr>
         <tr><td valign="top"><code>X-CGI</code></td>
     <td>
     <p>CGI (Common Gateway Interface) program.</p>
@@ -374,7 +387,7 @@ X-Content-Source: data:image/gif;base64,R0lGODlhAQABAIAAAP...
 <br>
 
 ```http
-HTTP/1.1 000
+HTTP/1.1
 X-CGI: /home/john/myprog.sh param1 param2
 ```
 <img width="1000" height="0">

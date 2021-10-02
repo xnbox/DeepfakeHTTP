@@ -42,25 +42,30 @@ public class FirstLineResp {
 
 		firstLineRespStr = firstLineRespStr.trim().replace('\t', ' ');
 		int pos = firstLineRespStr.indexOf(' ');
-		protocol = firstLineRespStr.substring(0, pos);
+		if (pos == -1)
+			protocol = firstLineRespStr;
+		else
+			protocol = firstLineRespStr.substring(0, pos);
 		if (!ParseDumpUtils.HTTP_1_1.equals(protocol))
 			throw new Exception("Bad protocol");
-		int pos2 = firstLineRespStr.indexOf(' ', pos + 1);
-		if (pos2 == -1)
-			pos2 = firstLineRespStr.length();
-		try {
-			String statusStr = firstLineRespStr.substring(pos + 1, pos2);
-			if (ParseDumpUtils.isZeroStatus(statusStr))
-				status = 0;
-			else
-				status = Integer.parseInt(statusStr);
-		} catch (Exception e) {
-			throw new Exception("Bad HTTP status");
+		if (pos != -1) {
+			int pos2 = firstLineRespStr.indexOf(' ', pos + 1);
+			if (pos2 == -1)
+				pos2 = firstLineRespStr.length();
+			try {
+				String statusStr = firstLineRespStr.substring(pos + 1, pos2);
+				if (ParseDumpUtils.isZeroStatus(statusStr))
+					status = 0;
+				else
+					status = Integer.parseInt(statusStr);
+			} catch (Exception e) {
+				throw new Exception("Bad HTTP status");
+			}
+			if (pos2 != firstLineRespStr.length())
+				message = firstLineRespStr.substring(pos2 + 1).strip();
+			if (message != null && message.isEmpty())
+				message = null;
 		}
-		if (pos2 != firstLineRespStr.length())
-			message = firstLineRespStr.substring(pos2 + 1).strip();
-		if (message != null && message.isEmpty())
-			message = null;
 	}
 
 	/**

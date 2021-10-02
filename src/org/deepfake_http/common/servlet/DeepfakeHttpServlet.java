@@ -30,9 +30,12 @@ package org.deepfake_http.common.servlet;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -91,19 +94,19 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
-
+	public static final String  HTTP_HEADER_CONTENT_TYPE   = "Content-Type";
 	private static final String HTTP_HEADER_CONNECTION     = "Connection";
 	private static final String HTTP_HEADER_CONTENT_LENGTH = "Content-Length";
+	private static final String HTTP_HEADER_SERVER         = "Server";        // A name for the server
 
 	private static final String HTTP_HEADER_IF_NONE_MATCH = "If-None-Match";
 	private static final String HTTP_HEADER_E_TAG         = "ETag";
-	private static final String HTTP_HEADER_X_POWERED_BY  = "X-Powered-By"; // non-standard
 
 	/* internal, not sended with response  */
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_DELAY          = "X-Delay";          // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE = "X-Content-Source"; // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CGI            = "X-CGI";            // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO     = "X-Forward-To";     // response non-standard
 
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY     = "X-OpenAPI-Summary";    // request non-standard
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION = "X-OpenAPI-Description";// request non-standard
@@ -382,6 +385,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					String contentSource = null;
 					String cgi           = null;
+					String forwardOrigin = null;
 					int    requestDelay  = 0;
 					int    responseDelay = 0;
 
@@ -432,6 +436,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									contentSource = header.value;
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									cgi = header.value;
+								else if (INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									forwardOrigin = header.value;
 							}
 
 							/* headers from file */
@@ -550,13 +556,15 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							continue;
 						else if (INTERNAL_HTTP_HEADER_X_SERVER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
+						else if (INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+							continue;
 
 						responseHeaders.put(header.name, header.value);
 					}
 
 					if (!noPoweredBy)
-						if (!responseHeaders.containsKey(HTTP_HEADER_X_POWERED_BY))
-							responseHeaders.put(HTTP_HEADER_X_POWERED_BY, X_POWERED_BY_VALUE);
+						if (!responseHeaders.containsKey(HTTP_HEADER_SERVER))
+							responseHeaders.put(HTTP_HEADER_SERVER, X_POWERED_BY_VALUE);
 
 					if (requestDelay != 0)
 						Thread.sleep(requestDelay);
@@ -617,6 +625,66 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							}
 							bs = new byte[outBs.length - (pos + pos2 + 2)];
 							System.arraycopy(outBs, pos + pos2 + 2, bs, 0, bs.length);
+						} else if (forwardOrigin != null) {
+							String url = forwardOrigin + providedPath;
+							if (!providedQueryString.isEmpty())
+								url += '?' + providedQueryString;
+							URL               obj = new URL(url);
+							HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+							con.setRequestMethod(method);
+							for (Entry<String, List<String>> entry : providedHeaderValuesMap.entrySet()) {
+								String        key    = entry.getKey();
+								List<String>  values = entry.getValue();
+								boolean       first  = true;
+								StringBuilder valSb  = new StringBuilder();
+								for (String value : values) {
+									if (first)
+										first = false;
+									else
+										valSb.append(", ");
+									valSb.append(value);
+								}
+								try {
+									con.setRequestProperty(key, valSb.toString());
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+
+							if (providedBodyBs.length != 0) {
+								con.setDoOutput(true);
+								try (OutputStream os = con.getOutputStream()) {
+									os.write(providedBodyBs);
+									os.flush();
+								}
+							}
+							status = con.getResponseCode();
+							for (Entry<String, List<String>> entry : con.getHeaderFields().entrySet()) {
+								String key = entry.getKey();
+								if (key == null)
+									continue;
+								List<String> values = entry.getValue();
+
+								boolean       first = true;
+								StringBuilder valSb = new StringBuilder();
+								for (String value : values) {
+									if (first)
+										first = false;
+									else
+										valSb.append(", ");
+									valSb.append(value);
+								}
+
+								if (!responseHeaders.containsKey(key))
+									responseHeaders.put(key, valSb.toString());
+							}
+
+							try (InputStream is = con.getInputStream()) {
+								bs = is.readAllBytes();
+							} catch (FileNotFoundException e) {
+								// Ignore 404
+								bs = new byte[0];
+							}
 						} else {
 							String body = reqResp.response.body.toString();
 							bs = body.getBytes(StandardCharsets.UTF_8);

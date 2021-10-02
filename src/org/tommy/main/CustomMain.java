@@ -132,7 +132,7 @@ public class CustomMain {
 		sb.append("    --no-log-body           disable request/response body in console logging   \n");
 		sb.append("    --no-cors               disable CORS headers                               \n");
 		sb.append("    --no-etag               disable 'ETag' header                              \n");
-		sb.append("    --no-powered-by         disable 'X-Powered-By' header                      \n");
+		sb.append("    --no-server             disable 'Server' header                            \n");
 		sb.append("    --no-watch              disable watch files for changes                    \n");
 		sb.append("    --no-color              disable ANSI color output for --print-* commands   \n");
 		sb.append("    --no-pretty             disable prettyprint for --print-* commands         \n");
