@@ -377,7 +377,7 @@ X-Content-Source: data:image/gif;base64,R0lGODlhAQABAIAAAP...
 HTTP/1.1
 X-Forward-To: http://example.com:8080
 ```
-	</td></tr>
+</td></tr>
 <tr></tr>
         <tr><td valign="top"><code>X-CGI</code></td>
     <td>
