@@ -13,9 +13,7 @@ Your 100% static dynamic backend</h1>
 <table>
 <tr>
 <td>
-<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/image.png" width="290">
-</td>
-<td>
+<img align="left" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/image1.png" width="190">
 <h3>What are people using it for?</h3>
 <ul>
     <li>Creating the product PoC or demo before even starting out with the backend</li>
