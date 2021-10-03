@@ -44,6 +44,9 @@ import org.deepfake_http.common.HttpMethod;
 import org.deepfake_http.common.ReqResp;
 import org.deepfake_http.common.servlet.DeepfakeHttpServlet;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class OpenApiUtils {
 	/**
 	 * Serialize requests/responses to OpenAPI 
@@ -304,9 +307,10 @@ public class OpenApiUtils {
 				if (requestContentType != null)
 					mapOpenApiRequestBodyContent.put(requestContentType, mapOpenApiRequestBodyContentMime);
 
-				if (requestContentType.startsWith("application/json"))
-					objBody = JacksonUtils.parseJsonYamlToMap(requestBody);
-				else
+				if (requestContentType.startsWith("application/json")) {
+					JsonNode jsonNode = JacksonUtils.parseJsonYamlToMap(requestBody);
+					objBody = new ObjectMapper().treeToValue(jsonNode, Object.class);
+				} else
 					objBody = requestBody;
 				mapOpenApiRequestBodyContentMime.put("example", objBody);
 				mapOpenApiRequestBodyContentMime.put("schema", new HashMap<>(0));

@@ -46,6 +46,9 @@ import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.deepfake_http.common.utils.SystemProperties;
 import org.deepfake_http.common.utils.UrlUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class CustomMain {
 	/**
 	 * Custom main method (called for emmbedded web apps)
@@ -182,7 +185,8 @@ public class CustomMain {
 		dump = dump.stripLeading();
 		List<ReqResp> reqResps;
 		if (dump.startsWith("{") || dump.startsWith("---")) {
-			Map<String, Object> openApiMap = (Map<String, Object>) JacksonUtils.parseJsonYamlToMap(dump);
+			JsonNode openApiJsonNode = JacksonUtils.parseJsonYamlToMap(dump);
+			Map<String, Object> openApiMap = (Map<String, Object>) new ObjectMapper().treeToValue(openApiJsonNode, Map.class);
 			reqResps = OpenApiUtils.openApiMapToListReqResps(openApiMap);
 		} else {
 			List<String> dumpLines = ParseDumpUtils.readLines(dump);

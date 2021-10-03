@@ -41,12 +41,16 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TSFBuilder;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.csv.CsvFactory;
 import com.fasterxml.jackson.dataformat.csv.CsvFactoryBuilder;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.skjolber.jackson.jsh.AnsiSyntaxHighlight;
 import com.github.skjolber.jackson.jsh.DefaultSyntaxHighlighter;
 import com.github.skjolber.jackson.jsh.SyntaxHighlighter;
@@ -129,10 +133,10 @@ public class JacksonUtils {
 	 * @return
 	 * @throws JsonProcessingException
 	 */
-	public static Object parseJsonYamlToMap(String s) throws JsonProcessingException {
+	public static JsonNode parseJsonYamlToMap(String s) throws JsonProcessingException {
 		s = s.strip();
 		TSFBuilder tsfBuilder;
-		if (s.startsWith("{")) {
+		if (s.startsWith("{") || s.startsWith("[")) {
 			tsfBuilder = JsonFactory.builder(); //
 			tsfBuilder //
 					.enable(JsonReadFeature.ALLOW_TRAILING_COMMA) //
@@ -140,7 +144,7 @@ public class JacksonUtils {
 					.enable(JsonReadFeature.ALLOW_MISSING_VALUES) //
 					.enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES) //
 					.enable(JsonReadFeature.ALLOW_SINGLE_QUOTES); //
-			return parseJsonYaml(tsfBuilder.build(), s, Object.class);
+			return parseJsonYamlToJsonNode(tsfBuilder.build(), s);
 		} else if (s.startsWith("---")) {
 			tsfBuilder = YAMLFactory.builder(); //
 			tsfBuilder //
@@ -149,7 +153,7 @@ public class JacksonUtils {
 					.enable(JsonReadFeature.ALLOW_MISSING_VALUES) //
 					.enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES) //
 					.enable(JsonReadFeature.ALLOW_SINGLE_QUOTES); //
-			return parseJsonYaml(tsfBuilder.build(), s, Object.class);
+			return parseJsonYamlToJsonNode(tsfBuilder.build(), s);
 		} else {
 			tsfBuilder = CsvFactory.builder(); //
 			((CsvFactoryBuilder) tsfBuilder) //
@@ -159,9 +163,11 @@ public class JacksonUtils {
 					.enable(CsvParser.Feature.EMPTY_STRING_AS_NULL) //
 					.enable(CsvParser.Feature.INSERT_NULLS_FOR_MISSING_COLUMNS) //
 					.enable(CsvParser.Feature.SKIP_EMPTY_LINES); //
-			List<List<String>> csv = parseJsonYaml(tsfBuilder.build(), s, List.class);
+			JsonNode           jsonNodeCsv = parseJsonYamlToJsonNode(tsfBuilder.build(), s);
+			ObjectMapper       om          = new ObjectMapper();
+			List<List<String>> csv         = om.treeToValue(jsonNodeCsv, List.class);
 			if (csv.isEmpty())
-				return new LinkedHashMap<>(0);
+				return parseJsonYamlToJsonNode(tsfBuilder.build(), "{}");
 			List<String>              headers = csv.get(0);
 			List<Map<String, Object>> list    = new ArrayList(csv.size() - 1);
 			for (int r = 1; r < csv.size(); r++) {
@@ -174,7 +180,7 @@ public class JacksonUtils {
 				}
 				list.add(rowMap);
 			}
-			return list;
+			return om.valueToTree(list);
 		}
 	}
 
@@ -185,11 +191,26 @@ public class JacksonUtils {
 	 * @return
 	 * @throws JsonProcessingException
 	 */
-	public static <T> T parseJsonYaml(JsonFactory jsonFactory, String s, Class<T> t) throws JsonProcessingException {
+	public static JsonNode parseJsonYamlToJsonNode(JsonFactory jsonFactory, String s) throws JsonProcessingException {
 		ObjectMapper om = new ObjectMapper(jsonFactory);
 		om.configure(Feature.ALLOW_COMMENTS, true);
 		om.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 		om.configure(Feature.ALLOW_SINGLE_QUOTES, true);
-		return om.readValue(s, t);
+		return om.readTree(s);
+	}
+
+	/**
+	 * 
+	 * @param jsonNode
+	 * @param jsonPatch
+	 * @return
+	 * @throws JsonMappingException
+	 * @throws JsonProcessingException
+	 * @throws JsonPatchException
+	 */
+	public static JsonNode patch(JsonNode jsonNode, String jsonPatch) throws JsonMappingException, JsonProcessingException, JsonPatchException {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonPatch    patch  = mapper.readValue(jsonPatch, JsonPatch.class);
+		return patch.apply(jsonNode);
 	}
 }

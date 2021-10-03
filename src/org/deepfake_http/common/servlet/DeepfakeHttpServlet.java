@@ -74,6 +74,7 @@ import org.deepfake_http.common.utils.TemplateUtils;
 import org.deepfake_http.common.utils.UrlUtils;
 import org.tommy.main.CustomMain;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import freemarker.template.Configuration;
@@ -107,6 +108,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE = "X-Content-Source"; // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CGI            = "X-CGI";            // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO     = "X-Forward-To";     // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_UPDATE         = "X-Update";         // response non-standard
 
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY     = "X-OpenAPI-Summary";    // request non-standard
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION = "X-OpenAPI-Description";// request non-standard
@@ -143,6 +145,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private Map<Path /* dirPath */, DirectoryWatcher> directoryWatchersMap = new HashMap<>();
 
 	private Map<String, Object> dataMap;
+	private JsonNode            dataJsonNode;
 
 	private List<ReqResp> allReqResps;
 
@@ -379,15 +382,19 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					Map<String, List<String>> providedParams = new LinkedHashMap<>();
 
-					String requestHeaderContentType = request.getHeader(HTTP_HEADER_CONTENT_TYPE);
-					if (requestHeaderContentType != null && requestHeaderContentType.startsWith("application/x-www-form-urlencoded"))
-						MatchUtils.parseQuery(providedBody, providedParams);
-
-					String contentSource = null;
 					String cgi           = null;
 					String forwardOrigin = null;
-					int    requestDelay  = 0;
-					int    responseDelay = 0;
+
+					String requestContentSource  = null;
+					String responseContentSource = null;
+
+					int requestDelay  = 0;
+					int responseDelay = 0;
+
+					String requestHeaderContentType = request.getHeader(HTTP_HEADER_CONTENT_TYPE);
+
+					if (requestHeaderContentType != null && requestHeaderContentType.startsWith("application/x-www-form-urlencoded"))
+						MatchUtils.parseQuery(providedBody, providedParams);
 
 					/* search for request-reponse pair */
 					Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();
@@ -411,6 +418,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						pathOk && //
 						queryStringOk //
 						) {
+							/* Before we can use headers information, we need process header templates */
 							Map<String, Object> tmpDataMap = new LinkedHashMap<>(dataMap);
 							Map<String, Object> requestMap = new LinkedHashMap<>();
 							requestMap.put("parameters", providedParams);
@@ -419,13 +427,15 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							requestMap.put("query", providedQueryString);
 							tmpDataMap.put("request", requestMap);
 
-							processResp(!noTemplate, freeMarkerConfiguration, crr, tmpDataMap);
+							processRespHeaders(!noTemplate, freeMarkerConfiguration, crr, tmpDataMap);
 
 							for (String headerStr : crr.request.headers) {
 								Header header              = new Header(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
-								if (lowerCaseHeaderName.equals(INTERNAL_HTTP_HEADER_X_SERVER_DELAY.toLowerCase(Locale.ENGLISH)))
+								if (INTERNAL_HTTP_HEADER_X_SERVER_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									requestDelay = Integer.parseInt(header.value);
+								else if (INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									requestContentSource = header.value;
 							}
 							for (String headerStr : crr.response.headers) {
 								Header header              = new Header(headerStr);
@@ -433,12 +443,28 @@ public class DeepfakeHttpServlet extends HttpServlet {
 								if (INTERNAL_HTTP_HEADER_X_SERVER_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									responseDelay = Integer.parseInt(header.value);
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
-									contentSource = header.value;
+									responseContentSource = header.value;
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									cgi = header.value;
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									forwardOrigin = header.value;
+								else if (INTERNAL_HTTP_HEADER_X_SERVER_UPDATE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName)) {
+									/* update data */
+									dataJsonNode = JacksonUtils.patch(dataJsonNode, header.value);
+									dataMap      = new ObjectMapper().treeToValue(dataJsonNode, Map.class);
+								}
 							}
+
+							/* After oricessing of header templates, we can process body template with updated data. */
+							tmpDataMap = new LinkedHashMap<>(dataMap);
+							requestMap = new LinkedHashMap<>();
+							requestMap.put("parameters", providedParams);
+							requestMap.put("method", method);
+							requestMap.put("path", providedPath);
+							requestMap.put("query", providedQueryString);
+							tmpDataMap.put("request", requestMap);
+
+							processRespBody(!noTemplate, freeMarkerConfiguration, crr, tmpDataMap);
 
 							/* headers from file */
 							Map<String, List<String>> headerValuesMap = new LinkedHashMap<>();
@@ -453,6 +479,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 								if (INTERNAL_HTTP_HEADER_X_OPENAPI_TAGS.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									continue;
 								if (INTERNAL_HTTP_HEADER_X_SERVER_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									continue;
+								if (INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									continue;
 
 								List<String> headerValuesList = headerValuesMap.get(lowerCaseHeaderName);
@@ -509,7 +537,21 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									break;
 							}
 							if (ok) {
-								String templateBody = crr.request.body.toString().strip();
+								String templateBody;
+								if (requestContentSource == null)
+									templateBody = crr.request.body.toString().strip();
+								else {
+									byte[] bs;
+									if (responseContentSource.startsWith(IProtocol.FILE) || responseContentSource.startsWith(IProtocol.HTTP) || responseContentSource.startsWith(IProtocol.HTTPS)) {
+										String[] contentTypeArr = new String[1];
+										bs = UrlUtils.getUrlContent(responseContentSource, contentTypeArr);
+									} else if (responseContentSource.startsWith(IProtocol.DATA)) {
+										String[] contentTypeArr = new String[1];
+										bs = UrlUtils.getDataUrlContent(responseContentSource, contentTypeArr);
+									} else
+										throw new IllegalArgumentException(MessageFormat.format("Bad {0} value: {1}", INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE, responseContentSource));
+									templateBody = new String(bs, StandardCharsets.UTF_8);
+								}
 								if (templateBody.isEmpty()) {
 									reqResp = crr;
 									break;
@@ -558,6 +600,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							continue;
 						else if (INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
+						else if (INTERNAL_HTTP_HEADER_X_SERVER_UPDATE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+							continue;
 
 						responseHeaders.put(header.name, header.value);
 					}
@@ -590,19 +634,19 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					if (status == badRequestStatus)
 						bs = new byte[0];
 					else {
-						if (contentSource != null) {
-							if (contentSource.startsWith(IProtocol.FILE) || contentSource.startsWith(IProtocol.HTTP) || contentSource.startsWith(IProtocol.HTTPS)) {
+						if (responseContentSource != null) {
+							if (responseContentSource.startsWith(IProtocol.FILE) || responseContentSource.startsWith(IProtocol.HTTP) || responseContentSource.startsWith(IProtocol.HTTPS)) {
 								String[] contentTypeArr = new String[1];
-								bs = UrlUtils.getUrlContent(contentSource, contentTypeArr);
+								bs = UrlUtils.getUrlContent(responseContentSource, contentTypeArr);
 								if (contentType == null)
 									contentType = contentTypeArr[0];
-							} else if (contentSource.startsWith(IProtocol.DATA)) {
+							} else if (responseContentSource.startsWith(IProtocol.DATA)) {
 								String[] contentTypeArr = new String[1];
-								bs = UrlUtils.getDataUrlContent(contentSource, contentTypeArr);
+								bs = UrlUtils.getDataUrlContent(responseContentSource, contentTypeArr);
 								if (contentType == null)
 									contentType = contentTypeArr[0];
 							} else
-								throw new IllegalArgumentException(MessageFormat.format("Bad {0} value: {1}", INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE, contentSource));
+								throw new IllegalArgumentException(MessageFormat.format("Bad {0} value: {1}", INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE, responseContentSource));
 						} else if (cgi != null) {
 							byte[]        requestBs        = createRequestBytes(providedFirstLineStr, providedHeaderValuesMap, providedBodyBs);
 							byte[]        outBs            = runCgi(cgi, requestBs);
@@ -1009,10 +1053,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			int    pos          = file.indexOf('.');
 			if (pos != -1)
 				file = file.substring(0, pos);
-			String dataJson          = UrlUtils.fileOrUrlToText(dataFilePath.toFile().getAbsolutePath());
-			Object currentDataObject = JacksonUtils.parseJsonYamlToMap(dataJson);
+			String   dataJson          = UrlUtils.fileOrUrlToText(dataFilePath.toFile().getAbsolutePath());
+			JsonNode currentJsonNode   = JacksonUtils.parseJsonYamlToMap(dataJson);
+			Object   currentDataObject = new ObjectMapper().treeToValue(currentJsonNode, Object.class);
 			map.put(file, currentDataObject);
 		}
+		dataJsonNode = new ObjectMapper().valueToTree(dataMap);
 
 		allReqResps = CustomMain.getAllReqResp(logger, dumps);
 
@@ -1136,13 +1182,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		reqResp.request.body = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, reqResp.request.body, dataMap);
 	}
 
-	private static void processResp(boolean processTemplate, Configuration freeMarkerConfiguration, ReqResp reqResp, Map<String, Object> dataMap) throws IOException, TemplateException {
+	private static void processRespHeaders(boolean processTemplate, Configuration freeMarkerConfiguration, ReqResp reqResp, Map<String, Object> dataMap) throws IOException, TemplateException {
 		reqResp.response.firstLine = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, reqResp.response.firstLine, dataMap);
 		for (int i = 0; i < reqResp.response.headers.size(); i++) {
 			String headerStr = reqResp.response.headers.get(i);
 			headerStr = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, headerStr, dataMap);
 			reqResp.response.headers.set(i, headerStr);
 		}
+	}
+
+	private static void processRespBody(boolean processTemplate, Configuration freeMarkerConfiguration, ReqResp reqResp, Map<String, Object> dataMap) throws IOException, TemplateException {
 		reqResp.response.body = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, reqResp.response.body, dataMap);
 	}
 
