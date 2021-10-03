@@ -16,5 +16,9 @@
 	<classpathentry kind="lib" path="lib/snakeyaml-1.27.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-syntax-highlight-1.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-dataformat-csv-2.12.5.jar"/>
+	<classpathentry kind="lib" path="lib/json-patch-1.13.jar"/>
+	<classpathentry kind="lib" path="lib/btf-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/msg-simple-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-coreutils-2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
