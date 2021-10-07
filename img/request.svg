@@ -4,7 +4,7 @@
      xmlns:xlink="http://www.w3.org/1999/xlink"
      width="150" height="20"
 >
-  <text font-size="20" x="0" y="20">
+  <text font-family="monospace" font-size="20" x="0" y="20">
     <tspan fill="darkcyan">REQUEST</tspan>
   </text>
 </svg>
