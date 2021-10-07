@@ -4,7 +4,7 @@
      xmlns:xlink="http://www.w3.org/1999/xlink"
      width="100" height="20" style="fill:rgb(0,0,255)"
 >
-  <text font-size="14" x="0" y="14">
+  <text font-size="16" x="0" y="16">
     <tspan fill="darkmagenta">RESPONSE</tspan>
   </text>
 </svg>
