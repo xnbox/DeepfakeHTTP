@@ -36,19 +36,16 @@ import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.ScriptableObject;
 
 public class TemplateUtils {
-	//private static final String RANDOM_JS = "function random(obj){if (Array.isArray(obj)) return obj[Math.floor(Math.random()*obj.length)];let keys=Object.keys(obj);return obj[keys[Math.floor(Math.random()*keys.length)]];};";
 	private static final String RANDOM_JS = "function random(obj){let keys=Object.keys(obj);return obj[keys[Math.floor(Math.random()*keys.length)]];};";
-	//	private static final String RANDOM_JS = "function random(obj){return obj[Math.floor(Math.random()*obj.length)]}";
 
 	/**
 	 * 
-	 * @param processTemplate
-	 * @param freeMarkerConfiguration
+	 * @param ctx
+	 * @param scope
 	 * @param js
 	 * @param dataMap
 	 * @return
 	 * @throws IOException
-	 * @throws TemplateException
 	 */
 	private static String eval(Context ctx, ScriptableObject scope, String js, Object dataMap) throws IOException {
 		try {
@@ -68,6 +65,11 @@ public class TemplateUtils {
 		return js;
 	}
 
+	/**
+	 * 
+	 * @param ctx
+	 * @return
+	 */
 	public static ScriptableObject createScope(Context ctx) {
 		ScriptableObject scope = new ImporterTopLevel(ctx);
 		scope = (ScriptableObject) ctx.initStandardObjects(scope);
@@ -87,9 +89,6 @@ public class TemplateUtils {
 		ctx.setLanguageVersion(Context.VERSION_1_8);
 		ctx.setOptimizationLevel(9);
 		ctx.getWrapFactory().setJavaPrimitiveWrap(true);
-//		ScriptableObject scope = new ImporterTopLevel(ctx);
-//		scope = (ScriptableObject) ctx.initStandardObjects(scope);
-//		ctx.evaluateString(scope, RANDOM_JS, "", 0, null);
 
 		ScriptableObject.putProperty(scope, "tmp", Context.javaToJS(dataMap.get("tmp"), scope));
 		ScriptableObject.putProperty(scope, "data", Context.javaToJS(dataMap.get("data"), scope));
@@ -122,8 +121,6 @@ public class TemplateUtils {
 		ctx.setLanguageVersion(Context.VERSION_1_8);
 		ctx.setOptimizationLevel(9);
 		ctx.getWrapFactory().setJavaPrimitiveWrap(true);
-//		ScriptableObject scope = new ImporterTopLevel(ctx);
-//		scope  = (ScriptableObject) ctx.initStandardObjects(scope);
 		script = "(function() {let map=" + JacksonUtils.stringifyToJsonYaml(dataMap, JacksonUtils.FORMAT_JSON, false, false) + ";let data=map.data;let request=map.request;let tmp=map.tmp;" + script + ";return [JSON.stringify(data, null, 0),JSON.stringify(tmp, null, 0)];})()";
 		List<String> dataAndTmpJsons = (List<String>) ctx.evaluateString(scope, script, "", 0, null);
 		Context.exit();
