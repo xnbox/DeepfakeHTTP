@@ -27,8 +27,6 @@ E-Mail: xnbox.team@outlook.com
 
 package org.tommy.main;
 
-import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -189,8 +187,8 @@ public class CustomMain {
 		dump = dump.stripLeading();
 		List<ReqResp> reqResps;
 		if (dump.startsWith("{") || dump.startsWith("---")) {
-			JsonNode openApiJsonNode = JacksonUtils.parseJsonYamlToMap(dump);
-			Map<String, Object> openApiMap = (Map<String, Object>) new ObjectMapper().treeToValue(openApiJsonNode, Map.class);
+			JsonNode            openApiJsonNode = JacksonUtils.parseJsonYamlToMap(dump);
+			Map<String, Object> openApiMap      = (Map<String, Object>) new ObjectMapper().treeToValue(openApiJsonNode, Map.class);
 			reqResps = OpenApiUtils.openApiMapToListReqResps(openApiMap);
 		} else {
 			List<String> dumpLines = ParseDumpUtils.readLines(dump);
