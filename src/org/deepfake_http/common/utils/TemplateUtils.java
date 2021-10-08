@@ -28,37 +28,106 @@ E-Mail: xnbox.team@outlook.com
 package org.deepfake_http.common.utils;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.util.List;
 import java.util.Map;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.ScriptableObject;
 
 public class TemplateUtils {
-	private static final String TEMPLATE_RANDOM_FUNCTION_NAME = "random";
+	//private static final String RANDOM_JS = "function random(obj){if (Array.isArray(obj)) return obj[Math.floor(Math.random()*obj.length)];let keys=Object.keys(obj);return obj[keys[Math.floor(Math.random()*keys.length)]];};";
+	private static final String RANDOM_JS = "function random(obj){let keys=Object.keys(obj);return obj[keys[Math.floor(Math.random()*keys.length)]];};";
+	//	private static final String RANDOM_JS = "function random(obj){return obj[Math.floor(Math.random()*obj.length)]}";
 
 	/**
 	 * 
 	 * @param processTemplate
 	 * @param freeMarkerConfiguration
-	 * @param s
+	 * @param js
 	 * @param dataMap
 	 * @return
 	 * @throws IOException
 	 * @throws TemplateException
 	 */
-	public static String processTemplate(boolean processTemplate, Configuration freeMarkerConfiguration, String s, Map<String, Object> dataMap) throws IOException, TemplateException {
-		if (processTemplate) {
-			dataMap.put(TEMPLATE_RANDOM_FUNCTION_NAME, new RandomMethod());
-			Template freeMarkerTemplate = new Template("", new StringReader(s), freeMarkerConfiguration);
-			try (StringWriter writer = new StringWriter()) {
-				freeMarkerTemplate.process(dataMap, writer);
-				return writer.toString();
-			}
+	private static String eval(Context ctx, ScriptableObject scope, String js, Object dataMap) throws IOException {
+		try {
+			Object obj  = ctx.evaluateString(scope, "r=" + js, "", 0, null);
+			Object jobj = Context.jsToJava(obj, Object.class);
+			if (jobj instanceof String) {
+				js = (String) jobj;
+			} else if (jobj instanceof Number) {
+				js = jobj.toString();
+			} else if (jobj instanceof Boolean) {
+				js = jobj.toString();
+			} else
+				js = JacksonUtils.stringifyToJsonYaml(jobj, JacksonUtils.FORMAT_JSON, false, false);
+		} catch (NullPointerException e) {
+			js = "null";
 		}
-		return s;
+		return js;
+	}
+
+	public static ScriptableObject createScope(Context ctx) {
+		ScriptableObject scope = new ImporterTopLevel(ctx);
+		scope = (ScriptableObject) ctx.initStandardObjects(scope);
+		ctx.evaluateString(scope, RANDOM_JS, "", 0, null);
+		return scope;
+	}
+
+	/**
+	 * 
+	 * @param template
+	 * @param dataMap
+	 * @return
+	 * @throws IOException
+	 */
+	public static String processTemplate(ScriptableObject scope, String template, Map<String, Object> dataMap) throws IOException {
+		Context ctx = Context.enter();
+		ctx.setLanguageVersion(Context.VERSION_1_8);
+		ctx.setOptimizationLevel(9);
+		ctx.getWrapFactory().setJavaPrimitiveWrap(true);
+//		ScriptableObject scope = new ImporterTopLevel(ctx);
+//		scope = (ScriptableObject) ctx.initStandardObjects(scope);
+//		ctx.evaluateString(scope, RANDOM_JS, "", 0, null);
+
+		ScriptableObject.putProperty(scope, "tmp", Context.javaToJS(dataMap.get("tmp"), scope));
+		ScriptableObject.putProperty(scope, "data", Context.javaToJS(dataMap.get("data"), scope));
+		ScriptableObject.putProperty(scope, "request", Context.javaToJS(dataMap.get("request"), scope));
+
+		while (true) {
+			int pos = template.indexOf("${"); // js begin                                      
+			if (pos == -1)
+				break;
+			String rest = template.substring(pos + 2);
+			int    pos2 = rest.indexOf("}", pos);     // js end                     
+			String js   = rest.substring(0, pos2);
+
+			String replacer = eval(ctx, scope, js, dataMap);
+			template = template.substring(0, pos) + replacer + template.substring(pos + js.length() + 3);
+		}
+		Context.exit();
+		return template;
+	}
+
+	/**
+	 * 
+	 * @param script
+	 * @param dataMap
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<String> processData(ScriptableObject scope, String script, Map<String, Object> dataMap) throws IOException {
+		Context ctx = Context.enter();
+		ctx.setLanguageVersion(Context.VERSION_1_8);
+		ctx.setOptimizationLevel(9);
+		ctx.getWrapFactory().setJavaPrimitiveWrap(true);
+//		ScriptableObject scope = new ImporterTopLevel(ctx);
+//		scope  = (ScriptableObject) ctx.initStandardObjects(scope);
+		script = "(function() {let map=" + JacksonUtils.stringifyToJsonYaml(dataMap, JacksonUtils.FORMAT_JSON, false, false) + ";let data=map.data;let request=map.request;let tmp=map.tmp;" + script + ";return [JSON.stringify(data, null, 0),JSON.stringify(tmp, null, 0)];})()";
+		List<String> dataAndTmpJsons = (List<String>) ctx.evaluateString(scope, script, "", 0, null);
+		Context.exit();
+		return dataAndTmpJsons;
 	}
 
 }

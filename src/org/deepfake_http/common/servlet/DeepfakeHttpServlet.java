@@ -39,9 +39,12 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -72,14 +75,13 @@ import org.deepfake_http.common.utils.ParseDumpUtils;
 import org.deepfake_http.common.utils.ResourceUtils;
 import org.deepfake_http.common.utils.TemplateUtils;
 import org.deepfake_http.common.utils.UrlUtils;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ScriptableObject;
 import org.tommy.main.CustomMain;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import freemarker.template.Configuration;
-import freemarker.template.TemplateException;
-import freemarker.template.TemplateExceptionHandler;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
 import jakarta.servlet.AsyncListener;
@@ -107,8 +109,9 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_DELAY          = "X-Delay";          // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE = "X-Content-Source"; // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CGI            = "X-CGI";            // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_SYSTEM_HANDLER = "X-System-Handler"; // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO     = "X-Forward-To";     // response non-standard
-	private static final String INTERNAL_HTTP_HEADER_X_SERVER_UPDATE         = "X-Update";         // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_MODIFY_DATA    = "X-Modify-Data";    // response non-standard
 
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY     = "X-OpenAPI-Summary";    // request non-standard
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION = "X-OpenAPI-Description";// request non-standard
@@ -130,26 +133,34 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noColor;
 	private boolean noTemplate;
 	private boolean noWildcard;
+	private boolean noBak;
 	private boolean strictJson;
 	private int     badRequestStatus;
 	private int     maxLogBody;
 
-	private String                       collectFile;
-	private String                       openApiPath;
-	private String                       openApiTitle;
-	private List<String>                 dataFiles;
-	private List<String /* dump file */> dumps;
+	private String                             collectFile;
+	private String                             openApiPath;
+	private String                             openApiTitle;
+	private String                             dataFile;
+	private String                             dbExportFile;
+	private String                             dbPath;
+	private List<String /* dump file */>       dumps;
+	private List<String /* JavaScript file */> jss;
 
 	private Logger logger;
 
 	private Map<Path /* dirPath */, DirectoryWatcher> directoryWatchersMap = new HashMap<>();
 
-	private Map<String, Object> dataMap;
-	private JsonNode            dataJsonNode;
+	private Object   dataMap;
+	private JsonNode dataJsonNode;
+	private String   dataJson;
 
 	private List<ReqResp> allReqResps;
 
-	private Configuration freeMarkerConfiguration;
+	private Path catalinaBase;
+	private Path catalinaHome;
+
+	private ScriptableObject scope;
 
 	/**
 	 * Called by the servlet container to indicate to a servlet that the 
@@ -179,9 +190,15 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			/* get custom command-line args */
 			String[] args = (String[]) ctx.lookup("java:comp/env/tommy/args");
 
+			catalinaBase = (Path) ctx.lookup("java:comp/env/tommy/catalina_base");
+			catalinaHome = (Path) ctx.lookup("java:comp/env/tommy/catalina_home");
+
 			Map<String, Object> paramMap = ParseCommandLineUtils.parseCommandLineArgs(null, args);
 			dumps            = (List<String>) paramMap.get(ParseCommandLineUtils.ARGS_DUMP);
-			dataFiles        = (List<String>) paramMap.get(ParseCommandLineUtils.ARGS_DATA);
+			jss              = (List<String>) paramMap.get(ParseCommandLineUtils.ARGS_JS);
+			dataFile         = (String) paramMap.get(ParseCommandLineUtils.ARGS_DB);
+			dbExportFile     = (String) paramMap.get(ParseCommandLineUtils.ARGS_DB_EXPORT);
+			dbPath           = (String) paramMap.get(ParseCommandLineUtils.ARGS_DB_PATH);
 			noWatch          = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_WATCH);
 			noEtag           = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_ETAG);
 			noLog            = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG);
@@ -192,6 +209,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			noColor          = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_COLOR);
 			noTemplate       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_TEMPLATE);
 			noWildcard       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_WILDCARD);
+			noBak            = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_BAK);
 			strictJson       = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_STRICT_JSON);
 			collectFile      = (String) paramMap.get(ParseCommandLineUtils.ARGS_COLLECT);
 			openApiPath      = (String) paramMap.get(ParseCommandLineUtils.ARGS_OPENAPI_PATH);
@@ -204,26 +222,39 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 			boolean activateDirWatchers = !noWatch;
 
-			logger.log(Level.INFO, "{0} dump file(s) loaded.", dumps.size());
-			logger.log(Level.INFO, "{0} data file(s) loaded.", dataFiles.size());
-
 			reload(activateDirWatchers);
+
+			logger.log(Level.INFO, "{0} dump file(s) loaded.", dumps.size());
+			logger.log(Level.INFO, "{0} JavaScript file(s) loaded.", jss.size());
+			logger.log(Level.INFO, "Data file loaded.");
+
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 
-		freeMarkerConfiguration = new Configuration(Configuration.VERSION_2_3_31);
-		freeMarkerConfiguration.setDefaultEncoding("UTF-8");
-		freeMarkerConfiguration.setNumberFormat("computer");
-		freeMarkerConfiguration.setBooleanFormat("c");
-		freeMarkerConfiguration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-		freeMarkerConfiguration.setLogTemplateExceptions(false);
-		freeMarkerConfiguration.setWrapUncheckedExceptions(true);
-		freeMarkerConfiguration.setFallbackOnNullLoopVariable(false);
-
 		System.setProperty("java.util.logging.SimpleFormatter.format", "%5$s%6$s%n");
 		SimpleFormatter formatter = new SimpleFormatter();
 		logger.getParent().getHandlers()[0].setFormatter(formatter);
+
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				try {
+					Path dbExportFilePath = new File(dbExportFile).getAbsoluteFile().toPath();
+					if (Files.exists(dbExportFilePath))
+						if (!noBak)
+							Files.move(dbExportFilePath, Paths.get(dbExportFilePath.toString() + ".bak"), StandardCopyOption.REPLACE_EXISTING);
+					Files.writeString(dbExportFilePath, dataJson);
+
+					deleteDir(catalinaBase);
+					deleteDir(catalinaHome);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				logger.log(Level.INFO, "DeepfakeHTTP shutdown");
+			}
+		});
+
 		logger.log(Level.INFO, "DeepfakeHTTP started.");
 	}
 
@@ -243,7 +274,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 */
 	@Override
 	public void destroy() {
-		logger.log(Level.INFO, "Servlet destroy() method called by container.");
+		logger.log(Level.INFO, "DeepfakeHTTP shutdown.");
 	}
 
 	@Override
@@ -368,12 +399,18 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						providedPath = providedPath.substring(openApiPath.length());
 						hostOpenApiUi(asyncContext, response, providedPath);
 						return;
+					} else if (providedPath.equals(dbPath) || providedPath.startsWith(dbPath + '/')) {
+						hostDb(asyncContext, response);
+						return;
 					}
 
 					String providedQueryString = request.getQueryString();
 					if (providedQueryString == null)
 						providedQueryString = "";
 					String protocol = request.getProtocol();
+
+					int                 port    = req.getServerPort();
+					Enumeration<String> headers = req.getHeaderNames();
 
 					String providedFirstLineStr = method + ' ' + providedPath + (providedQueryString.isEmpty() ? "" : "?" + providedQueryString) + ' ' + protocol;
 
@@ -383,6 +420,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					Map<String, List<String>> providedParams = new LinkedHashMap<>();
 
 					String cgi           = null;
+					String systemHandler = null;
 					String forwardOrigin = null;
 
 					String requestContentSource  = null;
@@ -419,15 +457,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						queryStringOk //
 						) {
 							/* Before we can use headers information, we need process header templates */
-							Map<String, Object> tmpDataMap = new LinkedHashMap<>(dataMap);
+							Map<String, Object> tmpDataMap = new LinkedHashMap<>();
 							Map<String, Object> requestMap = new LinkedHashMap<>();
 							requestMap.put("parameters", providedParams);
 							requestMap.put("method", method);
 							requestMap.put("path", providedPath);
 							requestMap.put("query", providedQueryString);
 							tmpDataMap.put("request", requestMap);
+							tmpDataMap.put("data", dataMap);
 
-							processRespHeaders(!noTemplate, freeMarkerConfiguration, crr, tmpDataMap);
+							processRespHeaders(!noTemplate, crr, tmpDataMap);
 
 							for (String headerStr : crr.request.headers) {
 								Header header              = new Header(headerStr);
@@ -437,6 +476,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									requestContentSource = header.value;
 							}
+
+							Map<String, Object> tmpMap = new LinkedHashMap<>();
 							for (String headerStr : crr.response.headers) {
 								Header header              = new Header(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
@@ -446,25 +487,46 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									responseContentSource = header.value;
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									cgi = header.value;
+								else if (INTERNAL_HTTP_HEADER_X_SERVER_SYSTEM_HANDLER.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									systemHandler = header.value;
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									forwardOrigin = header.value;
-								else if (INTERNAL_HTTP_HEADER_X_SERVER_UPDATE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName)) {
+								else if (INTERNAL_HTTP_HEADER_X_SERVER_MODIFY_DATA.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName)) {
 									/* update data */
-									dataJsonNode = JacksonUtils.patch(dataJsonNode, header.value);
-									dataMap      = new ObjectMapper().treeToValue(dataJsonNode, Map.class);
+									tmpDataMap = new LinkedHashMap<>();
+									requestMap = new LinkedHashMap<>();
+									requestMap.put("parameters", providedParams);
+									requestMap.put("method", method);
+									requestMap.put("path", providedPath);
+									requestMap.put("query", providedQueryString);
+									tmpDataMap.put("request", requestMap);
+									tmpDataMap.put("data", dataMap);
+									tmpDataMap.put("tmp", tmpMap);
+
+									List<String> dataAndTmpJsons = TemplateUtils.processData(scope, header.value, tmpDataMap);
+
+									dataJson     = dataAndTmpJsons.get(0);
+									dataJsonNode = JacksonUtils.parseJsonYamlToMap(dataJson);
+									dataMap      = new ObjectMapper().treeToValue(dataJsonNode, Object.class);
+
+									String   tmpJson     = dataAndTmpJsons.get(1);
+									JsonNode tmpJsonNode = JacksonUtils.parseJsonYamlToMap(tmpJson);
+									tmpMap = (Map<String, Object>) new ObjectMapper().treeToValue(tmpJsonNode, Object.class);
 								}
 							}
 
 							/* After oricessing of header templates, we can process body template with updated data. */
-							tmpDataMap = new LinkedHashMap<>(dataMap);
+							tmpDataMap = new LinkedHashMap<>();
 							requestMap = new LinkedHashMap<>();
 							requestMap.put("parameters", providedParams);
 							requestMap.put("method", method);
 							requestMap.put("path", providedPath);
 							requestMap.put("query", providedQueryString);
 							tmpDataMap.put("request", requestMap);
+							tmpDataMap.put("data", dataMap);
+							tmpDataMap.put("tmp", tmpMap);
 
-							processRespBody(!noTemplate, freeMarkerConfiguration, crr, tmpDataMap);
+							processRespBody(!noTemplate, crr, tmpDataMap);
 
 							/* headers from file */
 							Map<String, List<String>> headerValuesMap = new LinkedHashMap<>();
@@ -581,9 +643,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					String        responseFirstLineStr = reqResp.response.firstLine;
 					FirstLineResp firstLineResp        = new FirstLineResp(responseFirstLineStr);
 
-					int status = firstLineResp.getStatus();
-
-					byte[]              bs;
+					byte[]              bs              = new byte[0];
+					int                 status          = firstLineResp.getStatus();
 					String              message         = firstLineResp.getMessage();
 					String              contentType     = null;
 					Map<String, String> responseHeaders = new LinkedHashMap<>();
@@ -598,9 +659,11 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							continue;
 						else if (INTERNAL_HTTP_HEADER_X_SERVER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
+						else if (INTERNAL_HTTP_HEADER_X_SERVER_SYSTEM_HANDLER.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+							continue;
 						else if (INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
-						else if (INTERNAL_HTTP_HEADER_X_SERVER_UPDATE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+						else if (INTERNAL_HTTP_HEADER_X_SERVER_MODIFY_DATA.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
 
 						responseHeaders.put(header.name, header.value);
@@ -631,9 +694,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						if (HTTP_HEADER_CONTENT_TYPE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							contentType = header.value;
 					}
-					if (status == badRequestStatus)
-						bs = new byte[0];
-					else {
+					if (status != badRequestStatus)
 						if (responseContentSource != null) {
 							if (responseContentSource.startsWith(IProtocol.FILE) || responseContentSource.startsWith(IProtocol.HTTP) || responseContentSource.startsWith(IProtocol.HTTPS)) {
 								String[] contentTypeArr = new String[1];
@@ -647,28 +708,92 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									contentType = contentTypeArr[0];
 							} else
 								throw new IllegalArgumentException(MessageFormat.format("Bad {0} value: {1}", INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE, responseContentSource));
-						} else if (cgi != null) {
-							byte[]        requestBs        = createRequestBytes(providedFirstLineStr, providedHeaderValuesMap, providedBodyBs);
-							byte[]        outBs            = runCgi(cgi, requestBs);
-							String        outStr           = new String(outBs);
-							int           pos              = outStr.indexOf('\n');
-							String        firstLineRespStr = outStr.substring(0, pos).strip();
-							FirstLineResp firstLineRespCgi = new FirstLineResp(firstLineRespStr);
-							if (status == 0) {
-								status  = firstLineRespCgi.getStatus();
-								message = firstLineRespCgi.getMessage();
+						} else if (systemHandler != null || cgi != null) {
+							Map<String, String> env = new LinkedHashMap<>();
+							/*
+							 * https://datatracker.ietf.org/doc/html/rfc3875#section-4.1.18
+							 * RFC 3875 The Common Gateway Interface (CGI) Version 1.1
+							 */
+
+							/* Request Meta-Variables */
+							// 4.1.1.  AUTH_TYPE. . . .  https://datatracker.ietf.org/doc/html/rfc3875#page-11
+							// 4.1.2.  CONTENT_LENGTH .  https://datatracker.ietf.org/doc/html/rfc3875#page-12
+							// 4.1.3.  CONTENT_TYPE . .  https://datatracker.ietf.org/doc/html/rfc3875#page-12
+							// 4.1.4.  GATEWAY_INTERFACE https://datatracker.ietf.org/doc/html/rfc3875#page-13
+							// 4.1.5.  PATH_INFO. . . .  https://datatracker.ietf.org/doc/html/rfc3875#page-13
+							// 4.1.6.  PATH_TRANSLATED.  https://datatracker.ietf.org/doc/html/rfc3875#page-14
+							// 4.1.7.  QUERY_STRING . .  https://datatracker.ietf.org/doc/html/rfc3875#page-15
+							// 4.1.8.  REMOTE_ADDR. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-15
+							// 4.1.9.  REMOTE_HOST. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-16
+							// 4.1.10. REMOTE_IDENT . .  https://datatracker.ietf.org/doc/html/rfc3875#page-16
+							// 4.1.11. REMOTE_USER. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-16
+							// 4.1.12. REQUEST_METHOD .  https://datatracker.ietf.org/doc/html/rfc3875#page-17
+							// 4.1.13. SCRIPT_NAME. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-17
+							// 4.1.14. SERVER_NAME. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-17
+							// 4.1.15. SERVER_PORT. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-18
+							// 4.1.16. SERVER_PROTOCOL.  https://datatracker.ietf.org/doc/html/rfc3875#page-18
+							// 4.1.17. SERVER_SOFTWARE.  https://datatracker.ietf.org/doc/html/rfc3875#page-19
+
+							env.put("SERVER_SOFTWARE", "DeepfakeHTTP");
+							env.put("SERVER_NAME", req.getServerName());
+							env.put("GATEWAY_INTERFACE", "CGI/1.1");
+							env.put("SERVER_PROTOCOL", req.getProtocol());
+							env.put("SERVER_PORT", Integer.toString(port));
+							env.put("REQUEST_METHOD", method);
+							env.put("REQUEST_URI", req.getRequestURI());
+							env.put("PATH_INFO", providedPath);
+							env.put("PATH_TRANSLATED", providedPath);
+							env.put("SCRIPT_NAME", "");
+							env.put("QUERY_STRING", providedQueryString);
+							env.put("REMOTE_HOST", req.getRemoteHost());
+							env.put("REMOTE_ADDR", req.getRemoteAddr());
+							env.put("AUTH_TYPE", req.getAuthType());
+							env.put("REMOTE_USER", req.getRemoteUser());
+							env.put("REMOTE_IDENT", ""); //not necessary for full compliance
+							env.put("CONTENT_TYPE", req.getContentType());
+							long contentLength = req.getContentLengthLong();
+							env.put("CONTENT_LENGTH", contentLength <= 0 ? "" : Long.toString(contentLength));
+
+							while (headers.hasMoreElements()) {
+								String header = headers.nextElement().toUpperCase(Locale.ENGLISH);
+								env.put("HTTP_" + header.replace('-', '_'), req.getHeader(header));
 							}
-							String   headersAndBodyStr = outStr.substring(pos + 1);
-							int      pos2              = headersAndBodyStr.indexOf("\n\n");
-							String   headersStr        = headersAndBodyStr.substring(0, pos2);
-							String[] headers           = headersStr.split("\\n");
-							for (String headerStr : headers) {
-								Header header = new Header(headerStr);
-								if (!responseHeaders.containsKey(header.name))
-									responseHeaders.put(header.name, header.value);
+							if (systemHandler != null) {
+								byte[]        requestBs        = createRequestBytes(providedFirstLineStr, providedHeaderValuesMap, providedBodyBs);
+								byte[]        outBs            = runCgi(cgi, requestBs, env);
+								String        outStr           = new String(outBs, StandardCharsets.UTF_8);
+								int           pos              = outStr.indexOf('\n');
+								String        firstLineRespStr = outStr.substring(0, pos).strip();
+								FirstLineResp firstLineRespCgi = new FirstLineResp(firstLineRespStr);
+								if (status == 0) {
+									status  = firstLineRespCgi.getStatus();
+									message = firstLineRespCgi.getMessage();
+								}
+								String   headersAndBodyStr = outStr.substring(pos + 1);
+								int      pos2              = headersAndBodyStr.indexOf("\n\n");
+								String   headersStr        = headersAndBodyStr.substring(0, pos2);
+								String[] headersArr        = headersStr.split("\\n");
+								for (String headerStr : headersArr) {
+									Header header = new Header(headerStr);
+									if (!responseHeaders.containsKey(header.name))
+										responseHeaders.put(header.name, header.value);
+								}
+								bs = new byte[outBs.length - (pos + pos2 + 2)];
+								System.arraycopy(outBs, pos + pos2 + 2, bs, 0, bs.length);
+							} else if (cgi != null) {
+								byte[]   outBs             = runCgi(cgi, providedBodyBs, env);
+								String   headersAndBodyStr = new String(outBs, StandardCharsets.UTF_8);
+								int      pos2              = headersAndBodyStr.indexOf("\n\n");
+								String   headersStr        = headersAndBodyStr.substring(0, pos2);
+								String[] headersArr        = headersStr.split("\\n");
+								for (String headerStr : headersArr) {
+									Header header = new Header(headerStr);
+									if (!responseHeaders.containsKey(header.name))
+										responseHeaders.put(header.name, header.value);
+								}
+								bs = new byte[outBs.length - (pos2 + 2)];
+								System.arraycopy(outBs, pos2 + 2, bs, 0, bs.length);
 							}
-							bs = new byte[outBs.length - (pos + pos2 + 2)];
-							System.arraycopy(outBs, pos + pos2 + 2, bs, 0, bs.length);
 						} else if (forwardOrigin != null) {
 							String url = forwardOrigin + providedPath;
 							if (!providedQueryString.isEmpty())
@@ -733,7 +858,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							String body = reqResp.response.body.toString();
 							bs = body.getBytes(StandardCharsets.UTF_8);
 						}
-					}
+
 					if (responseDelay != 0)
 						Thread.sleep(responseDelay);
 
@@ -776,7 +901,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					String       message = MessageFormat.format("Error while generating response body. Dump file: {0}. Line number: {1}. Message: {2}", reqResp.dumpFile, reqResp.response.lineNumber, e.getMessage());
 					OutputStream responseOutputStream;
 					try {
-						response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message); //TODO
+						response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message); // TODO
 						responseOutputStream = response.getOutputStream();
 						responseOutputStream.write(message.getBytes(StandardCharsets.UTF_8));
 						responseOutputStream.flush();
@@ -944,6 +1069,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		logger.log(Level.INFO, new String(logBs, StandardCharsets.UTF_8));
 	}
 
+	private void hostDb(AsyncContext asyncContext, HttpServletResponse response) throws IOException {
+		if (dataJson != null) {
+			response.setContentType("application/json");
+			OutputStream responseOutputStream = response.getOutputStream();
+			responseOutputStream.write(dataJson.getBytes(StandardCharsets.UTF_8));
+			responseOutputStream.flush();
+		}
+		asyncContext.complete();
+	}
+
 	private void hostOpenApiUi(AsyncContext asyncContext, HttpServletResponse response, String providedPath) throws IOException {
 		byte[] bs   = null;
 		String mime = null;
@@ -987,17 +1122,33 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		asyncContext.complete();
 	}
 
-	private byte[] runCgi(String cmd, byte[] requestBs) throws IOException, InterruptedException {
+	private static String httpHeaderValuesToString(List<String> values) {
+		boolean       first = true;
+		StringBuilder sb    = new StringBuilder();
+		for (String value : values) {
+			if (first)
+				first = false;
+			else
+				sb.append(", ");
+			sb.append(value);
+		}
+		return sb.toString();
+	}
+
+	private byte[] runCgi(String cmd, byte[] requestBs, Map<String, String> env) throws IOException, InterruptedException {
 		boolean  windowsOs = System.getProperty("os.name").toLowerCase().startsWith("windows");
 		String[] command;
 		if (windowsOs)
 			command = new String[] { "cmd.exe", "/c", cmd };
 		else
 			command = new String[] { "sh", "-c", cmd };
-		ProcessBuilder pb      = new ProcessBuilder()                   //
+		ProcessBuilder      pb   = new ProcessBuilder()                 //
 				.directory(new File(System.getProperty("user.home")))   //
 				.command(command);                                      //
-		Process        process = pb.start();
+		Map<String, String> envp = pb.environment();
+		envp.putAll(env);
+
+		Process process = pb.start();
 
 		try (InputStream is = new ByteArrayInputStream(requestBs); OutputStream po = process.getOutputStream()) {
 			is.transferTo(po);
@@ -1016,22 +1167,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 	private static byte[] createRequestBytes(String providedFirstLineStr, Map<String, List<String>> providedHeaderValuesMap, byte[] providedBodyBs) throws IOException {
 		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-			os.write((providedFirstLineStr + "\n").getBytes(StandardCharsets.UTF_8));
+			os.write((providedFirstLineStr + '\n').getBytes(StandardCharsets.UTF_8));
 
 			for (Entry<String, List<String>> entry : providedHeaderValuesMap.entrySet()) {
-				String key = entry.getKey();
-				os.write((key + ": ").getBytes(StandardCharsets.UTF_8));
+				String       key    = entry.getKey();
 				List<String> values = entry.getValue();
-				boolean      first  = true;
-				for (String value : values) {
-					if (first)
-						first = false;
-					else
-						os.write(", ".getBytes(StandardCharsets.UTF_8));
-					os.write(value.getBytes(StandardCharsets.UTF_8));
-				}
-				os.write("\n".getBytes(StandardCharsets.UTF_8));
+				os.write((key + ": ").getBytes(StandardCharsets.UTF_8));
+				String headerValue = httpHeaderValuesToString(values);
+				os.write((headerValue + '\n').getBytes(StandardCharsets.UTF_8));
 			}
+			os.write(("\n").getBytes(StandardCharsets.UTF_8));
 			os.write(providedBodyBs);
 			return os.toByteArray();
 		}
@@ -1043,28 +1188,33 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 * @throws Throwable
 	 */
 	private void reload(boolean activateDirWatchers) throws Throwable {
-		/* reload data files */
-		dataMap = new LinkedHashMap<>();
-		Map<String, Object> map = new LinkedHashMap<>();
-		dataMap.put("data", map);
-		for (String dataFile : dataFiles) {
-			Path   dataFilePath = new File(dataFile).toPath();
-			String file         = dataFilePath.getFileName().toString();
-			int    pos          = file.indexOf('.');
-			if (pos != -1)
-				file = file.substring(0, pos);
-			String   dataJson          = UrlUtils.fileOrUrlToText(dataFilePath.toFile().getAbsolutePath());
-			JsonNode currentJsonNode   = JacksonUtils.parseJsonYamlToMap(dataJson);
-			Object   currentDataObject = new ObjectMapper().treeToValue(currentJsonNode, Object.class);
-			map.put(file, currentDataObject);
+		Context ctx = Context.enter();
+		ctx.setLanguageVersion(Context.VERSION_1_8);
+		ctx.setOptimizationLevel(9);
+		ctx.getWrapFactory().setJavaPrimitiveWrap(true);
+
+		scope = TemplateUtils.createScope(ctx);
+
+		for (String jsFile : jss) {
+			String js = UrlUtils.fileOrUrlToText(jsFile);
+			ctx.evaluateString(scope, js, jsFile, 0, null);
 		}
-		dataJsonNode = new ObjectMapper().valueToTree(dataMap);
+		Context.exit();
 
-		allReqResps = CustomMain.getAllReqResp(logger, dumps);
+		/* reload data files */
+		if (dataFile != null) {
+			dataJson     = UrlUtils.fileOrUrlToText(dataFile);
+			dataJsonNode = JacksonUtils.parseJsonYamlToMap(dataJson);
+			dataMap      = new ObjectMapper().treeToValue(dataJsonNode, Object.class);
 
-		if (!dataMap.isEmpty())
+			Map<String, Object> tmpDataMap = new LinkedHashMap<>();
+			tmpDataMap.put("data", dataMap);
+
+			allReqResps = CustomMain.getAllReqResp(logger, dumps);
+
 			for (ReqResp reqResp : allReqResps)
-				processReq(!noTemplate, freeMarkerConfiguration, reqResp, dataMap);
+				processReq(!noTemplate, reqResp, tmpDataMap);
+		}
 
 		/* Create OpenAPI JSON */
 		Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitle);
@@ -1100,8 +1250,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 				}
 				dirWatcher.addFile(filePath);
 			}
-			for (String dataFile : dataFiles) {
-				Path path     = new File(dataFile).toPath();
+			for (String jsFile : jss) {
+				Path path     = new File(jsFile).toPath();
 				Path dirPath  = path.getParent();
 				Path filePath = path.getFileName();
 
@@ -1118,12 +1268,43 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							}
 						}
 					});
-
 					Thread dirWatcherThread = new Thread(dirWatcher);
 					dirWatcherThread.start();
 					directoryWatchersMap.put(dirPath, dirWatcher);
 				}
 				dirWatcher.addFile(filePath);
+			}
+			if (dataFile != null) {
+				if (!dataFile.startsWith(IProtocol.HTTPS) && !dataFile.startsWith(IProtocol.HTTP)) {
+					String file;
+					if (dataFile.startsWith(IProtocol.FILE))
+						file = new URL(dataFile).getPath();
+					else
+						file = dataFile;
+					Path path     = new File(file).toPath();
+					Path dirPath  = path.getParent();
+					Path filePath = path.getFileName();
+
+					DirectoryWatcher dirWatcher = directoryWatchersMap.get(dirPath);
+					if (dirWatcher == null) {
+						dirWatcher = new DirectoryWatcher(logger, dirPath, new Runnable() {
+
+							@Override
+							public void run() {
+								try {
+									reload(false);
+								} catch (Throwable e) {
+									e.printStackTrace();
+								}
+							}
+						});
+
+						Thread dirWatcherThread = new Thread(dirWatcher);
+						dirWatcherThread.start();
+						directoryWatchersMap.put(dirPath, dirWatcher);
+					}
+					dirWatcher.addFile(filePath);
+				}
 			}
 		}
 	}
@@ -1172,27 +1353,43 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		return rr;
 	}
 
-	private static void processReq(boolean processTemplate, Configuration freeMarkerConfiguration, ReqResp reqResp, Map<String, Object> dataMap) throws IOException, TemplateException {
-		reqResp.request.firstLine = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, reqResp.request.firstLine, dataMap);
+	private void processReq(boolean processTemplate, ReqResp reqResp, Map<String, Object> dataMap) throws IOException {
+		if (processTemplate)
+			reqResp.request.firstLine = TemplateUtils.processTemplate(scope, reqResp.request.firstLine, dataMap);
 		for (int i = 0; i < reqResp.request.headers.size(); i++) {
 			String headerStr = reqResp.request.headers.get(i);
-			headerStr = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, headerStr, dataMap);
+			if (processTemplate)
+				headerStr = TemplateUtils.processTemplate(scope, headerStr, dataMap);
 			reqResp.request.headers.set(i, headerStr);
 		}
-		reqResp.request.body = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, reqResp.request.body, dataMap);
+		reqResp.request.body = TemplateUtils.processTemplate(scope, reqResp.request.body, dataMap);
 	}
 
-	private static void processRespHeaders(boolean processTemplate, Configuration freeMarkerConfiguration, ReqResp reqResp, Map<String, Object> dataMap) throws IOException, TemplateException {
-		reqResp.response.firstLine = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, reqResp.response.firstLine, dataMap);
+	private void processRespHeaders(boolean processTemplate, ReqResp reqResp, Map<String, Object> dataMap) throws IOException {
+		if (processTemplate)
+			reqResp.response.firstLine = TemplateUtils.processTemplate(scope, reqResp.response.firstLine, dataMap);
 		for (int i = 0; i < reqResp.response.headers.size(); i++) {
 			String headerStr = reqResp.response.headers.get(i);
-			headerStr = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, headerStr, dataMap);
+			if (processTemplate)
+				headerStr = TemplateUtils.processTemplate(scope, headerStr, dataMap);
 			reqResp.response.headers.set(i, headerStr);
 		}
 	}
 
-	private static void processRespBody(boolean processTemplate, Configuration freeMarkerConfiguration, ReqResp reqResp, Map<String, Object> dataMap) throws IOException, TemplateException {
-		reqResp.response.body = TemplateUtils.processTemplate(processTemplate, freeMarkerConfiguration, reqResp.response.body, dataMap);
+	private void processRespBody(boolean processTemplate, ReqResp reqResp, Map<String, Object> dataMap) throws IOException {
+		if (processTemplate)
+			reqResp.response.body = TemplateUtils.processTemplate(scope, reqResp.response.body, dataMap);
+	}
+
+	/**
+	 * 
+	 * @param path
+	 * @throws IOException
+	 */
+	private static void deleteDir(Path path) throws IOException {
+		if (!path.isAbsolute())
+			throw new IllegalArgumentException(path.toString());
+		Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
 	}
 
 }

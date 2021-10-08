@@ -87,7 +87,11 @@ public class ParseCommandLineUtils {
 
 	/* command line args */
 	public static final String ARGS_DUMP           = "--dump";           // dump text file(s) and/or OpenAPI json/yaml file(s)
-	public static final String ARGS_DATA           = "--data";           // json/yaml/csv data file(s) to populate templates
+	public static final String ARGS_DB             = "--db";             // json/yaml/csv memory file to populate templates
+	public static final String ARGS_DB_EXPORT      = "--db-export";      // export memory to json file
+	public static final String ARGS_DB_PATH        = "--db-path";        // serve live memory file at specified context
+	public static final String ARGS_JS             = "--js";             // JavaScript file(s) for script engine context
+	public static final String ARGS_NO_BAK         = "--no-bak";         // disable backup old memory file before overwrite
 	public static final String ARGS_NO_WATCH       = "--no-watch";       // disable watch dump files for changes
 	public static final String ARGS_NO_ETAG        = "--no-etag";        // disable ETag optimization
 	public static final String ARGS_NO_LOG         = "--no-log";         // disable request/response console logging
@@ -123,7 +127,11 @@ public class ParseCommandLineUtils {
 
 		/* CLI options defaults */
 		paramMap.put(ARGS_DUMP, new ArrayList<String>());
-		paramMap.put(ARGS_DATA, new ArrayList<String>());
+		paramMap.put(ARGS_JS, new ArrayList<String>());
+		paramMap.put(ARGS_DB, null);
+		paramMap.put(ARGS_DB_EXPORT, null);
+		paramMap.put(ARGS_DB_PATH, null);
+		paramMap.put(ARGS_NO_BAK, false);
 		paramMap.put(ARGS_HELP_OPTION, false);
 		paramMap.put(ARGS_PRINT_INFO, false);
 		paramMap.put(ARGS_PRINT_REQUESTS, false);
@@ -186,6 +194,8 @@ public class ParseCommandLineUtils {
 				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_NO_COLOR))
 				paramMap.put(args[i], true);
+			else if (args[i].equals(ARGS_NO_BAK))
+				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_COLLECT)) {
 				if (i < args.length - 1)
 					paramMap.put(args[i], args[++i]);
@@ -195,9 +205,18 @@ public class ParseCommandLineUtils {
 			} else if (args[i].equals(ARGS_OPENAPI_TITLE)) {
 				if (i < args.length - 1)
 					paramMap.put(args[i], args[++i]);
-			} else if (args[i].equals(ARGS_DATA)) {
+			} else if (args[i].equals(ARGS_DB_EXPORT)) {
+				if (i < args.length - 1)
+					paramMap.put(args[i], args[++i]);
+			} else if (args[i].equals(ARGS_DB)) {
+				if (i < args.length - 1)
+					paramMap.put(args[i], args[++i]);
+			} else if (args[i].equals(ARGS_DB_PATH)) {
+				if (i < args.length - 1)
+					paramMap.put(args[i], args[++i]);
+			} else if (args[i].equals(ARGS_DUMP)) {
 				if (i < args.length - 1) {
-					List<String> files = (List<String>) paramMap.get(ARGS_DATA);
+					List<String> files = (List<String>) paramMap.get(args[i]);
 					while (true) {
 						i++;
 						if (args[i].startsWith("--")) {
@@ -210,9 +229,9 @@ public class ParseCommandLineUtils {
 							break;
 					}
 				}
-			} else if (args[i].equals(ARGS_DUMP)) {
+			} else if (args[i].equals(ARGS_JS)) {
 				if (i < args.length - 1) {
-					List<String> files = (List<String>) paramMap.get(ARGS_DUMP);
+					List<String> files = (List<String>) paramMap.get(args[i]);
 					while (true) {
 						i++;
 						if (args[i].startsWith("--")) {

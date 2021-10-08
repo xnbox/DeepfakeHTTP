@@ -41,7 +41,6 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TSFBuilder;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -49,8 +48,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvFactory;
 import com.fasterxml.jackson.dataformat.csv.CsvFactoryBuilder;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.skjolber.jackson.jsh.AnsiSyntaxHighlight;
 import com.github.skjolber.jackson.jsh.DefaultSyntaxHighlighter;
 import com.github.skjolber.jackson.jsh.SyntaxHighlighter;
@@ -191,7 +188,7 @@ public class JacksonUtils {
 	 * @return
 	 * @throws JsonProcessingException
 	 */
-	public static JsonNode parseJsonYamlToJsonNode(JsonFactory jsonFactory, String s) throws JsonProcessingException {
+	private static JsonNode parseJsonYamlToJsonNode(JsonFactory jsonFactory, String s) throws JsonProcessingException {
 		ObjectMapper om = new ObjectMapper(jsonFactory);
 		om.configure(Feature.ALLOW_COMMENTS, true);
 		om.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
@@ -199,18 +196,4 @@ public class JacksonUtils {
 		return om.readTree(s);
 	}
 
-	/**
-	 * 
-	 * @param jsonNode
-	 * @param jsonPatch
-	 * @return
-	 * @throws JsonMappingException
-	 * @throws JsonProcessingException
-	 * @throws JsonPatchException
-	 */
-	public static JsonNode patch(JsonNode jsonNode, String jsonPatch) throws JsonMappingException, JsonProcessingException, JsonPatchException {
-		ObjectMapper mapper = new ObjectMapper();
-		JsonPatch    patch  = mapper.readValue(jsonPatch, JsonPatch.class);
-		return patch.apply(jsonNode);
-	}
 }

@@ -31,6 +31,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -42,17 +43,15 @@ public class UrlUtils {
 	 * 
 	 * @param s
 	 * @return
+	 * @throws IOException 
+	 * @throws MalformedURLException 
 	 */
-	public static String fileOrUrlToText(String s) {
-		if (s.startsWith(IProtocol.FILE) || s.startsWith(IProtocol.HTTPS) || s.startsWith(IProtocol.HTTP))
-			try {
-				try (InputStream is = new BufferedInputStream(new URL(s).openStream())) {
-					return new String(is.readAllBytes(), StandardCharsets.UTF_8);
-				}
-			} catch (Throwable e) {
-				return "";
+	public static String fileOrUrlToText(String s) throws MalformedURLException, IOException {
+		if (s.startsWith(IProtocol.FILE) || s.startsWith(IProtocol.HTTPS) || s.startsWith(IProtocol.HTTP)) {
+			try (InputStream is = new BufferedInputStream(new URL(s).openStream())) {
+				return new String(is.readAllBytes(), StandardCharsets.UTF_8);
 			}
-		else
+		} else
 			return fileOrUrlToText(new File(s).getAbsoluteFile().toURI().toString());
 	}
 

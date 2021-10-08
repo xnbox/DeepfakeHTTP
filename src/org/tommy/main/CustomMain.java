@@ -121,7 +121,10 @@ public class CustomMain {
 		sb.append("    --port <number>         HTTP TCP port number, default: 8080                \n");
 		sb.append("    --port-ssl <number>     HTTPS TCP port number, default: 8443               \n");
 		sb.append("    --dump <file|url>...    dump text file(s) and/or OpenAPI json/yaml file(s) \n");
-		sb.append("    --data <file|url>...    json/yaml/csv data file(s) to populate templates   \n");
+		sb.append("    --db <file|url>         json/yaml/csv memory file to populate templates    \n");
+		sb.append("    --db-export <file>      export memory to json file                         \n");
+		sb.append("    --db-path <path>        serve live memory file at specified context        \n");
+		sb.append("    --js <file|url>...      JavaScript file(s) for script engine context       \n");
 		sb.append("    --openapi-path <path>   serve built-in OpenAPI client at specified context \n");
 		sb.append("    --openapi-title <text>  provide custom OpenAPI spec title                  \n");
 		sb.append("    --collect <file>        collect live request/response to file              \n");
@@ -141,6 +144,7 @@ public class CustomMain {
 		sb.append("    --no-pretty             disable prettyprint for --print-* commands         \n");
 		sb.append("    --no-template           disable template processing                        \n");
 		sb.append("    --no-wildcard           disable wildcard processing                        \n");
+		sb.append("    --no-bak                disable backup old memory file before overwrite    \n");
 		sb.append("    --strict-json           enable strict JSON comparison                      \n");
 		sb.append("    --redirect              enable redirect HTTP to HTTPS                      \n");
 		sb.append("                                                                               \n");
