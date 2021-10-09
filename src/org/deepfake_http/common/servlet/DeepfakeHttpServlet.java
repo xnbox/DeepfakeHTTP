@@ -109,7 +109,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_DELAY          = "X-Delay";          // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE = "X-Content-Source"; // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CGI            = "X-CGI";            // response non-standard
-	private static final String INTERNAL_HTTP_HEADER_X_SERVER_SYSTEM_HANDLER = "X-System-Handler"; // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_XGI            = "X-XGI";            // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO     = "X-Forward-To";     // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_MODIFY_DATA    = "X-Modify-Data";    // response non-standard
 
@@ -420,7 +420,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					Map<String, List<String>> providedParams = new LinkedHashMap<>();
 
 					String cgi           = null;
-					String systemHandler = null;
+					String xgi           = null;
 					String forwardOrigin = null;
 
 					String requestContentSource  = null;
@@ -463,6 +463,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							requestMap.put("method", method);
 							requestMap.put("path", providedPath);
 							requestMap.put("query", providedQueryString);
+							requestMap.put("body", providedBody);
 							tmpDataMap.put("request", requestMap);
 							tmpDataMap.put("data", dataMap);
 
@@ -487,8 +488,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									responseContentSource = header.value;
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									cgi = header.value;
-								else if (INTERNAL_HTTP_HEADER_X_SERVER_SYSTEM_HANDLER.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
-									systemHandler = header.value;
+								else if (INTERNAL_HTTP_HEADER_X_SERVER_XGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									xgi = header.value;
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									forwardOrigin = header.value;
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_MODIFY_DATA.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName)) {
@@ -499,6 +500,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									requestMap.put("method", method);
 									requestMap.put("path", providedPath);
 									requestMap.put("query", providedQueryString);
+									requestMap.put("body", providedBody);
 									tmpDataMap.put("request", requestMap);
 									tmpDataMap.put("data", dataMap);
 									tmpDataMap.put("tmp", tmpMap);
@@ -522,6 +524,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							requestMap.put("method", method);
 							requestMap.put("path", providedPath);
 							requestMap.put("query", providedQueryString);
+							requestMap.put("body", providedBody);
 							tmpDataMap.put("request", requestMap);
 							tmpDataMap.put("data", dataMap);
 							tmpDataMap.put("tmp", tmpMap);
@@ -659,7 +662,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							continue;
 						else if (INTERNAL_HTTP_HEADER_X_SERVER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
-						else if (INTERNAL_HTTP_HEADER_X_SERVER_SYSTEM_HANDLER.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+						else if (INTERNAL_HTTP_HEADER_X_SERVER_XGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
 						else if (INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
@@ -708,7 +711,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									contentType = contentTypeArr[0];
 							} else
 								throw new IllegalArgumentException(MessageFormat.format("Bad {0} value: {1}", INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE, responseContentSource));
-						} else if (systemHandler != null || cgi != null) {
+						} else if (xgi != null || cgi != null) {
 							Map<String, String> env = new LinkedHashMap<>();
 							/*
 							 * https://datatracker.ietf.org/doc/html/rfc3875#section-4.1.18
@@ -735,32 +738,32 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							// 4.1.17. SERVER_SOFTWARE.  https://datatracker.ietf.org/doc/html/rfc3875#page-19
 
 							env.put("SERVER_SOFTWARE", "DeepfakeHTTP");
-							env.put("SERVER_NAME", req.getServerName());
+							env.put("SERVER_NAME", valToStr(req.getServerName()));
 							env.put("GATEWAY_INTERFACE", "CGI/1.1");
-							env.put("SERVER_PROTOCOL", req.getProtocol());
-							env.put("SERVER_PORT", Integer.toString(port));
-							env.put("REQUEST_METHOD", method);
-							env.put("REQUEST_URI", req.getRequestURI());
-							env.put("PATH_INFO", providedPath);
-							env.put("PATH_TRANSLATED", providedPath);
+							env.put("SERVER_PROTOCOL", valToStr(req.getProtocol()));
+							env.put("SERVER_PORT", valToStr(Integer.toString(port)));
+							env.put("REQUEST_METHOD", valToStr(method));
+							env.put("REQUEST_URI", valToStr(req.getRequestURI()));
+							env.put("PATH_INFO", valToStr(providedPath));
+							env.put("PATH_TRANSLATED", valToStr(providedPath));
 							env.put("SCRIPT_NAME", "");
-							env.put("QUERY_STRING", providedQueryString);
-							env.put("REMOTE_HOST", req.getRemoteHost());
-							env.put("REMOTE_ADDR", req.getRemoteAddr());
-							env.put("AUTH_TYPE", req.getAuthType());
-							env.put("REMOTE_USER", req.getRemoteUser());
+							env.put("QUERY_STRING", valToStr(providedQueryString));
+							env.put("REMOTE_HOST", valToStr(req.getRemoteHost()));
+							env.put("REMOTE_ADDR", valToStr(req.getRemoteAddr()));
+							env.put("AUTH_TYPE", valToStr(req.getAuthType()));
+							env.put("REMOTE_USER", valToStr(req.getRemoteUser()));
 							env.put("REMOTE_IDENT", ""); //not necessary for full compliance
-							env.put("CONTENT_TYPE", req.getContentType());
+							env.put("CONTENT_TYPE", valToStr(req.getContentType()));
 							long contentLength = req.getContentLengthLong();
-							env.put("CONTENT_LENGTH", contentLength <= 0 ? "" : Long.toString(contentLength));
+							env.put("CONTENT_LENGTH", valToStr(contentLength <= 0 ? "" : Long.toString(contentLength)));
 
 							while (headers.hasMoreElements()) {
 								String header = headers.nextElement().toUpperCase(Locale.ENGLISH);
 								env.put("HTTP_" + header.replace('-', '_'), req.getHeader(header));
 							}
-							if (systemHandler != null) {
+							if (xgi != null) {
 								byte[]        requestBs        = createRequestBytes(providedFirstLineStr, providedHeaderValuesMap, providedBodyBs);
-								byte[]        outBs            = runCgi(cgi, requestBs, env);
+								byte[]        outBs            = runCgi(xgi, requestBs, env);
 								String        outStr           = new String(outBs, StandardCharsets.UTF_8);
 								int           pos              = outStr.indexOf('\n');
 								String        firstLineRespStr = outStr.substring(0, pos).strip();
@@ -1073,7 +1076,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		if (dataJson != null) {
 			response.setContentType("application/json");
 			OutputStream responseOutputStream = response.getOutputStream();
-			responseOutputStream.write(dataJson.getBytes(StandardCharsets.UTF_8));
+			String       outJson              = JacksonUtils.stringifyToJsonYaml(dataMap, JacksonUtils.FORMAT_JSON, true, false);
+			responseOutputStream.write(outJson.getBytes(StandardCharsets.UTF_8));
 			responseOutputStream.flush();
 		}
 		asyncContext.complete();
@@ -1202,19 +1206,21 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		Context.exit();
 
 		/* reload data files */
-		if (dataFile != null) {
-			dataJson     = UrlUtils.fileOrUrlToText(dataFile);
-			dataJsonNode = JacksonUtils.parseJsonYamlToMap(dataJson);
-			dataMap      = new ObjectMapper().treeToValue(dataJsonNode, Object.class);
+		if (dataFile == null)
+			dataJson = "{}";
+		else
+			dataJson = UrlUtils.fileOrUrlToText(dataFile);
 
-			Map<String, Object> tmpDataMap = new LinkedHashMap<>();
-			tmpDataMap.put("data", dataMap);
+		dataJsonNode = JacksonUtils.parseJsonYamlToMap(dataJson);
+		dataMap      = new ObjectMapper().treeToValue(dataJsonNode, Object.class);
 
-			allReqResps = CustomMain.getAllReqResp(logger, dumps);
+		Map<String, Object> tmpDataMap = new LinkedHashMap<>();
+		tmpDataMap.put("data", dataMap);
 
-			for (ReqResp reqResp : allReqResps)
-				processReq(!noTemplate, reqResp, tmpDataMap);
-		}
+		allReqResps = CustomMain.getAllReqResp(logger, dumps);
+
+		for (ReqResp reqResp : allReqResps)
+			processReq(!noTemplate, reqResp, tmpDataMap);
 
 		/* Create OpenAPI JSON */
 		Map<String, Object> openApiMap = OpenApiUtils.createOpenApiMap(allReqResps, openApiTitle);
@@ -1392,4 +1398,9 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
 	}
 
+	private static String valToStr(Object value) throws IOException {
+		if (value == null)
+			return "";
+		return value.toString();
+	}
 }

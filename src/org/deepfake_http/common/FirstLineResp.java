@@ -40,7 +40,7 @@ public class FirstLineResp {
 	public FirstLineResp(String firstLineRespStr) throws Exception {
 		this.firstLineRespStr = firstLineRespStr;
 
-		firstLineRespStr = firstLineRespStr.trim().replace('\t', ' ');
+		firstLineRespStr = firstLineRespStr.strip().replace('\t', ' ');
 		int pos = firstLineRespStr.indexOf(' ');
 		if (pos == -1)
 			protocol = firstLineRespStr;
@@ -54,10 +54,7 @@ public class FirstLineResp {
 				pos2 = firstLineRespStr.length();
 			try {
 				String statusStr = firstLineRespStr.substring(pos + 1, pos2);
-				if (ParseDumpUtils.isZeroStatus(statusStr))
-					status = 0;
-				else
-					status = Integer.parseInt(statusStr);
+				status = Integer.parseInt(statusStr);
 			} catch (Exception e) {
 				throw new Exception("Bad HTTP status");
 			}

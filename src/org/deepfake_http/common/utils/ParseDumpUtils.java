@@ -46,13 +46,6 @@ public class ParseDumpUtils {
 	 */
 	private static final int MIN_REQUEST_LENGTH = 3 + 1 + 1 + 1 + HTTP_1_1.length();
 
-	/**
-	 * MIN_RESPONSE_LENGTH
-	 *
-	 * HTTP/1.1 200
-	 */
-	private static final int MIN_RESPONSE_LENGTH = HTTP_1_1.length() + 1 + 3;
-
 	/* PARSERS */
 
 	/**
@@ -106,13 +99,8 @@ public class ParseDumpUtils {
 				int status;
 				if (firstLineCandidateArr.length == 1)
 					status = 0;
-				else {
-					String statusStr = firstLineCandidateArr[1];
-					if (isZeroStatus(statusStr))
-						status = 0;
-					else
-						status = Integer.parseInt(statusStr);
-				}
+				else
+					status = Integer.parseInt(firstLineCandidateArr[1]);
 				responseStatusOk = status == 0 || (status >= 100 && status <= 599);
 			} catch (Exception e) {
 				responseStatusOk = false;
@@ -259,9 +247,5 @@ public class ParseDumpUtils {
 		if (!sb.isEmpty())
 			lines.add(sb.toString());
 		return lines;
-	}
-
-	public static boolean isZeroStatus(String s) {
-		return s.equals("0") || s.equals("00") || s.equals("000");
 	}
 }
