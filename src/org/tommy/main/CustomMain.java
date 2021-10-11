@@ -124,7 +124,7 @@ public class CustomMain {
 		sb.append("    --db-path <path>        serve live memory file at specified context        \n");
 		sb.append("    --js <file|url>...      JavaScript file(s) for script engine context       \n");
 		sb.append("    --openapi-path <path>   serve built-in OpenAPI client at specified context \n");
-		sb.append("    --openapi-title <text>  provide custom OpenAPI spec title                  \n");
+		sb.append("    --openapi-title <text>  provide custom OpenAPI specification title         \n");
 		sb.append("    --collect <file>        collect live request/response to file              \n");
 		sb.append("    --format <json|yaml>    output format for --print-* commands, default: json\n");
 		sb.append("    --status <number>       status code for non-matching requests, default: 400\n");
