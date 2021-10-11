@@ -90,7 +90,6 @@ public class TemplateUtils {
 		ctx.setOptimizationLevel(9);
 		ctx.getWrapFactory().setJavaPrimitiveWrap(true);
 
-		ScriptableObject.putProperty(scope, "tmp", Context.javaToJS(dataMap.get("tmp"), scope));
 		ScriptableObject.putProperty(scope, "data", Context.javaToJS(dataMap.get("data"), scope));
 		ScriptableObject.putProperty(scope, "request", Context.javaToJS(dataMap.get("request"), scope));
 
@@ -112,19 +111,21 @@ public class TemplateUtils {
 	/**
 	 * 
 	 * @param script
-	 * @param dataMap
+	 * @param map
 	 * @return
 	 * @throws IOException
 	 */
-	public static List<String> processData(ScriptableObject scope, String script, Map<String, Object> dataMap) throws IOException {
+	public static List<String> processData(ScriptableObject scope, String funcName, Map<String, Object> map, boolean jsonRequest) throws IOException {
 		Context ctx = Context.enter();
 		ctx.setLanguageVersion(Context.VERSION_1_8);
 		ctx.setOptimizationLevel(9);
 		ctx.getWrapFactory().setJavaPrimitiveWrap(true);
-		script = "(function() {let map=" + JacksonUtils.stringifyToJsonYaml(dataMap, JacksonUtils.FORMAT_JSON, false, false) + ";let data=map.data;let request=map.request;let tmp=map.tmp;" + script + ";return [JSON.stringify(data, null, 0),JSON.stringify(tmp, null, 0)];})()";
-		List<String> dataAndTmpJsons = (List<String>) ctx.evaluateString(scope, script, "", 0, null);
+		String script = "(function(){let map=" + JacksonUtils.stringifyToJsonYaml(map, JacksonUtils.FORMAT_JSON, false, false) + ";let data=map.data;let request=map.request;if(" + jsonRequest + ") request.body=JSON.parse(request.body);";
+		script += "let result=" + funcName + "(request,data);";
+		script += "if(result===undefined) result=null;else if(!(typeof result === 'string' || result instanceof String)) result=JSON.stringify(result);return [JSON.stringify(data), result];})()";
+		List<String> dataJson = (List<String>) ctx.evaluateString(scope, script, "", 0, null);
 		Context.exit();
-		return dataAndTmpJsons;
+		return dataJson;
 	}
 
 }

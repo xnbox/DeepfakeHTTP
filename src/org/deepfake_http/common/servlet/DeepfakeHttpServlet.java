@@ -429,13 +429,20 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					int requestDelay  = 0;
 					int responseDelay = 0;
 
+					boolean jsonRequest = false;
+
 					String requestHeaderContentType = request.getHeader(HTTP_HEADER_CONTENT_TYPE);
 
 					if (requestHeaderContentType != null && requestHeaderContentType.startsWith("application/x-www-form-urlencoded"))
 						MatchUtils.parseQuery(providedBody, providedParams);
+					if (requestHeaderContentType != null && requestHeaderContentType.startsWith("application/json"))
+						jsonRequest = true;
 
 					/* search for request-reponse pair */
 					Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();
+					extractRequestHeaders(request, providedHeaderValuesMap);
+
+					String resultJs = null;
 					for (ReqResp rr : allReqResps) {
 
 						ReqResp crr = cloneReqResp(rr);
@@ -463,6 +470,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							requestMap.put("method", method);
 							requestMap.put("path", providedPath);
 							requestMap.put("query", providedQueryString);
+							requestMap.put("headers", providedHeaderValuesMap);
 							requestMap.put("body", providedBody);
 							tmpDataMap.put("request", requestMap);
 							tmpDataMap.put("data", dataMap);
@@ -478,7 +486,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									requestContentSource = header.value;
 							}
 
-							Map<String, Object> tmpMap = new LinkedHashMap<>();
 							for (String headerStr : crr.response.headers) {
 								Header header              = new Header(headerStr);
 								String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
@@ -500,20 +507,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									requestMap.put("method", method);
 									requestMap.put("path", providedPath);
 									requestMap.put("query", providedQueryString);
+									requestMap.put("headers", providedHeaderValuesMap);
 									requestMap.put("body", providedBody);
 									tmpDataMap.put("request", requestMap);
 									tmpDataMap.put("data", dataMap);
-									tmpDataMap.put("tmp", tmpMap);
 
-									List<String> dataAndTmpJsons = TemplateUtils.processData(scope, header.value, tmpDataMap);
-
-									dataJson     = dataAndTmpJsons.get(0);
+									List<String> lst = TemplateUtils.processData(scope, header.value, tmpDataMap, jsonRequest);
+									dataJson     = lst.get(0);
 									dataJsonNode = JacksonUtils.parseJsonYamlToMap(dataJson);
 									dataMap      = new ObjectMapper().treeToValue(dataJsonNode, Object.class);
-
-									String   tmpJson     = dataAndTmpJsons.get(1);
-									JsonNode tmpJsonNode = JacksonUtils.parseJsonYamlToMap(tmpJson);
-									tmpMap = (Map<String, Object>) new ObjectMapper().treeToValue(tmpJsonNode, Object.class);
+									resultJs     = lst.get(1);
 								}
 							}
 
@@ -524,10 +527,10 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							requestMap.put("method", method);
 							requestMap.put("path", providedPath);
 							requestMap.put("query", providedQueryString);
+							requestMap.put("headers", providedHeaderValuesMap);
 							requestMap.put("body", providedBody);
 							tmpDataMap.put("request", requestMap);
 							tmpDataMap.put("data", dataMap);
-							tmpDataMap.put("tmp", tmpMap);
 
 							processRespBody(!noTemplate, crr, tmpDataMap);
 
@@ -559,28 +562,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									headerValue = headerValue.trim();
 									if (!headerValue.isEmpty())
 										headerValuesList.add(headerValue);
-								}
-							}
-
-							/* provided headers */
-							providedHeaderValuesMap.clear();
-							for (Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements();) {
-								String       headerName       = e.nextElement().toLowerCase(Locale.ENGLISH);
-								List<String> headerValuesList = providedHeaderValuesMap.get(headerName);
-								if (headerValuesList == null) {
-									headerValuesList = new ArrayList<>();
-									providedHeaderValuesMap.put(headerName, headerValuesList);
-								}
-
-								for (Enumeration<String> e1 = request.getHeaders(headerName); e1.hasMoreElements();) {
-									String headerValue = e1.nextElement();
-									headerValue = headerValue.trim();
-									String[] headerValues = headerValue.split(",");
-									for (String value : headerValues) {
-										value = value.trim();
-										if (!value.isEmpty())
-											headerValuesList.add(value);
-									}
 								}
 							}
 
@@ -859,6 +840,12 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							}
 						} else {
 							String body = reqResp.response.body.toString();
+							if (body.isEmpty()) {
+								if (resultJs == null)
+									body = "";
+								else
+									body = resultJs;
+							}
 							bs = body.getBytes(StandardCharsets.UTF_8);
 						}
 
@@ -921,7 +908,29 @@ public class DeepfakeHttpServlet extends HttpServlet {
 				}
 			}
 		});
+	}
 
+	private static void extractRequestHeaders(HttpServletRequest request, Map<String, List<String>> providedHeaderValuesMap) {
+		/* provided headers */
+		for (Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements();) {
+			String       headerName       = e.nextElement().toLowerCase(Locale.ENGLISH);
+			List<String> headerValuesList = providedHeaderValuesMap.get(headerName);
+			if (headerValuesList == null) {
+				headerValuesList = new ArrayList<>();
+				providedHeaderValuesMap.put(headerName, headerValuesList);
+			}
+
+			for (Enumeration<String> e1 = request.getHeaders(headerName); e1.hasMoreElements();) {
+				String headerValue = e1.nextElement();
+				headerValue = headerValue.trim();
+				String[] headerValues = headerValue.split(",");
+				for (String value : headerValues) {
+					value = value.trim();
+					if (!value.isEmpty())
+						headerValuesList.add(value);
+				}
+			}
+		}
 	}
 
 	private void logReqRespToFile(HttpServletRequest request, String providedFirstLineStr, byte[] providedBodyBs, byte[] bs, int status, String message, Map<String, String> responseHeaders) throws IOException {
