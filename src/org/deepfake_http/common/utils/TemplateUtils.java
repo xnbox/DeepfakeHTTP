@@ -98,7 +98,7 @@ public class TemplateUtils {
 			if (pos == -1)
 				break;
 			String rest = template.substring(pos + 2);
-			int    pos2 = rest.indexOf("}", pos);     // js end                     
+			int    pos2 = rest.indexOf("}");          // js end                     
 			String js   = rest.substring(0, pos2);
 
 			String replacer = eval(ctx, scope, js, dataMap);
@@ -120,9 +120,10 @@ public class TemplateUtils {
 		ctx.setLanguageVersion(Context.VERSION_1_8);
 		ctx.setOptimizationLevel(9);
 		ctx.getWrapFactory().setJavaPrimitiveWrap(true);
-		String script = "(function(){let map=" + JacksonUtils.stringifyToJsonYaml(map, JacksonUtils.FORMAT_JSON, false, false) + ";let data=map.data;let request=map.request;if(" + jsonRequest + ") request.body=JSON.parse(request.body);";
-		script += "let result=" + funcName + "(request,data);";
-		script += "if(result===undefined) result=null;else if(!(typeof result === 'string' || result instanceof String)) result=JSON.stringify(result);return [JSON.stringify(data), result];})()";
+		String script = "(function(){let map=" + JacksonUtils.stringifyToJsonYaml(map, JacksonUtils.FORMAT_JSON, false, false) + ";let data=map.data;let request=map.request;if(" + jsonRequest + ") request.body=JSON.parse(request.body);let response={status:200,headers:{},body:''};";
+		script += funcName + "(request,response,data);";
+		script += "if (!(response.body === null || typeof response.body === 'string' || response.body instanceof String)) response.body=JSON.stringify(response.body);";
+		script += "return [JSON.stringify(data), JSON.stringify(response)];})()";
 		List<String> dataJson = (List<String>) ctx.evaluateString(scope, script, "", 0, null);
 		Context.exit();
 		return dataJson;

@@ -108,16 +108,16 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	/* internal, not sended with response  */
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_DELAY          = "X-Delay";          // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE = "X-Content-Source"; // response non-standard
-	private static final String INTERNAL_HTTP_HEADER_X_SERVER_CGI            = "X-CGI";            // response non-standard
-	private static final String INTERNAL_HTTP_HEADER_X_SERVER_XGI            = "X-XGI";            // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_HANDLER_CGI    = "X-Handler-CGI";    // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_HANDLER_XGI    = "X-Handler-XGI";    // response non-standard
+	private static final String INTERNAL_HTTP_HEADER_X_SERVER_HANDLER_JS     = "X-Handler-JS";     // response non-standard
 	private static final String INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO     = "X-Forward-To";     // response non-standard
-	private static final String INTERNAL_HTTP_HEADER_X_SERVER_MODIFY_DATA    = "X-Modify-Data";    // response non-standard
 
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY     = "X-OpenAPI-Summary";    // request non-standard
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION = "X-OpenAPI-Description";// request non-standard
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_TAGS        = "X-OpenAPI-Tags";       // request non-standard
 
-	private static final String X_POWERED_BY_VALUE = "DeepfakeHTTP " + System.getProperty("build.version") + " (" + System.getProperty("build.timestamp") + ")";
+	private static final String X_SERVER_VALUE = "DeepfakeHTTP " + System.getProperty("build.version") + " (" + System.getProperty("build.timestamp") + ")";
 
 	private byte[] openApiJsonBs;
 	private byte[] openApiYamlBs;
@@ -421,6 +421,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					String cgi           = null;
 					String xgi           = null;
+					String jsFunc        = null;
 					String forwardOrigin = null;
 
 					String requestContentSource  = null;
@@ -442,7 +443,6 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					Map<String, List<String>> providedHeaderValuesMap = new LinkedHashMap<>();
 					extractRequestHeaders(request, providedHeaderValuesMap);
 
-					String resultJs = null;
 					for (ReqResp rr : allReqResps) {
 
 						ReqResp crr = cloneReqResp(rr);
@@ -493,31 +493,14 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									responseDelay = Integer.parseInt(header.value);
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									responseContentSource = header.value;
-								else if (INTERNAL_HTTP_HEADER_X_SERVER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+								else if (INTERNAL_HTTP_HEADER_X_SERVER_HANDLER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									cgi = header.value;
-								else if (INTERNAL_HTTP_HEADER_X_SERVER_XGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+								else if (INTERNAL_HTTP_HEADER_X_SERVER_HANDLER_XGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									xgi = header.value;
 								else if (INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									forwardOrigin = header.value;
-								else if (INTERNAL_HTTP_HEADER_X_SERVER_MODIFY_DATA.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName)) {
-									/* update data */
-									tmpDataMap = new LinkedHashMap<>();
-									requestMap = new LinkedHashMap<>();
-									requestMap.put("parameters", providedParams);
-									requestMap.put("method", method);
-									requestMap.put("path", providedPath);
-									requestMap.put("query", providedQueryString);
-									requestMap.put("headers", providedHeaderValuesMap);
-									requestMap.put("body", providedBody);
-									tmpDataMap.put("request", requestMap);
-									tmpDataMap.put("data", dataMap);
-
-									List<String> lst = TemplateUtils.processData(scope, header.value, tmpDataMap, jsonRequest);
-									dataJson     = lst.get(0);
-									dataJsonNode = JacksonUtils.parseJsonYamlToMap(dataJson);
-									dataMap      = new ObjectMapper().treeToValue(dataJsonNode, Object.class);
-									resultJs     = lst.get(1);
-								}
+								else if (INTERNAL_HTTP_HEADER_X_SERVER_HANDLER_JS.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									jsFunc = header.value;
 							}
 
 							/* After oricessing of header templates, we can process body template with updated data. */
@@ -624,6 +607,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + badRequestStatus + ' ' + "Bad request";
 					}
 
+					String responseBbody = reqResp.response.body.toString();
+
 					String        responseFirstLineStr = reqResp.response.firstLine;
 					FirstLineResp firstLineResp        = new FirstLineResp(responseFirstLineStr);
 
@@ -641,13 +626,13 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							continue;
 						else if (INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
-						else if (INTERNAL_HTTP_HEADER_X_SERVER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+						else if (INTERNAL_HTTP_HEADER_X_SERVER_HANDLER_CGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
-						else if (INTERNAL_HTTP_HEADER_X_SERVER_XGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+						else if (INTERNAL_HTTP_HEADER_X_SERVER_HANDLER_XGI.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
 						else if (INTERNAL_HTTP_HEADER_X_SERVER_FORWARD_TO.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
-						else if (INTERNAL_HTTP_HEADER_X_SERVER_MODIFY_DATA.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+						else if (INTERNAL_HTTP_HEADER_X_SERVER_HANDLER_JS.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							continue;
 
 						responseHeaders.put(header.name, header.value);
@@ -655,7 +640,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					if (!noPoweredBy)
 						if (!responseHeaders.containsKey(HTTP_HEADER_SERVER))
-							responseHeaders.put(HTTP_HEADER_SERVER, X_POWERED_BY_VALUE);
+							responseHeaders.put(HTTP_HEADER_SERVER, X_SERVER_VALUE);
 
 					if (requestDelay != 0)
 						Thread.sleep(requestDelay);
@@ -678,6 +663,60 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						if (HTTP_HEADER_CONTENT_TYPE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 							contentType = header.value;
 					}
+
+					/*
+					 * Create environment map
+					 */
+					Map<String, String> env = new LinkedHashMap<>();
+					/*
+					 * https://datatracker.ietf.org/doc/html/rfc3875#section-4.1.18
+					 * RFC 3875 The Common Gateway Interface (CGI) Version 1.1
+					 */
+
+					/* Request Meta-Variables */
+					// 4.1.1.  AUTH_TYPE. . . .  https://datatracker.ietf.org/doc/html/rfc3875#page-11
+					// 4.1.2.  CONTENT_LENGTH .  https://datatracker.ietf.org/doc/html/rfc3875#page-12
+					// 4.1.3.  CONTENT_TYPE . .  https://datatracker.ietf.org/doc/html/rfc3875#page-12
+					// 4.1.4.  GATEWAY_INTERFACE https://datatracker.ietf.org/doc/html/rfc3875#page-13
+					// 4.1.5.  PATH_INFO. . . .  https://datatracker.ietf.org/doc/html/rfc3875#page-13
+					// 4.1.6.  PATH_TRANSLATED.  https://datatracker.ietf.org/doc/html/rfc3875#page-14
+					// 4.1.7.  QUERY_STRING . .  https://datatracker.ietf.org/doc/html/rfc3875#page-15
+					// 4.1.8.  REMOTE_ADDR. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-15
+					// 4.1.9.  REMOTE_HOST. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-16
+					// 4.1.10. REMOTE_IDENT . .  https://datatracker.ietf.org/doc/html/rfc3875#page-16
+					// 4.1.11. REMOTE_USER. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-16
+					// 4.1.12. REQUEST_METHOD .  https://datatracker.ietf.org/doc/html/rfc3875#page-17
+					// 4.1.13. SCRIPT_NAME. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-17
+					// 4.1.14. SERVER_NAME. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-17
+					// 4.1.15. SERVER_PORT. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-18
+					// 4.1.16. SERVER_PROTOCOL.  https://datatracker.ietf.org/doc/html/rfc3875#page-18
+					// 4.1.17. SERVER_SOFTWARE.  https://datatracker.ietf.org/doc/html/rfc3875#page-19
+
+					env.put("SERVER_SOFTWARE", X_SERVER_VALUE);
+					env.put("SERVER_NAME", valToStr(req.getServerName()));
+					env.put("GATEWAY_INTERFACE", "CGI/1.1");
+					env.put("SERVER_PROTOCOL", valToStr(req.getProtocol()));
+					env.put("SERVER_PORT", valToStr(Integer.toString(port)));
+					env.put("REQUEST_METHOD", valToStr(method));
+					env.put("REQUEST_URI", valToStr(req.getRequestURI()));
+					env.put("PATH_INFO", valToStr(providedPath));
+					env.put("PATH_TRANSLATED", valToStr(providedPath));
+					env.put("SCRIPT_NAME", "");
+					env.put("QUERY_STRING", valToStr(providedQueryString));
+					env.put("REMOTE_HOST", valToStr(req.getRemoteHost()));
+					env.put("REMOTE_ADDR", valToStr(req.getRemoteAddr()));
+					env.put("AUTH_TYPE", valToStr(req.getAuthType()));
+					env.put("REMOTE_USER", valToStr(req.getRemoteUser()));
+					env.put("REMOTE_IDENT", ""); //not necessary for full compliance
+					env.put("CONTENT_TYPE", valToStr(req.getContentType()));
+					long contentLength = req.getContentLengthLong();
+					env.put("CONTENT_LENGTH", valToStr(contentLength <= 0 ? "" : Long.toString(contentLength)));
+
+					while (headers.hasMoreElements()) {
+						String header = headers.nextElement().toUpperCase(Locale.ENGLISH);
+						env.put("HTTP_" + header.replace('-', '_'), req.getHeader(header));
+					}
+
 					if (status != badRequestStatus)
 						if (responseContentSource != null) {
 							if (responseContentSource.startsWith(IProtocol.FILE) || responseContentSource.startsWith(IProtocol.HTTP) || responseContentSource.startsWith(IProtocol.HTTPS)) {
@@ -692,91 +731,90 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									contentType = contentTypeArr[0];
 							} else
 								throw new IllegalArgumentException(MessageFormat.format("Bad {0} value: {1}", INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE, responseContentSource));
-						} else if (xgi != null || cgi != null) {
-							Map<String, String> env = new LinkedHashMap<>();
-							/*
-							 * https://datatracker.ietf.org/doc/html/rfc3875#section-4.1.18
-							 * RFC 3875 The Common Gateway Interface (CGI) Version 1.1
-							 */
-
-							/* Request Meta-Variables */
-							// 4.1.1.  AUTH_TYPE. . . .  https://datatracker.ietf.org/doc/html/rfc3875#page-11
-							// 4.1.2.  CONTENT_LENGTH .  https://datatracker.ietf.org/doc/html/rfc3875#page-12
-							// 4.1.3.  CONTENT_TYPE . .  https://datatracker.ietf.org/doc/html/rfc3875#page-12
-							// 4.1.4.  GATEWAY_INTERFACE https://datatracker.ietf.org/doc/html/rfc3875#page-13
-							// 4.1.5.  PATH_INFO. . . .  https://datatracker.ietf.org/doc/html/rfc3875#page-13
-							// 4.1.6.  PATH_TRANSLATED.  https://datatracker.ietf.org/doc/html/rfc3875#page-14
-							// 4.1.7.  QUERY_STRING . .  https://datatracker.ietf.org/doc/html/rfc3875#page-15
-							// 4.1.8.  REMOTE_ADDR. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-15
-							// 4.1.9.  REMOTE_HOST. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-16
-							// 4.1.10. REMOTE_IDENT . .  https://datatracker.ietf.org/doc/html/rfc3875#page-16
-							// 4.1.11. REMOTE_USER. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-16
-							// 4.1.12. REQUEST_METHOD .  https://datatracker.ietf.org/doc/html/rfc3875#page-17
-							// 4.1.13. SCRIPT_NAME. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-17
-							// 4.1.14. SERVER_NAME. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-17
-							// 4.1.15. SERVER_PORT. . .  https://datatracker.ietf.org/doc/html/rfc3875#page-18
-							// 4.1.16. SERVER_PROTOCOL.  https://datatracker.ietf.org/doc/html/rfc3875#page-18
-							// 4.1.17. SERVER_SOFTWARE.  https://datatracker.ietf.org/doc/html/rfc3875#page-19
-
-							env.put("SERVER_SOFTWARE", "DeepfakeHTTP");
-							env.put("SERVER_NAME", valToStr(req.getServerName()));
-							env.put("GATEWAY_INTERFACE", "CGI/1.1");
-							env.put("SERVER_PROTOCOL", valToStr(req.getProtocol()));
-							env.put("SERVER_PORT", valToStr(Integer.toString(port)));
-							env.put("REQUEST_METHOD", valToStr(method));
-							env.put("REQUEST_URI", valToStr(req.getRequestURI()));
-							env.put("PATH_INFO", valToStr(providedPath));
-							env.put("PATH_TRANSLATED", valToStr(providedPath));
-							env.put("SCRIPT_NAME", "");
-							env.put("QUERY_STRING", valToStr(providedQueryString));
-							env.put("REMOTE_HOST", valToStr(req.getRemoteHost()));
-							env.put("REMOTE_ADDR", valToStr(req.getRemoteAddr()));
-							env.put("AUTH_TYPE", valToStr(req.getAuthType()));
-							env.put("REMOTE_USER", valToStr(req.getRemoteUser()));
-							env.put("REMOTE_IDENT", ""); //not necessary for full compliance
-							env.put("CONTENT_TYPE", valToStr(req.getContentType()));
-							long contentLength = req.getContentLengthLong();
-							env.put("CONTENT_LENGTH", valToStr(contentLength <= 0 ? "" : Long.toString(contentLength)));
-
-							while (headers.hasMoreElements()) {
-								String header = headers.nextElement().toUpperCase(Locale.ENGLISH);
-								env.put("HTTP_" + header.replace('-', '_'), req.getHeader(header));
+						} else if (xgi != null) {
+							byte[]        requestBs        = createRequestBytes(providedFirstLineStr, providedHeaderValuesMap, providedBodyBs);
+							byte[]        outBs            = runCgi(xgi, requestBs, env);
+							String        outStr           = new String(outBs, StandardCharsets.UTF_8);
+							int           pos              = outStr.indexOf('\n');
+							String        firstLineRespStr = outStr.substring(0, pos).strip();
+							FirstLineResp firstLineRespCgi = new FirstLineResp(firstLineRespStr);
+							if (status == 0) {
+								status  = firstLineRespCgi.getStatus();
+								message = firstLineRespCgi.getMessage();
 							}
-							if (xgi != null) {
-								byte[]        requestBs        = createRequestBytes(providedFirstLineStr, providedHeaderValuesMap, providedBodyBs);
-								byte[]        outBs            = runCgi(xgi, requestBs, env);
-								String        outStr           = new String(outBs, StandardCharsets.UTF_8);
-								int           pos              = outStr.indexOf('\n');
-								String        firstLineRespStr = outStr.substring(0, pos).strip();
-								FirstLineResp firstLineRespCgi = new FirstLineResp(firstLineRespStr);
-								if (status == 0) {
-									status  = firstLineRespCgi.getStatus();
-									message = firstLineRespCgi.getMessage();
-								}
-								String   headersAndBodyStr = outStr.substring(pos + 1);
-								int      pos2              = headersAndBodyStr.indexOf("\n\n");
-								String   headersStr        = headersAndBodyStr.substring(0, pos2);
-								String[] headersArr        = headersStr.split("\\n");
-								for (String headerStr : headersArr) {
-									Header header = new Header(headerStr);
-									if (!responseHeaders.containsKey(header.name))
-										responseHeaders.put(header.name, header.value);
-								}
+							String   headersAndBodyStr = outStr.substring(pos + 1);
+							int      pos2              = headersAndBodyStr.indexOf("\n\n");
+							String   headersStr        = headersAndBodyStr.substring(0, pos2);
+							String[] headersArr        = headersStr.split("\\n");
+							for (String headerStr : headersArr) {
+								Header header = new Header(headerStr);
+								if (!responseHeaders.containsKey(header.name))
+									responseHeaders.put(header.name, header.value);
+							}
+							if (!responseBbody.isEmpty())
+								bs = responseBbody.getBytes(StandardCharsets.UTF_8);
+							else {
 								bs = new byte[outBs.length - (pos + pos2 + 2)];
 								System.arraycopy(outBs, pos + pos2 + 2, bs, 0, bs.length);
-							} else if (cgi != null) {
-								byte[]   outBs             = runCgi(cgi, providedBodyBs, env);
-								String   headersAndBodyStr = new String(outBs, StandardCharsets.UTF_8);
-								int      pos2              = headersAndBodyStr.indexOf("\n\n");
-								String   headersStr        = headersAndBodyStr.substring(0, pos2);
-								String[] headersArr        = headersStr.split("\\n");
-								for (String headerStr : headersArr) {
-									Header header = new Header(headerStr);
-									if (!responseHeaders.containsKey(header.name))
-										responseHeaders.put(header.name, header.value);
-								}
+							}
+						} else if (cgi != null) {
+							byte[]   outBs             = runCgi(cgi, providedBodyBs, env);
+							String   headersAndBodyStr = new String(outBs, StandardCharsets.UTF_8);
+							int      pos2              = headersAndBodyStr.indexOf("\n\n");
+							String   headersStr        = headersAndBodyStr.substring(0, pos2);
+							String[] headersArr        = headersStr.split("\\n");
+							for (String headerStr : headersArr) {
+								Header header = new Header(headerStr);
+								if (!responseHeaders.containsKey(header.name))
+									responseHeaders.put(header.name, header.value);
+							}
+							if (!responseBbody.isEmpty())
+								bs = responseBbody.getBytes(StandardCharsets.UTF_8);
+							else {
 								bs = new byte[outBs.length - (pos2 + 2)];
 								System.arraycopy(outBs, pos2 + 2, bs, 0, bs.length);
+							}
+						} else if (jsFunc != null) {
+							/* update data */
+							Map<String, Object> tmpDataMap = new LinkedHashMap<>();
+							Map<String, Object> requestMap = new LinkedHashMap<>();
+							requestMap.put("parameters", providedParams);
+							requestMap.put("method", method);
+							requestMap.put("path", providedPath);
+							requestMap.put("query", providedQueryString);
+							requestMap.put("headers", providedHeaderValuesMap);
+							requestMap.put("body", providedBody);
+							tmpDataMap.put("request", requestMap);
+							tmpDataMap.put("data", dataMap);
+
+							List<String> lst = TemplateUtils.processData(scope, jsFunc, tmpDataMap, jsonRequest);
+							dataJson     = lst.get(0);
+							dataJsonNode = JacksonUtils.parseJsonYamlToMap(dataJson);
+							dataMap      = new ObjectMapper().treeToValue(dataJsonNode, Object.class);
+							String              responseFromJs         = lst.get(1);
+							JsonNode            responseJsonNodeFromJs = JacksonUtils.parseJsonYamlToMap(responseFromJs);
+							Map<String, Object> responseObjFromJs      = new ObjectMapper().treeToValue(responseJsonNodeFromJs, Map.class);
+							String              bodyFromJs             = (String) responseObjFromJs.get("body");
+							Integer             statusFromJs           = (Integer) responseObjFromJs.get("status");
+							if (firstLineResp.getStatus() == 0)
+								if (statusFromJs != null)
+									status = statusFromJs;
+
+							Map<String, List<String>> headersFromJs = (Map<String, List<String>>) responseObjFromJs.get("headers");
+							for (Entry<String, List<String>> entry : headersFromJs.entrySet()) {
+								String       headerName   = entry.getKey();
+								List<String> headerValues = entry.getValue();
+								String       headerValue  = httpHeaderValuesToString(headerValues);
+								response.addHeader(headerName, headerValue);
+							}
+							if (responseBbody.isEmpty())
+								if (bodyFromJs != null)
+									bs = bodyFromJs.getBytes(StandardCharsets.UTF_8);
+								else
+									bs = new byte[0];
+							else {
+								responseBbody = TemplateUtils.processTemplate(scope, responseBbody, tmpDataMap);
+								bs            = responseBbody.getBytes(StandardCharsets.UTF_8);
 							}
 						} else if (forwardOrigin != null) {
 							String url = forwardOrigin + providedPath;
@@ -838,16 +876,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 								// Ignore 404
 								bs = new byte[0];
 							}
-						} else {
-							String body = reqResp.response.body.toString();
-							if (body.isEmpty()) {
-								if (resultJs == null)
-									body = "";
-								else
-									body = resultJs;
-							}
-							bs = body.getBytes(StandardCharsets.UTF_8);
-						}
+						} else
+							bs = responseBbody.getBytes(StandardCharsets.UTF_8);
 
 					if (responseDelay != 0)
 						Thread.sleep(responseDelay);
