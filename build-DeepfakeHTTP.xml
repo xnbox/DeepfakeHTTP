@@ -36,7 +36,7 @@ E-Mail: xnbox.team@outlook.com
 
 	<target name="main">
 		<property name="dollar" value="$" />
-		<property name="build.version" value="5.1.1" />
+		<property name="build.version" value="6.1.1" />
 		<property name="tmpDir" value="${java.io.tmpdir}" />
 		<property name="tmpAppWar" value="${tmpDir}/app.war" />
 		<property name="tmpMetaInfDir" value="${tmpDir}/DeepfakeHTTP/META-INF" />

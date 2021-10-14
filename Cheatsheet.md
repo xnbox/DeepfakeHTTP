@@ -617,7 +617,7 @@ Content-Type: application/json
 Start server:
 	
 ```
-java -jar df.jar --dump dump.txt --data customers.json
+java -jar df.jar --dump dump.txt --db customers.json
 ```
 </li>
 <li>
@@ -645,7 +645,6 @@ Get response:
 	<li>Parameters are always treated as strings.</li>
 	<li>The data file can be organized as an object or an array.</li>
 	<li>You can select a random record from the data file.</li>
-	<li>Multiple data files are supported with the <code>--data</code> option.</li>
 	<li>DeepfakeHTTP supports JSON, YAML and CSV data files.</li>
 	<li>By default, data files are watched for changes. Use <code>--no-watch</code> option to disable watching.</li>
 	<li>Don't miss a single carriage return between headers and body!</li>
@@ -694,7 +693,7 @@ Content-Type: application/json
 Start server:
 	
 ```
-java -jar df.jar --dump dump.txt --data customers.json
+java -jar df.jar --dump dump.txt --db customers.json
 ```
 </li>
 <li>
@@ -720,7 +719,6 @@ Get response:
 <ul>
 	<li>The data file can be organized as an object or an array.</li>
 	<li>You can select record from the data file by index.</li>
-	<li>Multiple data files are supported with the <code>--data</code> option.</li>
 	<li>DeepfakeHTTP supports JSON, YAML and CSV data files.</li>
 	<li>By default, data files are watched for changes. Use <code>--no-watch</code> option to disable watching.</li>
 	<li>Don't miss a single carriage return between headers and body!</li>
@@ -1176,7 +1174,7 @@ java -jar df.jar --print-openapi --openapi-title 'Acme-CRM REST API v1.2.3' --du
 <ul>
 	<li>Use <code>--format yaml</code> option to print OpenAPI spec in YAML format.</li>
 	<li>Use <code>--no-color</code> option to disable ANSI colors.</li>
-	<li>Use <code>--openapi-path <path></code> option to serve built-in OpenAPI client.</li>
+	<li>Use <code>--openapi-path &lt;path&gt;</code> option to serve built-in OpenAPI client.</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>

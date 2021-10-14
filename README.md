@@ -1,19 +1,22 @@
-<h1>DeepfakeHTTP<br>
-Your 100% static dynamic backend</h1>
-
-<a title="License MIT" href="https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
-<a title="Release 5.1.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-5.1.1-4DC71F?style=flat-square"></a>
-<a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
-
-<p align="center">
-<a href="#get-started">Get started</a> | <a href="#usage">Usage</a> | <a href="#usage-exampes">Usage Examples</a> | <a href="#how-does-it-work">How does it work?</a> |<a href="#features"> Features</a> | <a href="#appendix-aoptional-request-headers">Optional Headers</a> | <a href="Cheatsheet.md">Cheatsheet</a>
+<p id="start" align="center">
+<br>
+<a href="#start"><img height="130rem" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/logo.png"></a>
+<br><br>
+<a href="#start"><img width="250rem" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/logo_text.png"></a>
+<h1></h1>
 </p>
 
-<p align="center">
+<a title="License MIT" href="https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
+<a title="Release 6.1.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-6.1.1-4DC71F?style=flat-square"></a>
+<a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
+<br>
+<p id="banner" align="center">
+<br>
+<a href="#banner"><img width="98%" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/text.png" alt="YOUR 100% STATIC DYNAMIC BACKEND"></a>
 <table>
 <tr>
 <td>
-<img align="left" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/image1.png" width="190">
+<a href="#banner"><img align="left" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/image1.png" width="190"></a>
 <h3>What are people using it for?</h3>
 <ul>
     <li>Creating the product PoC or demo before even starting out with the backend</li>
@@ -25,6 +28,9 @@ Your 100% static dynamic backend</h1>
 </td>
 </tr>
 </table>
+</p>
+<p align="center">
+<a href="#get-started">Get started</a> | <a href="#usage">Usage</a> | <a href="#usage-exampes">Usage Examples</a> | <a href="#how-does-it-work">How does it work?</a> |<a href="#features"> Features</a> | <a href="#appendix-boptional-request--response-headers">Optional Headers</a> | <a href="#appendix-acommand-line-options">CLI</a> | <a href="Cheatsheet.md">Cheatsheet</a> | <a href="#">FAQ</a>
 </p>
 
 <h2>Get started</h2>
@@ -59,30 +65,33 @@ java -jar df.jar --dump dump.txt
 <a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a><br><br>
 </li>
 <li>Get response:<br>
-<img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/get-started.png">
+<a href="#get-started"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/get-started.png"></a>
 </li>
 </ol>
 That's it!
 <br>
 <br>
-For more examples, see the <a href="Cheatsheet.md">cheatsheet</a>.
+For more examples see the <a href="Cheatsheet.md">cheatsheet</a>.
 <br><br>
 
 <h2>Usage</h2>
 
 ```
-java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS]
-
+java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS]                                 
+                                                                              
 OPTIONS:                                                                      
    --port <number>         HTTP TCP port number, default: 8080                
    --port-ssl <number>     HTTPS TCP port number, default: 8443               
    --dump <file|url>...    dump text file(s) and/or OpenAPI json/yaml file(s) 
-   --data <file|url>...    json/yaml/csv data file(s) to populate templates   
-   --openapi-path <path>   serve built-in OpenAPI client at specified context
-   --openapi-title <text>  provide custom OpenAPI spec title                  
+   --db <file|url>         json/yaml/csv memory file to populate templates    
+   --db-export <file>      export memory to json file                         
+   --db-path <path>        serve live memory file at specified context        
+   --js <file|url>...      JavaScript file(s) for script engine context       
+   --openapi-path <path>   serve built-in OpenAPI client at specified context 
+   --openapi-title <text>  provide custom OpenAPI specification title         
    --collect <file>        collect live request/response to file              
    --format <json|yaml>    output format for --print-* commands, default: json
-   --status <number>       status code for non-matching requests, default: 400
+   --status <number>       status code for non-matching requests, default: 404
    --max-log-body <number> max body bytes in console log, default: unlimited  
                                                                               
 FLAGS:                                                                        
@@ -97,6 +106,7 @@ FLAGS:
    --no-pretty             disable prettyprint for --print-* commands         
    --no-template           disable template processing                        
    --no-wildcard           disable wildcard processing                        
+   --no-bak                disable backup old memory file before overwrite    
    --strict-json           enable strict JSON comparison                      
    --redirect              enable redirect HTTP to HTTPS                      
                                                                               
@@ -164,6 +174,8 @@ Print OpenAPI specification to stdout as JSON:
 java -jar df.jar --print-openapi --dump dump.txt
 </pre>
 </details>
+If you still need examples make sure to check out the <a href="Cheatsheet.md">cheatsheet</a>.
+<br><br>
 
 <h2>Prerequisites</h2>
 <ul>
@@ -176,46 +188,50 @@ java -jar df.jar --print-openapi --dump dump.txt
 	<li>Search the dump for corresponded entry (request-response pair) by matching all specified request's parts:<br>
 	<i>method</i>, <i>URI</i>, <i>headers</i>, and <i>body</i>.</li>
 	<li>If the entry was found, the server sends the appropriate response to the client.</li>
-	<li>If the entry was not found, the server sends a status <code>400</code> (400 Bad request).</li>
+	<li>If the entry was not found, the server sends a status <code>404</code>.</li>
 </ol>
 That's all.
 
 <h2>Features</h2>
-<ul>
-    <li>No dependencies, no installation, no configs</li>
-    <li>Crossplatform single-file executable</li>
-    <li>Retrieve response data from HTTP dumps and/or OpenAPI JSON/YAML</li>
-</ul>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;no dependencies</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;no installation</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;no configs</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;crossplatform</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;single-file executable</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;command-line interface</strong><br>
 <details>
 <summary>
     more features&hellip;
 </summary>
 <br>
-<ul>
-    <li>Optional built-in OpenAPI client</li>
-    <li>Asynchronous requests and responses</li>
-    <li>HTTP message formats (RFC 7230)</li>
-    <li>Unlimited number of request/response pairs in the dump</li>
-    <li>Supports methods: <code>GET</code>, <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc.</li>
-    <li>Multi-line and multi-value headers (RFC 7230).</li>
-    <li>OpenAPI-styled templates in paths</li>
-    <li>Wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in query string and header values</li>
-    <li>Templates in URI, headers, body</li>
-    <li>JSON/YAML/CSV data files to populate templates</li>
-    <li>Response body fetching from external sources like URLs, local files, and data URI</li>
-    <li>Per entry user-defined request and response delays</li>
-    <li>Comments <code> #</code> in dumps</li>
-    <li>Live request/response collection</li>
-    <li>Optional watching dump files for changes</li>
-    <li>Optional <code>ETag</code> support</li>
-    <li>Optional CORS support</li>
-    <li>Optional live request/response logging</li>
-    <li>TLS(SSL) connections and HTTP to HTTPS redirect</li>
-    <li>Customizable OpenAPI client path</li>
-    <li>Latest OpenAPI specification (v3.0.3) in JSON and YAML format</li>
-    <li>Colorized console output</li>
-    <li>Disabling color via <code>NO_COLOR</code> environment variable</li>
-</ul>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;fully asynchronous</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;HTTP message formats RFC 7230</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;multiple entries per dump</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;multiple request/response entries per dump</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;extracts responses from HTTP dumps and OpenAPI JSON/YAML</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;self-hosted built-in OpenAPI client</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;exportable persistent memory</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;persistent data</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;CGI, XGI and JavaScript handlers</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;<code>GET</code>, <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc.</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;multi-line and multi-value headers RFC 7230</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;openAPI-styled templates in paths</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in query string and header values</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;templates in URI, headers, body</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;body fetching from external sources like URLs, local files, and data URI</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;per entry user-defined request/response delays</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;comments <code> #</code> in dumps</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;live request/response collection</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;watching dump files for changes</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;<code>ETag</code> support</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;CORS support</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;live request/response logging</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;TLS(SSL) connections and HTTP to HTTPS redirect</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;customizable OpenAPI client path</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;latest OpenAPI specification <code>v3.0.3</code> support</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;colorized console output</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;disabling color via command line or <code>NO_COLOR</code> environment variable</strong><br>
 </details>
 
 <h2>LICENSE</h2>
@@ -223,120 +239,387 @@ The DeepfakeHTTP is released under the <a href="https://github.com/xnbox/Deepfak
 <br><br>
 <h1></h1>
 <br><br>
+
+
 <h2>
 APPENDIX A.
 <br>
-Optional request headers
+Command line options
 </h2>
 <table>
-    <tr><th width="220rem">Header</th><th>Description</th></tr>
+    <tr><th width="226rem">Option</th><th>Default</th><th>Description</th></tr>
 <tr></tr>
-    <tr><td valign="top"><code>X-Delay</code></td>
-    <td><p>Request delay (in milliseconds).</p>
-    <i>Example:</i>
-    <br>
-
-```http
-# Two seconds request delay.
-
-HTTP/1.1 200 OK
-X-Delay: 2000
-
-{"id": 5, "name": "John Doe"}
-```
-</td></tr>
-<tr></tr>
-    <tr><td valign="top"><code>X-OpenAPI-Summary</code></td>
-    <td>
-    <p>OpenAPI request summary text.</p>
-    <i>Example:</i>
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-X-OpenAPI-Summary: Get customer information
-
-{"id": 5, "name": "John Doe"}
-```
-
-</td></tr>
-<tr></tr>
-    <tr><td valign="top"><code>X-OpenAPI-Description</code></td>
-    <td>
-    <p>OpenAPI request description text.</p>
-    <i>Example:</i>
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-X-OpenAPI-Summary: Get customer information
-X-OpenAPI-Description: This API extracts customer info from db
-
-{"id": 5, "name": "John Doe"}
-```
-
-</td></tr>
-<tr></tr>
-    <tr><td valign="top"><code>X-OpenAPI-Tags</code></td>
-    <td>
-    <p>OpenAPI request comma-separated tag list.</p>
-    <i>Example:</i>
-
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-X-OpenAPI-Summary: Get customer information
-X-OpenAPI-Description: This API extracts customer info from db
-X-OpenAPI-Tags: Work with customer, Buyers, Login info
-
-{"id": 5, "name": "John Doe"}
-```
-<img width="1000" height="0">
+    <tr id="cli-port"><td valign="top"><code>--port &lt;number&gt;</code>
+    </td>
+    <td valign="top" align="right"><code>8080</code></td>
+    <td valign="top">
+    HTTP TCP port number, default: <code>8080</code><br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-port-ssl"><code>--port-ssl &lt;number&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-redirect"><code>--redirect</code></a>
 </td></tr>
 
+<tr></tr>
+    <tr id="cli-port-ssl"><td valign="top"><code>--port-ssl &lt;number&gt;</code>
+    </td>
+    <td valign="top" align="right"><code>8443</code></td>
+    <td valign="top">
+    HTTPS TCP port number, default: <code>8443</code><br>
+    Create TLS(SSL) connection based on built-in self-signed certificate<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-port"><code>--port &lt;number&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-redirect"><code>--redirect</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--dump &lt;file|url&gt;...</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Dump text file(s) and/or OpenAPI json/yaml file(s)
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-db"><td valign="top"><code>--db &lt;file|url&gt;...</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    JSON/YAML/CSV memory file to populate templates<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db-export"><code>--db-export &lt;file&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db-path"><code>--db-path &lt;path&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-bak"><code>--no-bak</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-db-export"><td valign="top"><code>--db-export &lt;file&gt;</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Export memory to JSON file<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db"><code>--db &lt;file|url&gt;...</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db-path"><code>--db-path &lt;path&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-bak"><code>--no-bak</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-db-path"><td valign="top"><code>--db-path &lt;path&gt;</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Serve live memory file at specified context.<br>
+    With this option you can view or export the memory state in JSON format.<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db"><code>--db &lt;file|url&gt;...</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db-export"><code>--db-export &lt;file&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-bak"><code>--no-bak</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--js &lt;file|url&gt;...</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    JavaScript file(s) for script engine context
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-openapi-path"><td valign="top"><code>--openapi-path &lt;path&gt;</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Serve built-in OpenAPI client at specified context<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-openapi-title"><code>--openapi-title &lt;text&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-print-openapi"><code>--print-openapi</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-openapi-title"><td valign="top"><code>--openapi-title &lt;text&gt;</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Provide custom OpenAPI specification title<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-openapi-path"><code>--openapi-path &lt;path&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-print-openapi"><code>--print-openapi</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--collect &lt;file&gt;</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Collect live request/response to file
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--format &lt;json|yaml&gt;</code>
+    </td>
+    <td valign="top" align="right"><code>json</code></td>
+    <td valign="top">
+    Output format for <code>--print-*</code> commands, default: <code>json</code>
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--status &lt;number&gt;</code>
+    </td>
+    <td valign="top" align="right"><code>404</code></td>
+    <td valign="top">
+    Status code for non-matching requests, default: <code>404</code>
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-max-log-body"><td valign="top"><code>--max-log-body &lt;number&gt;</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Max body bytes in console log, default: unlimited<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log"><code>--no-log</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-body"><code>--no-log-body</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-headers"><code>--no-log-headers</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-no-log"><td valign="top"><code>--no-log</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable request/response console logging<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-body"><code>--no-log-body</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-max-log-body"><code>--max-log-body &lt;number&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-headers"><code>--no-log-headers</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-no-log-headers"><td valign="top"><code>--no-log-headers</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable request/response headers in console logging<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log"><code>--no-log</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-body"><code>--no-log-body</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-max-log-body"><code>--max-log-body &lt;number&gt;</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-no-log-body"><td valign="top"><code>--no-log-body</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable request/response body in console logging<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log"><code>--no-log</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-max-log-body"><code>--max-log-body &lt;number&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-headers"><code>--no-log-headers</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--no-cors</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable CORS headers
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--no-etag</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable <code>ETag</code> header
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--no-server</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable <code>Server</code> header
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--no-watch</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable watch files for changes
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-no-color"><td valign="top"><code>--no-color</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable ANSI color output for <code>--print-*</code> commands<br>
+    ANSI color output also can be disabled via <code>NO_COLOR</code> environment variable.<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-pretty"><code>--no-pretty</a></code>
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-no-pretty"><td valign="top"><code>--no-pretty</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable prettyprint for <code>--print-*</code> commands<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-color"><code>--no-color</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--no-template</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable template processing
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--no-wildcard</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable wildcard processing.<br>
+    By default wildcard processing is enabled.<br>
+    The asterisk <code>*</code> represents one or more characters, the question mark <code>?</code> represents a single character, and <code>/</code> represents escape character.
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-no-bak"><td valign="top"><code>--no-bak</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable backup old memory file before overwrite.<br>
+    The memory file is overwritten every time the server shuts down.<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db"><code>--db &lt;file|url&gt;...</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db-export"><code>--db-export &lt;file&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db-path"><code>--db-path &lt;path&gt;</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--strict-json</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Enable strict (byte by byte) JSON comparison
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-redirect"><td valign="top"><code>--redirect</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Enable redirect HTTP to HTTPS<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-port"><code>--port &lt;number&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-port-ssl"><code>--port-ssl &lt;number&gt;</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr><td valign="top"><code>--help</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Print help message
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-print-info"><td valign="top"><code>--print-info</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Print dump files statistics to stdout as json/yaml<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-format"><code>--format &lt;json|yaml&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-color"><code>--no-color</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-pretty"><code>--no-pretty</a></code>
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-print-requests"><td valign="top"><code>--print-requests</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Print dump requests to stdout as json/yaml<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-format"><code>--format &lt;json|yaml&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-color"><code>--no-color</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-pretty"><code>--no-pretty</a></code>
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-print-openapi"><td valign="top"><code>--print-openapi</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Print OpenAPI specification to stdout as json/yaml<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-openapi-path"><code>--openapi-path &lt;path&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-openapi-title"><code>--openapi-title &lt;text&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-format"><code>--format &lt;json|yaml&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-color"><code>--no-color</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-pretty"><code>--no-pretty</code></a>
+	<img width="1000" height="0">
+</td></tr>
 </table>
-<strong>NOTE: </strong>Optional request headers will <strong>not</strong> be sent to the server engine.
-<br><br>
 
+<br><br>
 
 <h2>
 APPENDIX B.
 <br>
-Optional response headers
+Optional REQUEST / RESPONSE headers
 </h2>
 <table>
     <tr><th width="220rem">Header</th><th>Description</th></tr>
 <tr></tr>
-    <tr><td valign="top"><code>X-Delay</code></td>
-    <td><p>Response delay (in milliseconds).</p>
-    <i>Example:</i>
+    <tr><td valign="top"><pre>X-Delay</pre>
+	<a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/request.svg"></a>
+	<br><a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/response.svg"></a>
+	</td>
+    <td valign="top"><p>Request or response delay (in milliseconds).</p>
+    <i>Examples:</i><br>
     <br>
 
+Two seconds request delay:<br>
 ```http
-# Two seconds response delay.
+GET / HTTP/1.1
+X-Delay: 2000
+```
 
+<h2></h2>
+
+Two seconds response delay:<br>
+```http
 HTTP/1.1 200 OK
 X-Delay: 2000
-
-{"id": 5, "name": "John Doe"}
 ```
 
 </td></tr>
 <tr></tr>
-    <tr><td valign="top"><code>X-Content-Source</code></td>
-    <td>
-    <p>
-    The URL of the externally hosted content. The content from the URL will be sent as the response body.
+    <tr><td valign="top"><pre>X-Content-Source</pre>
+	<a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/request.svg"></a>
+	<br><a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/response.svg"></a>
+    </td>
+    <td valign="top">
+    The URL of the externally hosted content.<br>
+    <br>
+    The content from the URL will be sent as the response body.
     Supported protocols: <code>http:</code>, <code>https:</code>, <code>file:</code>, <code>data:</code>.<br>
     If the URL provides its own content type and there is no <code>Content-Type</code> header in the dump, the original <code>Content-Type</code> header received from the URL will be sent along with other response headers.
-    </p>
-    <p>
-    This header is useful when you want to send content hosted on a remote server or just send binary data as a response body.
-    </p>
+    <br>
+    This header is useful when you want to send content hosted on a remote server or just send binary data as a response body.<br>
+	<br>
     <i>Examples:</i>
 <br><br>
 
-Get a response body from a remote server.<br>
+Get a response body from a remote server:<br>
 
 ```http
 HTTP/1.1 200 OK
@@ -346,7 +629,7 @@ X-Content-Source: http://example.com/api/car/1234.json
 
 <h2></h2>
 
-Get a response body from a file.<br>
+Get a response body from a file:<br>
 
 ```http
 HTTP/1.1 200 OK
@@ -356,7 +639,7 @@ X-Content-Source: file:///home/john/photo.jpeg
 
 <h2></h2>
 
-Get a response body from a data URI.<br>
+Get a response body from a data URI:<br>
 
 ```http
 HTTP/1.1 200 OK
@@ -365,9 +648,68 @@ X-Content-Source: data:image/gif;base64,R0lGODlhAQABAIAAAP...
 ```
 </td></tr>
 <tr></tr>
-        <tr><td valign="top"><code>X-Forward-To</code></td>
-    <td>
-    <p>Forward client request to specified origin. Acts as a forward proxy.</p>
+    <tr id="X-OpenAPI-Summary"><td valign="top"><pre>X-OpenAPI-Summary</pre>
+	<a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/request.svg"></a>
+    </td>
+    <td valign="top">
+    <p>OpenAPI request summary text.</p>
+    <i>Example:</i>
+
+```http
+GET /api/customer{id} HTTP/1.1
+X-OpenAPI-Summary: Get customer information
+```
+<br>See Also:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Description"><code>X-OpenAPI-Description</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Tags"><code>X-OpenAPI-Tags</code></a>
+
+</td></tr>
+<tr></tr>
+    <tr id="X-OpenAPI-Description"><td valign="top"><pre>X-OpenAPI-Description</pre>
+	<a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/request.svg"></a>
+    </td>
+    <td valign="top">
+    OpenAPI request description text.<br>
+    <br>
+    <i>Example:</i>
+
+```http
+GET /api/customer{id} HTTP/1.1
+X-OpenAPI-Summary: Get customer information
+X-OpenAPI-Description: This API extracts customer info from db
+```
+<br>See Also:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Summary"><code>X-OpenAPI-Summary</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Tags"><code>X-OpenAPI-Tags</code></a>
+
+</td></tr>
+<tr></tr>
+    <tr id="X-OpenAPI-Tags"><td valign="top"><pre>X-OpenAPI-Tags</pre>
+	<a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/request.svg"></a>
+    </td>
+    <td valign="top">
+    OpenAPI request comma-separated tag list.<br>
+    <br>
+    <i>Example:</i>
+
+```http
+GET /api/customer{id} HTTP/1.1
+X-OpenAPI-Summary: Get customer information
+X-OpenAPI-Description: This API extracts customer info from db
+X-OpenAPI-Tags: Work with customer, Buyers, Login info
+```
+<br>See Also:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Summary"><code>X-OpenAPI-Summary</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Description"><code>X-OpenAPI-Description</code></a>
+
+</td></tr>
+<tr></tr>
+        <tr><td valign="top"><pre>X-Forward-To</pre>
+		<a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/response.svg"></a>
+        </td>
+    <td valign="top">
+    Forward client request to specified origin. Acts as a forward proxy.<br>
+    <br>
     <i>Example:</i>
 <br>
 
@@ -377,19 +719,136 @@ X-Forward-To: http://example.com:8080
 ```
 </td></tr>
 <tr></tr>
-        <tr><td valign="top"><code>X-CGI</code></td>
-    <td>
-    <p>CGI (Common Gateway Interface) program.</p>
+        <tr id="X-Handler-CGI"><td valign="top"><pre>X-Handler-CGI</pre>
+		<a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/response.svg"></a>
+        </td>
+    <td valign="top">
+    <strong>CGI</strong> (<strong>C</strong>ommon <strong>G</strong>ateway <strong>I</strong>nterface) program.<br>
+    <br>
     <i>Example:</i>
 <br>
 
 ```http
-HTTP/1.1
-X-CGI: /home/john/myprog.sh param1 param2
+HTTP/1.1 200 OK
+X-Handler-CGI: /home/john/myprog.sh param1 param2
 ```
+<br>See Also:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-Handler-XGI"><code>X-Handler-XGI</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-Handler-JS"><code>X-Handler-JS</code></a>
+</td></tr>
+<tr></tr>
+        <tr id="X-Handler-XGI"><td valign="top"><pre>X-Handler-XGI</pre>
+		<a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/response.svg"></a>
+        </td>
+    <td valign="top">
+    <strong>XGI</strong> (<strong>E</strong>xtended <strong>G</strong>ateway <strong>I</strong>nterface) program.<br>
+    <br>
+XGI program is very similar to CGI, but unlike CGI, the XGI program 
+reads from stdin not only the body of the request but also the first line and the headers.
+In response XGI program writes <i>status line</i>, <i>headers</i> and <i>response body </i>into stdout.<br>
+All CGI environment variables are also available to XGI program.<br>
+    <br>
+    <i>Example:</i>
+<br>
+
+```http
+# NOTE:
+# The actual status line will be generated by the XGI program.
+
+HTTP/1.1
+X-XGI: /home/john/myprog.sh param1 param2
+```
+<br>See Also:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-Handler-CGI"><code>X-Handler-CGI</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-Handler-JS"><code>X-Handler-JS</code></a>
+</td></tr>
+<tr></tr>
+        <tr id="X-Handler-JS"><td valign="top"><pre>X-Handler-JS</pre>
+		<a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/response.svg"></a>
+        </td>
+    <td valign="top">
+    JavaScript response handler function.<br>
+    <br>
+The following objects are provided as handler function parameters:<br>
+<ul>
+	<li>
+	<strong><code>request</code></strong> - <i>object</i>, <strong>READ ONLY</strong>
+	<ul>
+		<li><code>request.method</code>: <i>string</i> E.g. <code>request.method</code> ➞ <code>post</code></li>
+		<li><code>request.path</code>: <i>string</i> E.g. <code>request.path</code> ➞ <code>/api/customers</code></li>
+		<li><code>request.query</code>: <i>string</i> E.g. <code>request.query</code> ➞ <code>fname=John&lname=Doe</code></li>
+		<li><code>request.parameters</code>: <i>object</i> E.g. <code>request.parameters.fname[0]</code> ➞ <code>John</code></li>
+		<li><code>headers</code>: <i>object</i> E.g. <code>request.headers['content-type'][0]</code> ➞ <code>application/json</code></li>
+		<li><code>request.body</code>: <i>string | object</i> E.g. <code>request.body</code> ➞ <code>{"fname": "Jonh", lname: "Doe"}</code></li>
+	</ul>
+	</li>
+	<li>
+	<strong><code>response</code></strong> - <i>object</i>, <strong>READ | WRITE</strong>
+	<ul>
+		<li><code>response.status</code>: <i>number</i> E.g. <code>response.status = 200</code></li>
+		<li><code>response.headers</code>: <i>object</i> E.g. <code>response.headers['Content-Type'] = 'application/json'</code></li>
+		<li><code>response.body</code>: <i>string | object</i> E.g. <code>response.body = {"fname": "Jonh", lname: "Doe"}</code></li>
+	</ul>
+	</li>
+	<li><strong><code>data</code></strong>: <i>object</i>, <strong>READ | WRITE</strong> - persistent user data from the file provided by <code>--db</code> option</li>
+</ul>
+Among other things, the <code>X-Handler-JS</code> header allows you to modify persistent data.<br>
+<br>
+    <i>Examples:</i><br>
+<br>
+
+JavaScript function modify memory data:
+
+```http
+DELETE /customers/{id}
+
+HTTP/1.1 200 OK
+X-Handler-JS: deleteCustomer
+Content-Type: application/json
+
+{"id": "${request.parameters.id[0]}"};
+
+```
+
+```js
+function deleteCustomer(request, response, data) {
+    const id = request.parameters.id[0];
+    delete data.customers[id];
+}
+```
+<h2></h2>
+JavaScript function modify memory data and provide response status, headers and body:
+
+```http
+DELETE /customers/{id}
+
+HTTP/1.1
+X-Handler-JS: deleteCustomer
+
+```
+
+```js
+function deleteCustomer(request, response, data) {
+    const id = request.parameters.id[0];
+    if (data.customers[id] === undefined) {
+        response.status = 404;
+        response.body = {error: true, message: 'ID not found'};
+    }
+    delete data.customers[id];
+    response.status = 200;
+    response.headers['Content-Type'] = 'application/json';
+    response.body = {error: false, message: null};
+}
+```
+
+<br>See Also:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-Handler-CGI"><code>X-Handler-CGI</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-Handler-XGI"><code>X-Handler-XGI</code></a>
 <img width="1000" height="0">
-	</td>
-	</td></tr>
+</td></tr>
 </table>
-<strong>NOTE:  </strong>Optional response headers will <strong>not</strong> be sent to clients.
-<br><br>
+<br>
+
+>**NOTE:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1. Optional request headers will **not** be sent to the server engine.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. Optional response headers will **not** be sent to clients.
