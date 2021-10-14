@@ -604,7 +604,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					if (reqResp == null) { // request-reponse pair not found
 						reqResp                    = new ReqResp();
-						reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + badRequestStatus + ' ' + "Bad request";
+						reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + badRequestStatus + ' ' + "Not found";
 					}
 
 					String responseBbody = reqResp.response.body.toString();
