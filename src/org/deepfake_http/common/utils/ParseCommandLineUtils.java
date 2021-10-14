@@ -105,7 +105,7 @@ public class ParseCommandLineUtils {
 	public static final String ARGS_PRINT_REQUESTS = "--print-requests"; // print dump requests to stdout as json/yaml
 	public static final String ARGS_PRINT_OPENAPI  = "--print-openapi";  // print OpenAPI specification to stdout as json/yaml
 	public static final String ARGS_FORMAT         = "--format";         // output format for --print-* commands, default: json
-	public static final String ARGS_STATUS         = "--status";         // status code for non-matching requests, default: 400
+	public static final String ARGS_STATUS         = "--status";         // status code for non-matching requests, default: 404
 	public static final String ARGS_NO_COLOR       = "--no-color";       // disable ANSI color output for --print-* commands
 	public static final String ARGS_NO_PRETTY      = "--no-pretty";      // disable prettyprint for --print-* commands
 	public static final String ARGS_NO_TEMPLATE    = "--no-template";    // disable template processing
@@ -151,7 +151,7 @@ public class ParseCommandLineUtils {
 		paramMap.put(ARGS_OPENAPI_PATH, null);
 		paramMap.put(ARGS_OPENAPI_TITLE, "");
 		paramMap.put(ARGS_FORMAT, "json");
-		paramMap.put(ARGS_STATUS, HttpServletResponse.SC_BAD_REQUEST); // 400
+		paramMap.put(ARGS_STATUS, HttpServletResponse.SC_NOT_FOUND); // 404
 		paramMap.put(ARGS_MAX_LOG_BODY, Integer.MAX_VALUE); // unlimited
 		paramMap.put(ARGS_NO_LOG_HEADERS, false);
 		paramMap.put(ARGS_NO_LOG_BODY, false);

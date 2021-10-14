@@ -127,7 +127,7 @@ public class CustomMain {
 		sb.append("    --openapi-title <text>  provide custom OpenAPI specification title         \n");
 		sb.append("    --collect <file>        collect live request/response to file              \n");
 		sb.append("    --format <json|yaml>    output format for --print-* commands, default: json\n");
-		sb.append("    --status <number>       status code for non-matching requests, default: 400\n");
+		sb.append("    --status <number>       status code for non-matching requests, default: 404\n");
 		sb.append("    --max-log-body <number> max body bytes in console log, default: unlimited  \n");
 		sb.append("                                                                               \n");
 		sb.append(" FLAGS:                                                                        \n");
