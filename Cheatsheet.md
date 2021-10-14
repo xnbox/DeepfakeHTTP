@@ -85,11 +85,6 @@ Get response:
 <!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="comments">Comments in dump</h2>
 
-<ol>
-
-<li>
-Prepare file <code>dump.txt</code>:
-
 ```http
 # Client request
 GET /api/customer/123 HTTP/1.1
@@ -109,34 +104,6 @@ Content-Type: application/json
 # Some comments at the end (ater "." character)
 # More comments...
 ```
-</li>
-
-<li>
-Start server:
-	
-```
-java -jar df.jar --dump dump.txt
-```
-</li>
-<li>
-Navigate to:<br>
-<a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a>
-</li>
-
-<li>
-Get response:
-
-```json
-{
-    "id": 123,
-    "fname": "John",
-    "lname": "Doe",
-    "email": ["john@example.com", "johndoe@example.com"]
-}
-```
-</li>
-
-</ol>
 <img width="1000" height="1">
 <br>
 <strong>⚡️ Hacks and Tips:</strong><br>
