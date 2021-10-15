@@ -772,6 +772,7 @@ X-XGI: /home/john/myprog.sh param1 param2
 The JavaScript functions are taken from the context files listed in the
 <br>
 <a href="#cli-js"><code>--js &lt;file|url&gt;...</code></a> option.<br>
+<br>
 The following objects are provided as handler function parameters:<br>
 <ul>
 	<li>
