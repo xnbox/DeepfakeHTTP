@@ -769,7 +769,9 @@ X-XGI: /home/john/myprog.sh param1 param2
     <td valign="top">
     JavaScript response handler function.<br>
     <br>
-The JavaScript functions are taken from the context files listed in the <a href="#cli-js"><code>--js &lt;file|url&gt;...</code></a> option.<br>
+The JavaScript functions are taken from the context files listed in the
+<br>
+<a href="#cli-js"><code>--js &lt;file|url&gt;...</code></a> option.<br>
 The following objects are provided as handler function parameters:<br>
 <ul>
 	<li>
