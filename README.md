@@ -288,7 +288,9 @@ Command line options
     <br>See Also:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db-export"><code>--db-export &lt;file&gt;</code></a><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db-path"><code>--db-path &lt;path&gt;</code></a><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-bak"><code>--no-bak</code></a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-bak"><code>--no-bak</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-js"><code>--js &lt;file|url&gt;...</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-Handler-JS"><code>X-Handler-JS</code></a>
 </td></tr>
 
 <tr></tr>
@@ -321,7 +323,10 @@ Command line options
     </td>
     <td valign="top"></td>
     <td valign="top">
-    JavaScript file(s) for script engine context
+    JavaScript file(s) for script engine context.<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-Handler-JS"><code>X-Handler-JS</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db"><code>--db &lt;file|url&gt;...</code></a>
 </td></tr>
 
 <tr></tr>
@@ -846,6 +851,8 @@ function deleteCustomer(request, response, data) {
 ```
 
 <br>See Also:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-js"><code>--js &lt;file|url&gt;...</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db"><code>--db &lt;file|url&gt;...</code></a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-Handler-CGI"><code>X-Handler-CGI</code></a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-Handler-XGI"><code>X-Handler-XGI</code></a>
 <img width="1000" height="0">
