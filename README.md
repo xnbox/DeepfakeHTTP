@@ -205,33 +205,33 @@ That's all.
     more features&hellip;
 </summary>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;fully asynchronous</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;HTTP message formats RFC 7230</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;multiple entries per dump</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;multiple request/response entries per dump</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;extracts responses from HTTP dumps and OpenAPI JSON/YAML</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;self-hosted built-in OpenAPI client</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;exportable persistent memory</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;persistent data</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;CGI, XGI and JavaScript handlers</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;<code>GET</code>, <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc.</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;multi-line and multi-value headers RFC 7230</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;openAPI-styled templates in paths</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in query string and header values</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;templates in URI, headers, body</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;body fetching from external sources like URLs, local files, and data URI</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;per entry user-defined request/response delays</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;comments <code> #</code> in dumps</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;live request/response collection</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;watching dump files for changes</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;<code>ETag</code> support</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;CORS support</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;live request/response logging</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;TLS(SSL) connections and HTTP to HTTPS redirect</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;customizable OpenAPI client path</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;latest OpenAPI specification <code>v3.0.3</code> support</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;colorized console output</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;disabling color via command line or <code>NO_COLOR</code> environment variable</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;fully asynchronous<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;HTTP message formats RFC 7230<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;multiple entries per dump<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;multiple request/response entries per dump<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;extracts responses from HTTP dumps and OpenAPI JSON/YAML<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;self-hosted built-in OpenAPI client<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;exportable persistent memory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;persistent data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;CGI, XGI and JavaScript handlers<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;<code>GET</code>, <code>HEAD</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> etc.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;multi-line and multi-value headers RFC 7230<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;openAPI-styled templates in paths<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;wildcards ( <code> *</code> and <code> ?</code> with escape <code> /</code> ) in query string and header values<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;templates in URI, headers, body<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;body fetching from external sources like URLs, local files, and data URI<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;per entry user-defined request/response delays<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;comments <code> #</code> in dumps<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;live request/response collection<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;watching dump files for changes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;<code>ETag</code> support<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;CORS support<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;live request/response logging<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;TLS(SSL) connections and HTTP to HTTPS redirect<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;customizable OpenAPI client path<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;latest OpenAPI specification <code>v3.0.3</code> support<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;colorized console output<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;disabling color via command line or <code>NO_COLOR</code> environment variable<br>
 </details>
 
 <h2>LICENSE</h2>
