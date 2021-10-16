@@ -714,6 +714,7 @@ X-OpenAPI-Tags: Work with customer, Buyers, Login info
         </td>
     <td valign="top">
     Forward client request to specified origin.<br>
+    <br>
     Acts as a forward proxy.<br>
     <br>
     <i>Example:</i>
