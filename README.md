@@ -713,7 +713,8 @@ X-OpenAPI-Tags: Work with customer, Buyers, Login info
 		<a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/response.svg"></a>
         </td>
     <td valign="top">
-    Forward client request to specified origin. Acts as a forward proxy.<br>
+    Forward client request to specified origin.<br>
+    Acts as a forward proxy.<br>
     <br>
     <i>Example:</i>
 <br>
