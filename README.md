@@ -195,12 +195,12 @@ That's all.
 
 <h2>Features</h2>
 
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;no dependencies</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;no installation</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;no configs</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;crossplatform</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;single-file executable</strong><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<strong>&check;&nbsp;&nbsp;command-line interface</strong><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;no dependencies<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;no installation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;no configs<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;crossplatform<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;single-file executable<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;command-line interface<br>
 <details>
 <summary>
     more features&hellip;
