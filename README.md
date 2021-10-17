@@ -68,7 +68,9 @@ java -jar df.jar --dump dump.txt
 <a href="#get-started"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/get-started.png"></a>
 </li>
 </ol>
-That's it! For more examples see the <a href="Cheatsheet.md">cheatsheet</a>.
+That's it!
+<br>
+For more examples see the <a href="Cheatsheet.md">cheatsheet</a>.
 
 <h2>Usage</h2>
 
@@ -172,7 +174,6 @@ java -jar df.jar --print-openapi --dump dump.txt
 </pre>
 </details>
 If you still need examples make sure to check out the <a href="Cheatsheet.md">cheatsheet</a>.
-<br><br>
 
 <h2>Prerequisites</h2>
 <ul>
