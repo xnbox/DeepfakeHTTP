@@ -146,6 +146,7 @@ public class CustomMain {
 		sb.append("    --no-bak                disable backup old memory file before overwrite    \n");
 		sb.append("    --strict-json           enable strict JSON comparison                      \n");
 		sb.append("    --redirect              enable redirect HTTP to HTTPS                      \n");
+		sb.append("    --db-export-on-exit     export memory only on server close event           \n");
 		sb.append("                                                                               \n");
 		sb.append(" COMMANDS:                                                                     \n");
 		sb.append("    --help                  print help message                                 \n");

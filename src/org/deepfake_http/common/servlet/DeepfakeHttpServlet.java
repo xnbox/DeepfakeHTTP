@@ -240,12 +240,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			@Override
 			public void run() {
 				try {
-					Path dbExportFilePath = new File(dbExportFile).getAbsoluteFile().toPath();
-					if (Files.exists(dbExportFilePath))
-						if (!noBak)
-							Files.move(dbExportFilePath, Paths.get(dbExportFilePath.toString() + ".bak"), StandardCopyOption.REPLACE_EXISTING);
-					Files.writeString(dbExportFilePath, dataJson);
-
+					exportMemoryDataToFile();
 					deleteDir(catalinaBase);
 					deleteDir(catalinaHome);
 				} catch (IOException e) {
@@ -253,6 +248,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 				}
 				logger.log(Level.INFO, "DeepfakeHTTP shutdown");
 			}
+
 		});
 
 		logger.log(Level.INFO, "DeepfakeHTTP started.");
@@ -1442,4 +1438,13 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			return "";
 		return value.toString();
 	}
+
+	private void exportMemoryDataToFile() throws IOException {
+		Path dbExportFilePath = new File(dbExportFile).getAbsoluteFile().toPath();
+		if (Files.exists(dbExportFilePath))
+			if (!noBak)
+				Files.move(dbExportFilePath, Paths.get(dbExportFilePath.toString() + ".bak"), StandardCopyOption.REPLACE_EXISTING);
+		Files.writeString(dbExportFilePath, dataJson);
+	}
+
 }
