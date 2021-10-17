@@ -60,6 +60,11 @@ public class ParseCommandLineUtils {
 	private static final String ARGS_APP_OPTION          = "--app";
 
 	/**
+	 * host name, default: localhost
+	 */
+	private static final String ARGS_HOST_OPTION         = "--host";
+
+	/**
 	 * HTTP TCP port number, default: 8080
 	 */
 	private static final String ARGS_PORT_OPTION         = "--port";
@@ -163,6 +168,8 @@ public class ParseCommandLineUtils {
 			if (args[i].equals(ARGS_HELP_OPTION))
 				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_APP_OPTION))
+				i++;
+			else if (args[i].equals(ARGS_HOST_OPTION))
 				i++;
 			else if (args[i].equals(ARGS_PORT_OPTION))
 				i++;

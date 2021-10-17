@@ -7,7 +7,7 @@
 </p>
 
 <a title="License MIT" href="https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
-<a title="Release 6.1.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-6.1.1-4DC71F?style=flat-square"></a>
+<a title="Release 6.1.2" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-6.1.2-4DC71F?style=flat-square"></a>
 <a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
 <br>
 <p id="banner" align="center">
@@ -79,7 +79,8 @@ For more examples see the <a href="Cheatsheet.md">cheatsheet</a>.
 ```
 java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS]                                 
                                                                               
-OPTIONS:                                                                      
+OPTIONS:                                             
+   --host <host name>      host name, default: localhost
    --port <number>         HTTP TCP port number, default: 8080                
    --port-ssl <number>     HTTPS TCP port number, default: 8443               
    --dump <file|url>...    dump text file(s) and/or OpenAPI json/yaml file(s) 
@@ -248,6 +249,19 @@ Command line options
 </h2>
 <table>
     <tr><th width="226rem">Option</th><th>Default</th><th>Description</th></tr>
+
+<tr></tr>
+    <tr id="cli-host"><td valign="top"><code>--host &lt;host name&gt;</code>
+    </td>
+    <td valign="top" align="right"><code>localhost</code></td>
+    <td valign="top">
+    host name, default: <code>localhost</code><br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-port-ssl"><code>--port &lt;number&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-port-ssl"><code>--port-ssl &lt;number&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-redirect"><code>--redirect</code></a>
+</td></tr>
+
 <tr></tr>
     <tr id="cli-port"><td valign="top"><code>--port &lt;number&gt;</code>
     </td>
@@ -256,7 +270,8 @@ Command line options
     HTTP TCP port number, default: <code>8080</code><br>
     <br>See Also:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-port-ssl"><code>--port-ssl &lt;number&gt;</code></a><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-redirect"><code>--redirect</code></a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-redirect"><code>--redirect</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-host"><code>--host &lt;host name&gt;</code></a>
 </td></tr>
 
 <tr></tr>
@@ -268,7 +283,8 @@ Command line options
     Create TLS(SSL) connection based on built-in self-signed certificate<br>
     <br>See Also:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-port"><code>--port &lt;number&gt;</code></a><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-redirect"><code>--redirect</code></a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-redirect"><code>--redirect</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-host"><code>--host &lt;host name&gt;</code></a>
 </td></tr>
 
 <tr></tr>
@@ -523,7 +539,8 @@ Command line options
     Enable redirect HTTP to HTTPS<br>
     <br>See Also:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-port"><code>--port &lt;number&gt;</code></a><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-port-ssl"><code>--port-ssl &lt;number&gt;</code></a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-port-ssl"><code>--port-ssl &lt;number&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-host"><code>--host &lt;host name&gt;</code></a>
 </td></tr>
 
 <tr></tr>

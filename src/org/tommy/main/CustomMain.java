@@ -116,6 +116,7 @@ public class CustomMain {
 		sb.append(" java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS]                                 \n");
 		sb.append("                                                                               \n");
 		sb.append(" OPTIONS:                                                                      \n");
+		sb.append("    --host <host name>      host name, default: localhost                      \n");
 		sb.append("    --port <number>         HTTP TCP port number, default: 8080                \n");
 		sb.append("    --port-ssl <number>     HTTPS TCP port number, default: 8443               \n");
 		sb.append("    --dump <file|url>...    dump text file(s) and/or OpenAPI json/yaml file(s) \n");
