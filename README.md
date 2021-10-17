@@ -62,7 +62,7 @@ java -jar df.jar --dump dump.txt
 </li>
     <li>Use a browser to check whether the server is running:
 <br>
-<pre><a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a><pre>
+<pre><a href="http://localhost:8080/api/customer/123">http://localhost:8080/api/customer/123</a></pre>
 <br><br>
 </li>
 <li>Get response:<br>
