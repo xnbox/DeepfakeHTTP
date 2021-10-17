@@ -68,11 +68,7 @@ java -jar df.jar --dump dump.txt
 <a href="#get-started"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/get-started.png"></a>
 </li>
 </ol>
-That's it!
-<br>
-<br>
-For more examples see the <a href="Cheatsheet.md">cheatsheet</a>.
-<br><br>
+That's it! For more examples see the <a href="Cheatsheet.md">cheatsheet</a>.
 
 <h2>Usage</h2>
 
