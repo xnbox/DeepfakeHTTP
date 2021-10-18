@@ -1,4 +1,6 @@
-<h1>Table of Contents</h1>
+<h1>DeepfakeHTTP cheatsheet</h1>
+
+<h2>Table of Contents</h2>
 <ul>
 	<li><a href="#hello-world">Hello, World!</a></li>
 	<li><a href="#comments">Comments in dump</a></li>
