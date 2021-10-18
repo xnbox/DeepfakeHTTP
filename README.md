@@ -30,7 +30,7 @@
 </table>
 </p>
 <p align="center">
-<a href="#get-started">Get started</a> | <a href="#usage">Usage</a> | <a href="#usage-exampes">Usage Examples</a> | <a href="#how-does-it-work">How does it work?</a> | <a href="#features">Features</a> | <a href="#appendix-boptional-request--response-headers">Optional Headers</a> | <a href="#appendix-acommand-line-options">CLI</a> | <a href="Cheatsheet.md">Cheatsheet</a> | <a href="#">FAQ</a>
+<a href="#get-started">Get started</a> | <a href="#usage">Usage</a> | <a href="#usage-exampes">Usage Examples</a> | <a href="#how-does-it-work">How does it work?</a> | <a href="#features">Features</a> | <a href="#appendix-boptional-request--response-headers">Optional Headers</a> | <a href="#appendix-acommand-line-options">CLI</a> | <a href="Cheatsheet.md" target="_blank">Cheatsheet</a> | <a href="#">FAQ</a>
 </p>
 
 <h2>Get started</h2>
@@ -70,7 +70,7 @@ java -jar df.jar --dump dump.txt
 </ol>
 That's it!
 <br>
-For more examples see the <a href="Cheatsheet.md">cheatsheet</a>.
+For more examples see the <a href="Cheatsheet.md" target="_blank">cheatsheet</a>.
 
 <h2>Usage</h2>
 
@@ -174,7 +174,7 @@ Print OpenAPI specification to stdout as JSON:
 java -jar df.jar --print-openapi --dump dump.txt
 </pre>
 </details>
-If you still need examples make sure to check out the <a href="Cheatsheet.md">cheatsheet</a>.
+If you still need examples make sure to check out the <a href="Cheatsheet.md" target="_blank">cheatsheet</a>.
 
 <h2>Prerequisites</h2>
 <ul>
