@@ -42,7 +42,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -128,6 +131,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noLog;
 	private boolean noLogBody;
 	private boolean noLogHeaders;
+	private boolean nologRequestInfo;
 	private boolean noCors;
 	private boolean noPoweredBy;
 	private boolean noColor;
@@ -203,6 +207,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			noEtag           = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_ETAG);
 			noLog            = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG);
 			noLogHeaders     = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG_HEADERS);
+			nologRequestInfo = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG_REQUEST_INFO);
 			noLogBody        = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG_BODY);
 			noCors           = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_CORS);
 			noPoweredBy      = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_POWERED_BY);
@@ -907,7 +912,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					if (collectFile != null)
 						logReqRespToFile(request, providedFirstLineStr, providedBodyBs, bs, status, message, responseHeaders);
 					if (!noLog)
-						logReqRespToConsole(request, providedFirstLineStr, providedBodyBs, bs, status, message, responseHeaders, !noColor, !noLogHeaders, !noLogBody, maxLogBody);
+						logReqRespToConsole(request, providedFirstLineStr, providedBodyBs, bs, status, message, responseHeaders, !noColor, !nologRequestInfo, !noLogHeaders, !noLogBody, maxLogBody);
 
 					OutputStream responseOutputStream = response.getOutputStream();
 					responseOutputStream.write(bs);
@@ -1008,17 +1013,38 @@ public class DeepfakeHttpServlet extends HttpServlet {
 		Files.write(new File(collectFile).toPath(), logBs, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 	}
 
-	private void logReqRespToConsole(HttpServletRequest request, String providedFirstLineStr, byte[] providedBodyBs, byte[] bs, int status, String message, Map<String, String> responseHeaders, boolean color, boolean logHeaders, boolean logBody, int maxLogBody) throws IOException {
+	private void logReqRespToConsole(HttpServletRequest request, String providedFirstLineStr, byte[] providedBodyBs, byte[] bs, int status, String message, Map<String, String> responseHeaders, boolean color, boolean logRequestInfo, boolean logHeaders, boolean logBody, int maxLogBody) throws IOException {
 		byte[] logBs = null;
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-			String firstLineColor = IAnsi.CYAN_BOLD_BRIGHT;
-			String headersColor   = IAnsi.CYAN;
-			String contentColor   = IAnsi.CYAN_BRIGHT;
+			String firstLineColor   = IAnsi.CYAN_BOLD_BRIGHT;
+			String headersColor     = IAnsi.CYAN;
+			String contentColor     = IAnsi.CYAN_BRIGHT;
 
 			StringBuilder reqSb = new StringBuilder();
 			if (color)
 				reqSb.append(IAnsi.RESET + IAnsi.BLACK_BRIGHT);
 			reqSb.append("================================================================================");
+			if (logRequestInfo) {
+				int           remotePort = request.getRemotePort();
+				ZonedDateTime zdt        = ZonedDateTime.now();
+				String        timestamp  = zdt.format(DateTimeFormatter.ISO_INSTANT);
+
+				String remoteAddr = request.getRemoteAddr();
+				String remoteHost = request.getRemoteHost();
+				String remoteUser = request.getRemoteUser();
+				if (remoteUser == null)
+					remoteUser = "";
+				if (color)
+					reqSb.append(IAnsi.RESET + IAnsi.BLACK_BOLD_BRIGHT);
+				reqSb.append("[" + timestamp + "]\n");
+				if (color)
+					reqSb.append(IAnsi.RESET + IAnsi.BLACK_BRIGHT);
+				reqSb.append("REMOTE_ADDR: " + remoteAddr + '\n');
+				reqSb.append("REMOTE_HOST: " + remoteHost + '\n');
+				reqSb.append("REMOTE_PORT: " + remotePort + '\n');
+				reqSb.append("REMOTE_USER: " + remoteUser + '\n');
+				reqSb.append("--------------------------------------------------------------------------------");
+			}
 			if (color)
 				reqSb.append(IAnsi.RESET + firstLineColor);
 			reqSb.append('\n');

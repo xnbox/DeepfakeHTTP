@@ -133,6 +133,7 @@ public class CustomMain {
 		sb.append("                                                                               \n");
 		sb.append(" FLAGS:                                                                        \n");
 		sb.append("    --no-log                disable request/response console logging           \n");
+		sb.append("    --no-log-request-info   disable request info in console logging            \n");
 		sb.append("    --no-log-headers        disable request/response headers in console logging\n");
 		sb.append("    --no-log-body           disable request/response body in console logging   \n");
 		sb.append("    --no-cors               disable CORS headers                               \n");
