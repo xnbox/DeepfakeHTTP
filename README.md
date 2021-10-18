@@ -120,20 +120,17 @@ COMMANDS:
 
 <h2>Usage Exampes</h2>
 Start server on dump file:
-<span></span>
 
 ```
 java -jar df.jar --dump dump.txt
 ```
 
-<span></span>
 Start server on OpenAPI file:
 
 ```
 java -jar df.jar --dump openapi.json
 ```
 
-<span></span>
 Start server with built-in OpenAPI client:
 
 ```
