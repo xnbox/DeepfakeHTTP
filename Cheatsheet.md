@@ -1224,7 +1224,7 @@ In browser's authentication dialog type:<br>
 <br>
 <strong>User: </strong><i>Aladdin</i><br>
 <strong>Password: </strong><i>open sesame</i>
-<br>
+<br><br>
 </li>
 <li>
 Get response:
