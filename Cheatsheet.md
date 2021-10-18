@@ -1217,7 +1217,7 @@ java -jar df.jar --dump dump.txt
 </li>
 <li>
 Navigate to:<br>
-<a href="http://localhost:8080/auth</a>
+<a href="http://localhost:8080/auth">http://localhost:8080/auth</a>
 </li>
 <li>
 In browser's authentication dialog type:<br>
@@ -1233,6 +1233,7 @@ Hello Aladdin!
 </li>
 
 </ol>
+<img width="1000" height="1">
 <br>
 <strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
