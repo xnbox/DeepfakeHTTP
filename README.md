@@ -7,7 +7,7 @@
 </p>
 
 <a title="License MIT" href="https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
-<a title="Release 6.1.2" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-6.1.2-4DC71F?style=flat-square"></a>
+<a title="Release 6.2.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-6.2.1-4DC71F?style=flat-square"></a>
 <a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
 <br>
 <p id="banner" align="center">
@@ -95,6 +95,7 @@ OPTIONS:
                                                                               
 FLAGS:                                                                        
    --no-log                disable request/response console logging           
+   --no-log-request-info   disable request info in console logging
    --no-log-headers        disable request/response headers in console logging
    --no-log-body           disable request/response body in console logging   
    --no-cors               disable CORS headers                               
@@ -407,6 +408,19 @@ Command line options
     <td valign="top">
     Disable request/response console logging<br>
     <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-request-info"><code>--no-log-request-info</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-body"><code>--no-log-body</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-max-log-body"><code>--max-log-body &lt;number&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-headers"><code>--no-log-headers</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-no-log-request-info"><td valign="top"><code>--no-log-request-info</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Disable request info in console logging<br>
+    <br>See Also:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-body"><code>--no-log-body</code></a><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-max-log-body"><code>--max-log-body &lt;number&gt;</code></a><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-headers"><code>--no-log-headers</code></a>
@@ -420,6 +434,7 @@ Command line options
     Disable request/response headers in console logging<br>
     <br>See Also:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log"><code>--no-log</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-request-info"><code>--no-log-request-info</code></a><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-body"><code>--no-log-body</code></a><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-max-log-body"><code>--max-log-body &lt;number&gt;</code></a>
 </td></tr>
@@ -431,8 +446,9 @@ Command line options
     <td valign="top">
     Disable request/response body in console logging<br>
     <br>See Also:<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log"><code>--no-log</code></a><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-max-log-body"><code>--max-log-body &lt;number&gt;</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log"><code>--no-log</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-request-info"><code>--no-log-request-info</code></a><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-headers"><code>--no-log-headers</code></a>
 </td></tr>
 
