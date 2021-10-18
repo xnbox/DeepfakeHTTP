@@ -1036,7 +1036,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					remoteUser = "";
 				if (color)
 					reqSb.append(IAnsi.RESET + IAnsi.BLACK_BOLD_BRIGHT);
-				reqSb.append("[" + timestamp + "]\n");
+				reqSb.append("\n[" + timestamp + "]\n\n");
 				if (color)
 					reqSb.append(IAnsi.RESET + IAnsi.BLACK_BRIGHT);
 				reqSb.append("REMOTE_ADDR: " + remoteAddr + '\n');
