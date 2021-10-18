@@ -14,6 +14,7 @@
 	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
 	<li><a href="#gen-pdf">Generate PDF document and populate it with request parameters</a></li>
 	<li><a href="#gen-openapi-spec">Generate OpenAPI JSON/YAML spec from dump</a></li>
+	<li><a href="#basic_authentication">Basic Authentication</a></li>
 </ul>
 <br>
 <!-- -------------------------------------------------------------------- -->
@@ -1176,10 +1177,67 @@ java -jar df.jar --print-openapi --openapi-title 'Acme-CRM REST API v1.2.3' --du
 	<li>Use <code>--no-color</code> option to disable ANSI colors.</li>
 	<li>Use <code>--openapi-path &lt;path&gt;</code> option to serve built-in OpenAPI client.</li>
 </ul>
-<strong>💡 See Also:</strong>
+</td></tr></table>
+<!-- -------------------------------------------------------------------- -->
+<br><table><tr><td><h2 id="basic_authentication">Basic Authentication</h2>
+
+<ol>
+
+<li>
+Prepare file <code>dump.txt</code>:
+
+```http
+GET /auth HTTP/1.1
+Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+
+HTTP/1.1 200 OK
+Content-Type: text/html
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    Hello Aladdin!
+</body>
+</html>
+
+GET /auth HTTP/1.1
+
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Basic realm="My secret page"
+
+```
+</li>
+
+<li>
+Start server:
+	
+```
+java -jar df.jar --dump dump.txt
+```
+</li>
+<li>
+Navigate to:<br>
+<a href="http://localhost:8080/auth</a>
+</li>
+<li>
+In browser's authentication dialog type:<br>
+<strong>User: </strong><i>Aladdin</i><br>
+<strong>Password: </strong><i>open sesame</i>
+</li>
+<li>
+Get response:
+
+```
+Hello Aladdin!
+```
+</li>
+
+</ol>
+<br>
+<strong>⚡️ Hacks and Tips:</strong><br>
 <ul>
-	<li><a href="">Work in progress...</a></li>
-<ul>
+	<li>Don't miss a single carriage return between headers and body!</li>
+</ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
 
