@@ -126,13 +126,11 @@ java -jar df.jar --dump dump.txt
 ```
 
 Start server on OpenAPI file:
-
 ```
 java -jar df.jar --dump openapi.json
 ```
 
 Start server with built-in OpenAPI client:
-
 ```
 java -jar df.jar --openapi-path /api --dump dump.txt
 ```
