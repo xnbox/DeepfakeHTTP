@@ -1,5 +1,5 @@
-<h1>DeepfakeHTTP cheatsheet</h1>
-
+<h1>Welcome to DeepfakeHTTP Cheatsheet!</h1>
+<img align="center" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/Cheatsheet.png">
 <h2>Table of Contents</h2>
 <ul>
 	<li><a href="#hello-world">Hello, World!</a></li>
@@ -21,7 +21,6 @@
 <br>
 <!-- -------------------------------------------------------------------- -->
 <table><tr><td><h2 id="hello-world">Hello, World!</h2>
-
 <ol>
 
 <li>
