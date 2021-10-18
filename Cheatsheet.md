@@ -1204,7 +1204,7 @@ Content-Type: text/html
 GET /auth HTTP/1.1
 
 HTTP/1.1 401 Unauthorized
-WWW-Authenticate: Basic realm="My secret page"
+WWW-Authenticate: Basic realm="Aladdin's secret page"
 
 ```
 </li>
