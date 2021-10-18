@@ -1221,10 +1221,11 @@ Navigate to:<br>
 </li>
 <li>
 In browser's authentication dialog type:<br>
-<br>
+<table><tr><td>
 <strong>User: </strong><i>Aladdin</i><br>
 <strong>Password: </strong><i>open sesame</i>
-<br><br>
+</tr></td></table>
+<br>
 </li>
 <li>
 Get response:
