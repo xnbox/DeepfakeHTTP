@@ -125,6 +125,7 @@ Start server on dump file:
 java -jar df.jar --dump dump.txt
 ```
 
+<span></span>
 Start server on OpenAPI file:
 ```
 java -jar df.jar --dump openapi.json
