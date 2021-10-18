@@ -56,9 +56,9 @@ Content-Type: application/json
 
 </li>
     <li>Start the server from command line:
-<pre>
+```
 java -jar df.jar --dump dump.txt
-</pre>
+```
 </li>
     <li>Use a browser to check whether the server is running:
 <br>
