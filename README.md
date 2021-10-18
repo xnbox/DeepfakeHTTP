@@ -55,7 +55,8 @@ Content-Type: application/json
 ```
 
 </li>
-    <li>Start the server from command line:
+<li>Start the server from command line:
+
 ```
 java -jar df.jar --dump dump.txt
 ```
