@@ -228,7 +228,7 @@ HTTP/1.1 200 OK
         Only the first name <i>John</i> and the last name <i>Doe</i> are supported.
         <br>
         Expected result is: <strong>Hello John Doe!</strong>,<br>
-        or HTTP status <strong><code>400 Bad request</code></strong><br>
+        or HTTP status <strong><code>404 Not found</code></strong><br>
         when first name is not <i>John</i> or last name is not <i>Doe</i>.
         </p>
         <input type="submit" value="Submit">
@@ -281,7 +281,7 @@ Fill in input fields. Eg.: Lora Corban
 
 <li>
 Expected result:<br>
-Request failed with status: <code>400 Bad request</code>
+Request failed with status: <code>404 Not found</code>
 </li>
 
 </ol>
