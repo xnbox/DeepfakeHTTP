@@ -421,6 +421,7 @@ Command line options
     <td valign="top">
     Disable request info in console logging<br>
     <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log"><code>--no-log</code></a><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-body"><code>--no-log-body</code></a><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-max-log-body"><code>--max-log-body &lt;number&gt;</code></a><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-log-headers"><code>--no-log-headers</code></a>
