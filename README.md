@@ -30,7 +30,7 @@
 </table>
 </p>
 <p align="center">
-<a href="#get-started">Get started</a> | <a href="#usage">Usage</a> | <a href="#usage-exampes">Usage Examples</a> | <a href="#how-does-it-work">How does it work?</a> | <a href="#features">Features</a> | <a href="#appendix-boptional-request--response-headers">Optional Headers</a> | <a href="#appendix-acommand-line-options">CLI</a> | <a href="Cheatsheet.md">Cheatsheet</a> | <a href="#">FAQ</a>
+<a href="#get-started">Get started</a> | <a href="#usage">Usage</a> | <a href="#usage-exampes">Usage Examples</a> | <a href="#how-does-it-work">How does it work?</a> | <a href="#features">Features</a> | <a href="#appendix-boptional-request--response-headers">Optional Headers</a> | <a href="#appendix-acommand-line-options">CLI</a> | <a href="Cheatsheet.md">Cheatsheet</a>
 </p>
 
 <h2>Get started</h2>
