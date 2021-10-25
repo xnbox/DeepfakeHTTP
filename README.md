@@ -342,7 +342,7 @@ Command line options
     <td valign="top">
     Forward unmatched requests to specified directory.<br>
     <br>See Also:<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db"><code>--dump &lt;file|url&gt;...</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-dump"><code>--dump &lt;file|url&gt;...</code></a><br>
 </td></tr>
 
 <tr></tr>
