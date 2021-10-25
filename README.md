@@ -117,37 +117,7 @@ COMMANDS:
    --help                   print help message                                 
    --print-info             print dump files statistics to stdout as json/yaml 
    --print-requests         print dump requests to stdout as json/yaml         
-   --print-openapi          print OpenAPI specification to stdout as json/yaml 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   --print-openapi          print OpenAPI specification to stdout as json/yaml
 ```
 
 <h2>Usage Exampes</h2>
