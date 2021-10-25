@@ -27,14 +27,21 @@ E-Mail: xnbox.team@outlook.com
 
 package org.deepfake_http.common.utils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import org.deepfake_http.common.HttpMethod;
 import org.deepfake_http.common.ReqResp;
+import org.deepfake_http.thirdparty.RemoveCommentsUtils;
 
 public class ParseDumpUtils {
+	public static final String  USE_SERVER         = "use server";
 	public static final String  HTTP_1_1           = "HTTP/1.1";
 	private static final char   COMMENT_CHAR       = '#';
 	private static final String END_OF_BODY_MARKER = ".";
@@ -247,5 +254,70 @@ public class ParseDumpUtils {
 		if (!sb.isEmpty())
 			lines.add(sb.toString());
 		return lines;
+	}
+
+	public static int getHeadersPartSize(byte[] bs) {
+		for (int i = 0; i < bs.length; i++)
+			if (i < bs.length - 1 && bs[i] == 10 && bs[i + 1] == 10)
+				return i + 1;
+		return bs.length - 1;
+	}
+
+	public static boolean isHttpResp(Path path) throws IOException {
+		try (InputStream is = Files.newInputStream(path)) {
+			return isHttpResp(is);
+		}
+	}
+
+	public static boolean isServerJsResp(Path path) throws IOException {
+		String pathStr = path.toString();
+		if (!pathStr.endsWith(".js"))
+			return false;
+		String js = Files.readString(path);
+		js = RemoveCommentsUtils.removeComments(js.strip()).stripLeading();
+		return js.startsWith("'" + USE_SERVER + "'") || js.startsWith('"' + USE_SERVER + '"');
+	}
+
+	private static String extractFirstLine(InputStream is) throws IOException {
+		byte[] buf          = new byte[1024];
+		is.read(buf);
+		int    firstLineLen = getRespFirstLineLength(buf);
+		byte[] firstLineBs  = new byte[firstLineLen];
+		System.arraycopy(buf, 0, firstLineBs, 0, firstLineLen);
+		return new String(firstLineBs, StandardCharsets.UTF_8);
+	}
+
+	private static boolean isHttpResp(InputStream is) throws IOException {
+		String firstLine = extractFirstLine(is).stripTrailing();
+		if (!firstLine.startsWith(HTTP_1_1 + ' '))
+			return false;
+		int pos = firstLine.indexOf(' ');
+		if (pos == -1)
+			return false;
+		String rest = firstLine.substring(pos + 1);
+		int    pos2 = rest.indexOf(' ');
+		if (pos2 == -1) {
+			pos2 = rest.length();
+		}
+		String statusStr = rest.substring(0, pos2);
+		if (statusStr.length() != 3)
+			return false;
+		try {
+			int status = Integer.parseInt(statusStr);
+			if (status < 100 || status > 599) // https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+				return false;
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+
+	private static int getRespFirstLineLength(byte[] bs) {
+		for (int i = 0; i < bs.length; i++) {
+			byte b = bs[i];
+			if (b == 0 || b == 10 || b == 13)
+				return i;
+		}
+		return bs.length;
 	}
 }

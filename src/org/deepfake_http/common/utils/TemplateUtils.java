@@ -129,4 +129,26 @@ public class TemplateUtils {
 		return dataJson;
 	}
 
+	/**
+	 * 
+	 * @param script
+	 * @param map
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<String> processJs(ScriptableObject scope, String js, Map<String, Object> map, boolean jsonRequest) throws IOException {
+		Context ctx = Context.enter();
+		ctx.setLanguageVersion(Context.VERSION_1_8);
+		ctx.setOptimizationLevel(9);
+		ctx.getWrapFactory().setJavaPrimitiveWrap(true);
+		String script = "function f(request,response,data){" + js + "};";
+		script += "(function(){let map=" + JacksonUtils.stringifyToJsonYaml(map, JacksonUtils.FORMAT_JSON, false, false) + ";let data=map.data;let request=map.request;if(" + jsonRequest + ") request.body=JSON.parse(request.body);let response={status:200,headers:{},body:''};";
+		script += "f(request,response,data);";
+		script += "if (!(response.body === null || typeof response.body === 'string' || response.body instanceof String)) response.body=JSON.stringify(response.body);";
+		script += "return [JSON.stringify(data), JSON.stringify(response)];})()";
+		List<String> dataJson = (List<String>) ctx.evaluateString(scope, script, "", 0, null);
+		Context.exit();
+		return dataJson;
+	}
+
 }

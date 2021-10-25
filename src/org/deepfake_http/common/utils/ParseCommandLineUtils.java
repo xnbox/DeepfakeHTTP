@@ -95,6 +95,7 @@ public class ParseCommandLineUtils {
 	public static final String ARGS_DB                  = "--db";                  // json/yaml/csv memory file to populate templates
 	public static final String ARGS_DB_EXPORT           = "--db-export";           // export memory to json file
 	public static final String ARGS_DB_PATH             = "--db-path";             // serve live memory file at specified context
+	public static final String ARGS_DIR                 = "--dir";                 // forward unmatched requests to specified directory
 	public static final String ARGS_JS                  = "--js";                  // JavaScript file(s) for script engine context
 	public static final String ARGS_NO_BAK              = "--no-bak";              // disable backup old memory file before overwrite
 	public static final String ARGS_NO_WATCH            = "--no-watch";            // disable watch dump files for changes
@@ -137,6 +138,7 @@ public class ParseCommandLineUtils {
 		paramMap.put(ARGS_DB, null);
 		paramMap.put(ARGS_DB_EXPORT, null);
 		paramMap.put(ARGS_DB_PATH, null);
+		paramMap.put(ARGS_DIR, null);
 		paramMap.put(ARGS_NO_BAK, false);
 		paramMap.put(ARGS_HELP_OPTION, false);
 		paramMap.put(ARGS_PRINT_INFO, false);
@@ -223,6 +225,9 @@ public class ParseCommandLineUtils {
 				if (i < args.length - 1)
 					paramMap.put(args[i], args[++i]);
 			} else if (args[i].equals(ARGS_DB_PATH)) {
+				if (i < args.length - 1)
+					paramMap.put(args[i], args[++i]);
+			} else if (args[i].equals(ARGS_DIR)) {
 				if (i < args.length - 1)
 					paramMap.put(args[i], args[++i]);
 			} else if (args[i].equals(ARGS_DUMP)) {

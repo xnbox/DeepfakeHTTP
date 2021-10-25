@@ -50,6 +50,12 @@ HOME PAGE  : https://github.com/swagger-api/swagger-ui
 DESCRIPTION: Used as client for OpenAPI
 
 
+NAME       : RemoveCommentsUtils (org.deepfake_http.thirdparty.RemoveCommentsUtils) 
+LICENSE    : Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
+HOME PAGE  : https://codegolf.stackexchange.com/a/48333
+DESCRIPTION: Used as cleaner in JavaScript source code
+
+
 NAME       : Shhh (#2) image by oksmith
 LICENSE    : Public domain
 HOME PAGE  : https://openclipart.org/detail/301958/shhh-2

@@ -46,13 +46,24 @@ public class UrlUtils {
 	 * @throws IOException 
 	 * @throws MalformedURLException 
 	 */
-	public static String fileOrUrlToText(String s) throws MalformedURLException, IOException {
+	private static byte[] fileOrUrlToBytes(String s) throws MalformedURLException, IOException {
 		if (s.startsWith(IProtocol.FILE) || s.startsWith(IProtocol.HTTPS) || s.startsWith(IProtocol.HTTP)) {
 			try (InputStream is = new BufferedInputStream(new URL(s).openStream())) {
-				return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+				return is.readAllBytes();
 			}
 		} else
-			return fileOrUrlToText(new File(s).getAbsoluteFile().toURI().toString());
+			return fileOrUrlToBytes(new File(s).getAbsoluteFile().toURI().toString());
+	}
+
+	/**
+	 * 
+	 * @param s
+	 * @return
+	 * @throws IOException 
+	 * @throws MalformedURLException 
+	 */
+	public static String fileOrUrlToText(String s) throws MalformedURLException, IOException {
+		return new String(fileOrUrlToBytes(s), StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -106,6 +117,74 @@ public class UrlUtils {
 		try (InputStream is = connection.getInputStream()) {
 			return is.readAllBytes();
 		}
+	}
+
+	public static String getMimeByFile(String file) {
+		int pos = file.lastIndexOf('.');
+		if (pos == -1)
+			return "application/octet-stream";
+		String ext = file.substring(pos + 1);
+		if (ext.equals("html") || ext.equals("htm"))
+			return "text/html";
+		if (ext.equals("js"))
+			return "application/js";
+		if (ext.equals("json"))
+			return "application/json; charset=utf-8";
+		if (ext.equals("css"))
+			return "text/css";
+		if (ext.equals("txt"))
+			return "text/plain";
+		if (ext.equals("csv"))
+			return "text/csv";
+		if (ext.equals("pdf"))
+			return "application/pdf";
+		if (ext.equals("doc"))
+			return "application/msword";
+		if (ext.equals("odt"))
+			return "application/vnd.oasis.opendocument.text";
+		if (ext.equals("ods"))
+			return "application/vnd.oasis.opendocument.spreadsheet";
+		if (ext.equals("png"))
+			return "image/png";
+		if (ext.equals("gif"))
+			return "image/gif";
+		if (ext.equals("jpeg") || ext.equals("jpg"))
+			return "image/jpeg";
+		if (ext.equals("ico"))
+			return "image/vnd.microsoft.icon";
+		if (ext.equals("svg"))
+			return "image/svg+xml";
+		if (ext.equals("mp3"))
+			return "audio/mpeg";
+		if (ext.equals("mp4"))
+			return "video/mp4";
+		if (ext.equals("mpeg"))
+			return "video/mpeg";
+		if (ext.equals("xml"))
+			return "application/xml";
+		if (ext.equals("ttf"))
+			return "font/ttf";
+		if (ext.equals("woff"))
+			return "font/woff";
+		if (ext.equals("woff2"))
+			return "font/woff2";
+		if (ext.equals("otf"))
+			return "font/otf";
+		if (ext.equals("wav"))
+			return "audio/wav";
+		if (ext.equals("weba"))
+			return "audio/webm";
+		if (ext.equals("webm"))
+			return "video/webm";
+		if (ext.equals("webp"))
+			return "image/webp";
+		if (ext.equals("oga"))
+			return "audio/ogg";
+		if (ext.equals("ogv"))
+			return "video/ogg";
+		if (ext.equals("ogx"))
+			return "application/ogg";
+		return "application/octet-stream";
 	}
 
 }
