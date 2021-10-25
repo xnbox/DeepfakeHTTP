@@ -7,7 +7,7 @@
 </p>
 
 <a title="License MIT" href="https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
-<a title="Release 6.2.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-6.2.1-4DC71F?style=flat-square"></a>
+<a title="Release 6.3.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-6.3.1-4DC71F?style=flat-square"></a>
 <a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
 <br>
 <p id="banner" align="center">
@@ -78,44 +78,76 @@ For more examples see the <a href="Cheatsheet.md">cheatsheet</a>.
 ```
 java -jar df.jar [OPTIONS] [FLAGS] [COMMANDS]                                 
                                                                               
-OPTIONS:                                             
-   --host <host name>      host name, default: localhost
-   --port <number>         HTTP TCP port number, default: 8080                
-   --port-ssl <number>     HTTPS TCP port number, default: 8443               
-   --dump <file|url>...    dump text file(s) and/or OpenAPI json/yaml file(s) 
-   --db <file|url>         json/yaml/csv memory file to populate templates    
-   --db-export <file>      export memory to json file                         
-   --db-path <path>        serve live memory file at specified context        
-   --js <file|url>...      JavaScript file(s) for script engine context       
-   --openapi-path <path>   serve built-in OpenAPI client at specified context 
-   --openapi-title <text>  provide custom OpenAPI specification title         
-   --collect <file>        collect live request/response to file              
-   --format <json|yaml>    output format for --print-* commands, default: json
-   --status <number>       status code for non-matching requests, default: 404
-   --max-log-body <number> max body bytes in console log, default: unlimited  
-                                                                              
-FLAGS:                                                                        
-   --no-log                disable request/response console logging           
-   --no-log-request-info   disable request info in console logging
-   --no-log-headers        disable request/response headers in console logging
-   --no-log-body           disable request/response body in console logging   
-   --no-cors               disable CORS headers                               
-   --no-etag               disable 'ETag' header                              
-   --no-server             disable 'Server' header                            
-   --no-watch              disable watch files for changes                    
-   --no-color              disable ANSI color output for --print-* commands   
-   --no-pretty             disable prettyprint for --print-* commands         
-   --no-template           disable template processing                        
-   --no-wildcard           disable wildcard processing                        
-   --no-bak                disable backup old memory file before overwrite    
-   --strict-json           enable strict JSON comparison                      
-   --redirect              enable redirect HTTP to HTTPS                      
-                                                                              
-COMMANDS:                                                                     
-   --help                  print help message                                 
-   --print-info            print dump files statistics to stdout as json/yaml 
-   --print-requests        print dump requests to stdout as json/yaml         
-   --print-openapi         print OpenAPI specification to stdout as json/yaml 
+OPTIONS:                                                                       
+   --host <host>            host name, default: localhost                      
+   --port <number>          HTTP TCP port number, default: 8080                
+   --port-ssl <number>      HTTPS TCP port number, default: 8443               
+   --dump <file|url>...     dump text file(s) and/or OpenAPI json/yaml file(s) 
+   --db <file|url>          json/yaml/csv memory file to populate templates    
+   --db-export <file>       export memory to json file                         
+   --db-path <path>         serve live memory file at specified context        
+   --dir <dir>              forward unmatched requests to specified directory            
+   --js <file|url>...       JavaScript file(s) for script engine context       
+   --openapi-path <path>    serve built-in OpenAPI client at specified context 
+   --openapi-title <text>   provide custom OpenAPI specification title         
+   --collect <file>         collect live request/response to file              
+   --format <json|yaml>     output format for --print-* commands, default: json
+   --status <number>        status code for non-matching requests, default: 404
+   --max-log-body <number>  max body bytes in console log, default: unlimited  
+                                                                               
+FLAGS:                                                                         
+   --no-log                 disable request/response console logging           
+   --no-log-request-info    disable request info in console logging            
+   --no-log-headers         disable request/response headers in console logging
+   --no-log-body            disable request/response body in console logging   
+   --no-cors                disable CORS headers                               
+   --no-etag                disable 'ETag' header                              
+   --no-server              disable 'Server' header                            
+   --no-watch               disable watch files for changes                    
+   --no-color               disable ANSI color output for --print-* commands   
+   --no-pretty              disable prettyprint for --print-* commands         
+   --no-template            disable template processing                        
+   --no-wildcard            disable wildcard processing                        
+   --no-bak                 disable backup old memory file before overwrite    
+   --strict-json            enable strict JSON comparison                      
+   --redirect               enable redirect HTTP to HTTPS                      
+   --db-export-on-exit      export memory only on server close event           
+                                                                               
+COMMANDS:                                                                      
+   --help                   print help message                                 
+   --print-info             print dump files statistics to stdout as json/yaml 
+   --print-requests         print dump requests to stdout as json/yaml         
+   --print-openapi          print OpenAPI specification to stdout as json/yaml 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```
 
 <h2>Usage Exampes</h2>
@@ -287,7 +319,7 @@ Command line options
 </td></tr>
 
 <tr></tr>
-    <tr><td valign="top"><code>--dump &lt;file|url&gt;...</code>
+    <tr id="cli-dump"><td valign="top"><code>--dump &lt;file|url&gt;...</code>
     </td>
     <td valign="top"></td>
     <td valign="top">
@@ -331,6 +363,16 @@ Command line options
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db"><code>--db &lt;file|url&gt;...</code></a><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db-export"><code>--db-export &lt;file&gt;</code></a><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-no-bak"><code>--no-bak</code></a>
+</td></tr>
+
+<tr></tr>
+    <tr id="cli-dir"><td valign="top"><code>--dir &lt;dir&gt;</code>
+    </td>
+    <td valign="top"></td>
+    <td valign="top">
+    Forward unmatched requests to specified directory.<br>
+    <br>See Also:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-db"><code>--dump &lt;file|url&gt;...</code></a><br>
 </td></tr>
 
 <tr></tr>
