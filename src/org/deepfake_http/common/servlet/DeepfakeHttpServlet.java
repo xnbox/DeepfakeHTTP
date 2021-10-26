@@ -1508,18 +1508,15 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	}
 
 	private static Path findStaticFile(Path root, final String providedPath, Map<String, List<String>> providedParams) throws IOException {
-		String canonicalProvidedPath;
-		if (providedPath.equals("/"))
-			canonicalProvidedPath = "/index.html";
-		else
-			canonicalProvidedPath = providedPath;
-
 		Path[] foundPathArr = new Path[1];
 		Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
 			@Override
 			public FileVisitResult visitFile(Path path, BasicFileAttributes attr) {
 				try {
-					boolean ok = matchFile(root, path, canonicalProvidedPath, providedParams);
+					boolean ok = matchFile(root, path, providedPath, providedParams);
+					if (!ok)
+						ok = matchFile(root, path, providedPath + "/index.html", providedParams);
+
 					if (ok) {
 						foundPathArr[0] = path;
 						return FileVisitResult.TERMINATE;
