@@ -336,7 +336,9 @@ public class OpenApiUtils {
 				}
 			}
 			Map<String, Object> mapContentTypeProps = new LinkedHashMap<>();
-			mapContentTypeProps.put("example", reqResp.response.body.toString().strip());
+			String              example             = reqResp.response.body.toString().strip();
+			if (!example.isEmpty())
+				mapContentTypeProps.put("example", example);
 
 			if (contentType != null)
 				mapContentProps.put(contentType, mapContentTypeProps);
