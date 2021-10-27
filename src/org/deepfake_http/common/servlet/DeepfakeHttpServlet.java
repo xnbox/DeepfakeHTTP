@@ -611,8 +611,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					if (reqResp == null) { // request-reponse pair not found
 						reqResp                    = new ReqResp();
 						reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1;
-						if (dir == null)
-							reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + badRequestStatus;
+						reqResp.response.firstLine = ParseDumpUtils.HTTP_1_1 + ' ' + badRequestStatus;
 					}
 
 					String responseBbody = reqResp.response.body.toString();
@@ -777,13 +776,14 @@ public class DeepfakeHttpServlet extends HttpServlet {
 							bs = forwardRequest(tmpDataMap, forwardOrigin, providedPath, providedQueryString, providedHeaderValuesMap, providedBodyBs, responseHeaders, statusArr);
 							if (status == 0)
 								status = statusArr[0];
-						} else if (dir != null) {
-							int[] statusArr = new int[1];
-							bs = forwardRequestToDir(request, scope, env, tmpDataMap, requestBs, !noTemplate, responseHeaders, statusArr);
-							if (status == 0)
-								status = statusArr[0];
 						} else
 							bs = responseBbody.getBytes(StandardCharsets.UTF_8);
+					} else {
+						if (dir != null) {
+							int[] statusArr = new int[1];
+							bs = forwardRequestToDir(request, scope, env, tmpDataMap, requestBs, !noTemplate, responseHeaders, statusArr);
+							status = statusArr[0];
+						}
 					}
 					if (responseDelay != 0)
 						Thread.sleep(responseDelay);
