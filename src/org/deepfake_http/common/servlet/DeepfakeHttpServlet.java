@@ -125,6 +125,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY     = "X-OpenAPI-Summary";    // request non-standard
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION = "X-OpenAPI-Description";// request non-standard
 	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_TAGS        = "X-OpenAPI-Tags";       // request non-standard
+	public static final String INTERNAL_HTTP_HEADER_X_OPENAPI_PARAMETERS  = "X-OpenAPI-Parameters"; // request non-standard
 
 	private static boolean WINDOWS_OS = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).startsWith("windows");
 
@@ -357,6 +358,9 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	 * @throws IOException
 	 */
 	private void doDbRequest(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		byte[] providedBodyBs = req.getInputStream().readAllBytes();
+		String providedBody   = new String(providedBodyBs, StandardCharsets.UTF_8);
+
 		/**
 		 * https://tomcat.apache.org/tomcat-9.0-doc/api/org/apache/catalina/Globals.html#ASYNC_SUPPORTED_ATTR
 		 */
@@ -429,8 +433,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 					String providedFirstLineStr = method + ' ' + providedPath + (providedQueryString.isEmpty() ? "" : "?" + providedQueryString) + ' ' + protocol;
 
-					byte[] providedBodyBs = request.getInputStream().readAllBytes();
-					String providedBody   = new String(providedBodyBs, StandardCharsets.UTF_8);
+					//					byte[] providedBodyBs = request.getInputStream().readAllBytes();
+					//					String providedBody   = new String(providedBodyBs, StandardCharsets.UTF_8);
 
 					Map<String, List<String>> providedParams = new LinkedHashMap<>();
 
@@ -534,6 +538,8 @@ public class DeepfakeHttpServlet extends HttpServlet {
 									continue;
 								if (INTERNAL_HTTP_HEADER_X_OPENAPI_TAGS.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									continue;
+								if (INTERNAL_HTTP_HEADER_X_OPENAPI_PARAMETERS.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
+									continue;
 								if (INTERNAL_HTTP_HEADER_X_SERVER_DELAY.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
 									continue;
 								if (INTERNAL_HTTP_HEADER_X_SERVER_CONTENT_SOURCE.toLowerCase(Locale.ENGLISH).equals(lowerCaseHeaderName))
@@ -598,7 +604,20 @@ public class DeepfakeHttpServlet extends HttpServlet {
 											break;
 										}
 									}
-									if (templateBody.equals(providedBody.strip())) {
+									if (requestHeaderContentType != null && requestHeaderContentType.startsWith("application/x-www-form-urlencoded")) {
+										if (MatchUtils.matchQuery(!noWildcard, templateBody, providedBody.strip(), providedParams)) {
+											reqResp = crr;
+											break;
+										}
+									} else {
+										if (templateBody.equals(providedBody.strip())) {
+											reqResp = crr;
+											break;
+										}
+									}
+
+									if (MatchUtils.matchQuery(!noWildcard, templateBody, providedBody.strip(), providedParams)) {
+										//if (templateBody.equals(providedBody.strip())) {
 										reqResp = crr;
 										break;
 									}
@@ -781,7 +800,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 					} else {
 						if (dir != null) {
 							int[] statusArr = new int[1];
-							bs = forwardRequestToDir(request, scope, env, tmpDataMap, requestBs, !noTemplate, responseHeaders, statusArr);
+							bs     = forwardRequestToDir(request, scope, env, tmpDataMap, requestBs, !noTemplate, responseHeaders, statusArr);
 							status = statusArr[0];
 						}
 					}

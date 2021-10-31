@@ -86,9 +86,9 @@ public class MatchUtils {
 				return false;
 			for (int i = 0; i < paramValuesTemplate.size(); i++) {
 				String paramValueTemplate = paramValuesTemplate.get(i);
-				//				if ("*".equals(paramValueTemplate)) {
-				//					continue;
-				//				}
+//								if ("*".equals(paramValueTemplate)) {
+//									continue;
+//								}
 				String paramValueQuery = paramValuesQuery.get(i);
 				if (!match(processWildcards, paramValueTemplate, paramValueQuery))
 					return false;

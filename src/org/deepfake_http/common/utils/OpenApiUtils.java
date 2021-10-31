@@ -113,8 +113,9 @@ public class OpenApiUtils {
 			if (listParameters == null)
 				continue;
 
-			StringBuilder queryStringSb = new StringBuilder();
-			boolean       firstParam    = true;
+			StringBuilder parematersInfoSb = new StringBuilder();
+			StringBuilder queryStringSb    = new StringBuilder();
+			boolean       firstParam       = true;
 			for (Map<String, Object> mapParamProps : listParameters) {
 				String in = (String) mapParamProps.get("in");
 				if (!"query".equals(in))
@@ -125,16 +126,30 @@ public class OpenApiUtils {
 				String param = (String) mapParamProps.get("name");
 				if (firstParam)
 					firstParam = false;
-				else
+				else {
 					queryStringSb.append('&');
+					parematersInfoSb.append(',');
+				}
 				queryStringSb.append(param + '=');
 				if (mapParamProps == null || mapParamProps.isEmpty())
 					continue;
 				String paramExample = (String) mapParamProps.get("example");
 				queryStringSb.append(paramExample);
 				Map<String, Object> mapSchemaProps = (Map<String, Object>) mapParamProps.get("schema");
+
+				parematersInfoSb.append(param);
+				parematersInfoSb.append(';');
+				for (Entry<String, Object> entry : mapParamProps.entrySet()) {
+					String key   = entry.getKey();
+					Object value = entry.getValue();
+					parematersInfoSb.append(key);
+					parematersInfoSb.append('=');
+					parematersInfoSb.append(value);
+					parematersInfoSb.append(';');
+				}
 			}
-			String queryString = queryStringSb.toString();
+			String parematersInfo = parematersInfoSb.toString();
+			String queryString    = queryStringSb.toString();
 
 			String       openApiMethodSummary     = (String) mapMethodProps.get("summary");
 			String       openApiMethodDescription = (String) mapMethodProps.get("description");
@@ -153,6 +168,8 @@ public class OpenApiUtils {
 				}
 				reqResp.request.headers.add(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_TAGS + ": " + tagsSb);
 			}
+			if (!parematersInfo.isEmpty())
+				reqResp.request.headers.add(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_PARAMETERS + ": " + parematersInfo);
 			if (openApiMethodSummary != null && !openApiMethodSummary.isEmpty())
 				reqResp.request.headers.add(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY + ": " + openApiMethodSummary);
 			if (openApiMethodDescription != null && !openApiMethodDescription.isEmpty())
@@ -180,6 +197,76 @@ public class OpenApiUtils {
 	public static Map<String, Object> createOpenApiMap(List<ReqResp> allReqResps, String title) throws Throwable {
 		Map<String, Object> mapPaths = new LinkedHashMap<>(allReqResps.size());
 		for (ReqResp reqResp : allReqResps) {
+			String                           openApiMethodSummary     = "";
+			String                           openApiMethodDescription = "";
+			List<String>                     openApiMethodTags        = new ArrayList<>();
+			Map<String, Map<String, Object>> openApiParametersInfo    = new LinkedHashMap<>();
+
+			for (String headerLine : reqResp.request.headers) {
+				Header header              = new Header(headerLine);
+				String lowerCaseHeaderName = header.name.toLowerCase();
+				String headerValue         = header.value;
+				if (lowerCaseHeaderName.equals(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY.toLowerCase(Locale.ENGLISH)))
+					openApiMethodSummary = headerValue;
+				else if (lowerCaseHeaderName.equals(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION.toLowerCase(Locale.ENGLISH)))
+					openApiMethodDescription = headerValue;
+				else if (lowerCaseHeaderName.equals(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_TAGS.toLowerCase(Locale.ENGLISH))) {
+					String[] arr = headerValue.split(",");
+					for (String val : arr) {
+						val = val.strip();
+						if (!val.isEmpty())
+							openApiMethodTags.add(val);
+					}
+				} else if (lowerCaseHeaderName.equals(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_PARAMETERS.toLowerCase(Locale.ENGLISH))) {
+					Map<String, Object> openApiParameterInfoMap = new LinkedHashMap<>();
+					String[]            arr                     = headerValue.split(",");
+					for (String val : arr) {
+						val = val.strip();
+						if (val.isEmpty())
+							continue;
+						String[] infoArr = val.split(";");
+						for (String infoEntry : infoArr) {
+							infoEntry = infoEntry.strip();
+							if (infoEntry.isEmpty())
+								continue;
+							String infoKey;
+							Object infoValue;
+							if (infoEntry.contains("=")) {
+								String[] infoEntryArr = infoEntry.split("=");
+								infoKey = infoEntryArr[0].strip();
+								if (infoKey.isEmpty())
+									continue;
+								infoValue = infoEntryArr[1].strip();
+								if (((String) infoValue).isEmpty())
+									continue;
+								String infoValueStr = (String) infoValue;
+								if ( //
+								(infoValueStr.startsWith("'") && infoValueStr.endsWith("'")) || //
+										(infoValueStr.startsWith("\"") && infoValueStr.endsWith("\"")) //
+								)
+									infoValue = infoValueStr.substring(1, infoValueStr.length() - 1);
+							} else {
+								infoKey   = infoEntry;
+								infoValue = true;
+							}
+							openApiParameterInfoMap.put(infoKey, infoValue);
+						}
+						String paramName = (String) openApiParameterInfoMap.get("name");
+						if (paramName == null)
+							continue;
+						paramName = paramName.strip();
+						if (paramName.isEmpty())
+							continue;
+						Map<String, Object> openApiParameterInfo = openApiParametersInfo.get(paramName);
+						if (openApiParameterInfo == null) {
+							openApiParameterInfo = new LinkedHashMap<>();
+							openApiParametersInfo.put(paramName, openApiParameterInfo);
+						}
+						openApiParameterInfo.putAll(openApiParameterInfoMap);
+					}
+				}
+			}
+
 			FirstLineReq  firstLineReq  = new FirstLineReq(reqResp.request.firstLine);
 			FirstLineResp firstLineResp = new FirstLineResp(reqResp.response.firstLine);
 
@@ -196,8 +283,8 @@ public class OpenApiUtils {
 				if (header.name.toLowerCase(Locale.ENGLISH).equals(DeepfakeHttpServlet.HTTP_HEADER_CONTENT_TYPE.toLowerCase(Locale.ENGLISH))) {
 					requestContentType = header.value;
 					if (requestContentType.startsWith("application/x-www-form-urlencoded"))
-						if (!requestBody.isEmpty())
-							MatchUtils.parseQuery(requestBody, queryParams);
+						if (!requestBody.strip().isEmpty())
+							MatchUtils.parseQuery(requestBody.strip(), queryParams);
 					break;
 				}
 			}
@@ -233,6 +320,11 @@ public class OpenApiUtils {
 			mapSchemaProps.put("type", "string");
 			for (String param : pathParams) {
 				Map<String, Object> mapParamProps = new LinkedHashMap<>();
+
+				Map<String, Object> openApiParameterInfo = openApiParametersInfo.get(param);
+				if (openApiParameterInfo != null)
+					mapParamProps.putAll(openApiParameterInfo);
+
 				mapParamProps.put("in", "path");
 				mapParamProps.put("name", param);
 				mapParamProps.put("required", true);
@@ -241,6 +333,11 @@ public class OpenApiUtils {
 			}
 			for (String param : queryParams.keySet()) {
 				Map<String, Object> mapParamProps = new LinkedHashMap<>();
+
+				Map<String, Object> openApiParameterInfo = openApiParametersInfo.get(param);
+				if (openApiParameterInfo != null)
+					mapParamProps.putAll(openApiParameterInfo);
+
 				mapParamProps.put("in", "query");
 				mapParamProps.put("name", param);
 				mapParamProps.put("required", true);
@@ -267,27 +364,6 @@ public class OpenApiUtils {
 			mapStatuses.put(Integer.toString(firstLineResp.getStatus()), mapStatusProps);
 			Map<String, Object> mapContentProps = new LinkedHashMap<>();
 
-			String       openApiMethodSummary     = "";
-			String       openApiMethodDescription = "";
-			List<String> openApiMethodTags        = new ArrayList<>();
-
-			for (String headerLine : reqResp.request.headers) {
-				Header header              = new Header(headerLine);
-				String lowerCaseHeaderName = header.name.toLowerCase();
-				String headerValue         = header.value;
-				if (lowerCaseHeaderName.equals(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY.toLowerCase(Locale.ENGLISH)))
-					openApiMethodSummary = headerValue;
-				else if (lowerCaseHeaderName.equals(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_DESCRIPTION.toLowerCase(Locale.ENGLISH)))
-					openApiMethodDescription = headerValue;
-				else if (lowerCaseHeaderName.equals(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_TAGS.toLowerCase(Locale.ENGLISH))) {
-					String[] arr = headerValue.split(",");
-					for (String val : arr) {
-						val = val.strip();
-						if (!val.isEmpty())
-							openApiMethodTags.add(val);
-					}
-				}
-			}
 			if (!openApiMethodSummary.isEmpty())
 				mapMethodProps.put("summary", openApiMethodSummary);
 			if (!openApiMethodDescription.isEmpty())
