@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="shortcut icon" type="image/x-icon" href="../resources/images/favicon.png">
+
+<title>PetClinic :: a Spring Framework demonstration</title>
+
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+<link rel="stylesheet" href="../resources/css/petclinic.css" />
+<script type="text/javascript" src="../config.js"></script>
+
+</head>
+
+<body>
+
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="/"><span></span></a>
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+					<span class="sr-only"><os-p>Toggle navigation</os-p></span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="navbar-collapse collapse" id="main-navbar">
+				<ul class="nav navbar-nav navbar-right">
+
+					<li><a href="../" title="home page"><span>Home</span></a></li>
+
+					<li><a href="../owners/find.html" title="find owners"><span>Find owners</span></a></li>
+
+					<li class="active"><a href="../vets" title="veterinarians"><span>Veterinarians</span></a></li>
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="container-fluid">
+		<div class="container xd-container">
+
+
+
+			<h2>Veterinarians</h2>
+
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Specialties</th>
+					</tr>
+				</thead>
+				<tbody id="vets"></tbody>
+			</table>
+
+
+			<br /> <br />
+			<div class="container">
+				<div class="row">
+					<div class="col-12 text-center">
+						<img src="../resources/images/spring-pivotal-logo.png" alt="Sponsored by Pivotal" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		let headers = new Headers();
+		headers.set('Accept', 'application/json');
+
+		fetch(url + '/vets', {
+			headers,
+			method: 'GET'
+		})
+		.then(response => {
+			return response.json();
+		})
+		.then(vets => {
+			console.log(vets);
+
+			let tbodyEl = document.getElementById('vets');
+			for (let vet_id in vets) {
+		 	 	let vet = vets[vet_id];
+
+				let trEl = document.createElement('tr');
+				tbodyEl.append(trEl);
+				let tdEl = document.createElement('td');
+				trEl.append(tdEl);
+				tdEl.textContent = vet.first_name + ' ' + vet.last_name;
+
+				tdEl = document.createElement('td');
+				trEl.append(tdEl);
+				tdEl.innerHTML = '<span id="vet_' +  vet.id + '">' + vet.specialty_names + '</span>';
+			}
+
+// 			for (let i = 0; i < vets.length; i++) {
+// 				let vet = vets[i];
+// 				fetch(url + '/vets/' + vet.ID + '/specialties', {
+// 					headers,
+// 					method: 'GET'
+// 				})
+// 				.then(response => {
+// 					return response.json();
+// 				})
+// 				.then(specialties => {
+// 					if (specialties.length != 0) {
+// 						let s = '';
+// 						for (let j = 0; j < specialties.length; j++) {
+// 							if (j != 0)
+// 								s += ', ';
+// 							s += specialties[j].name;
+// 						}
+// 						let spanEl = document.getElementById('vet_' + vet.id);
+// 						spanEl.textContent = s;
+// 					}
+// 				});
+// 			}
+		});
+	</script>
+</body>
+
+</html>

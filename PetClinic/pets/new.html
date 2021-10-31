@@ -1,0 +1,193 @@
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="shortcut icon" type="image/x-icon" href="../resources/images/favicon.png">
+
+<title>PetClinic :: a Spring Framework demonstration</title>
+
+<link rel="stylesheet" href="../resources/css/petclinic.css" />
+<script type="text/javascript" src="../config.js"></script>
+
+</head>
+
+<body>
+
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="/"><span></span></a>
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+					<span class="sr-only"><os-p>Toggle navigation</os-p></span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="navbar-collapse collapse" id="main-navbar">
+				<ul class="nav navbar-nav navbar-right">
+
+					<li><a href="../" title="home page"><span>Home</span></a></li>
+
+					<li class="active"><a href="../owners/find" title="find owners"><span>Find owners</span></a></li>
+
+					<li><a href="../vets" title="veterinarians"><span>Veterinarians</span></a></li>
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="container-fluid">
+		<div class="container xd-container">
+
+
+
+			<h2>New Pet</h2>
+			<form id="add-new-pet-form" class="form-horizontal" method="post">
+				<input type="hidden" name="id" value="" />
+				<div class="form-group has-feedback">
+					<div class="form-group">
+						<label class="col-sm-2 control-label">Owner</label>
+						<div class="col-sm-10">
+							<span id="owner"></span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">Name</label>
+						<div class="col-sm-10">
+							<div>
+								<input class="form-control" type="text" id="name" name="name" value="" />
+
+							</div>
+							<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">Birth Date</label>
+						<div class="col-sm-10">
+							<div>
+
+								<input class="form-control" type="text" placeholder="YYYY-MM-DD" title="Enter a date in this format: YYYY-MM-DD" pattern="(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))" id="birthDate" name="birthDate" value="" />
+							</div>
+							<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">Type</label>
+
+						<div class="col-sm-10">
+							<select id="type" name="type">
+								<!--
+            <option value="bird">bird</option>
+            <option value="cat">cat</option>
+            <option value="dog">dog</option>
+            <option value="hamster">hamster</option>
+            <option value="lizard">lizard</option>
+            <option value="snake">snake</option>
+            -->
+							</select> <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+
+						</div>
+					</div>
+
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<button class="btn btn-default" type="submit">Add Pet</button>
+					</div>
+				</div>
+			</form>
+
+
+
+			<br /> <br />
+			<div class="container">
+				<div class="row">
+					<div class="col-12 text-center">
+						<img src="../resources/images/spring-pivotal-logo.png" alt="Sponsored by Pivotal" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+
+let headers = new Headers();
+headers.set('Accept', 'application/json');
+
+let fetchOptions = {
+	method: 'GET',
+	headers
+};
+fetch(url + '/types', fetchOptions)
+.then(response => {
+	return response.json();
+})
+.then(types => {
+	console.log(types);
+
+	let html = '';
+	let typeSelect = document.getElementById('type');
+	for (let type_id in types) {
+ 	 	let type = types[type_id];
+		html += '<option value="' + type_id +'">' + type.name + '</option>';
+	}
+	typeSelect.innerHTML = html;
+});
+
+let ownerId = new URL(location.href).searchParams.get('ownerId');
+
+fetch(url + '/owners/' + ownerId, {
+	method: 'GET',
+	headers
+})
+.then(response => {
+	return response.json();
+})
+.then(owner => {
+	console.log(owner);
+	document.getElementById('owner').textContent = owner.first_name + ' ' + owner.last_name;
+});
+
+let formEl = document.getElementById('add-new-pet-form');
+formEl.addEventListener('submit', event => {
+
+	let headers = new Headers();
+	headers.set('Accept', 'application/json');
+	headers.set('Content-Type', 'application/x-www-form-urlencoded');
+
+	let body = '';
+	body += 'name=' + document.querySelector("input[name='name']").value;
+	body += '&birth_date=' + document.querySelector("input[name='birthDate']").value;
+	body += '&type_id=' + document.querySelector("select[name='type']").value;
+
+	fetch(url + '/owners/' + ownerId + '/pets', {
+		method: 'POST',
+		body: body,
+		headers
+	})
+	.then(response => {
+		return response.json();
+	})
+	.then(result => {
+		console.log(result);
+		location.href = '/owners/owner.html?ownerId=' + ownerId;
+	});
+	event.preventDefault();
+});
+
+</script>
+
+</body>
+
+</html>

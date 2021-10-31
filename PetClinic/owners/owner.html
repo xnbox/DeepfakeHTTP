@@ -1,0 +1,260 @@
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="shortcut icon" type="image/x-icon" href="../resources/images/favicon.png">
+
+<title>PetClinic :: a Spring Framework demonstration</title>
+
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+<link rel="stylesheet" href="../resources/css/petclinic.css" />
+<script type="text/javascript" src="../config.js"></script>
+
+</head>
+
+<body>
+
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="/"><span></span></a>
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+					<span class="sr-only"><os-p>Toggle navigation</os-p></span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="navbar-collapse collapse" id="main-navbar">
+				<ul class="nav navbar-nav navbar-right">
+
+					<li><a href="../" title="home page"><span>Home</span></a></li>
+
+					<li class="active"><a href="../owners/find.html" title="find owners"><span>Find owners</span></a></li>
+
+					<li><a href="../vets" title="veterinarians"><span>Veterinarians</span></a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="container-fluid">
+		<div class="container xd-container">
+
+
+
+
+			<h2>Owner Information</h2>
+
+
+			<table class="table table-striped">
+				<tr>
+					<th>Name</th>
+					<td><b id="owner-name"></b></td>
+				</tr>
+				<tr>
+					<th>Address</th>
+					<td id="owner-address">105 N. Lake St.</td>
+					</td>
+				</tr>
+				<tr>
+					<th>City</th>
+					<td id="owner-city">Monona</td>
+					</td>
+				</tr>
+				<tr>
+					<th>Telephone</th>
+					<td id="owner-telephone">6085552654</td>
+					</td>
+				</tr>
+			</table>
+
+			<a id="edit-owner-btn" class="btn btn-default">Edit Owner</a> <a id="new-pet-btn" class="btn btn-default">Add New Pet</a> <br /> <br /> <br />
+			<h2>Pets and Visits</h2>
+
+			<table id="pets" class="table table-striped">
+				<tbody>
+					<!--
+				<tr>
+					<td valign="top">
+						<dl class="dl-horizontal">
+							<dt>Name</dt>
+							<dd>Max</dd>
+							</dd>
+							<dt>Birth Date</dt>
+							<dd>2012-09-04</dd>
+							</dd>
+							<dt>Type</dt>
+							<dd>cat</dd>
+							</dd>
+						</dl>
+					</td>
+					<td valign="top">
+						<table class="table-condensed">
+							<thead>
+								<tr>
+									<th>Visit Date</th>
+									<th>Description</th>
+								</tr>
+							</thead>
+							<tr>
+								<td>2013-01-03</td>
+								<td>neutered</td>
+							</tr>
+							<tr>
+								<td>2013-01-02</td>
+								<td>rabies shot</td>
+							</tr>
+							<tr>
+								<td><a href="6/pets/8/edit">Edit Pet</a></td>
+								<td><a href="6/pets/8/visits/new">Add Visit</a></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+
+				<tr>
+					<td valign="top">
+						<dl class="dl-horizontal">
+							<dt>Name</dt>
+							<dd>Samantha</dd>
+							</dd>
+							<dt>Birth Date</dt>
+							<dd>2012-09-04</dd>
+							</dd>
+							<dt>Type</dt>
+							<dd>cat</dd>
+							</dd>
+						</dl>
+					</td>
+					<td valign="top">
+						<table class="table-condensed">
+							<thead>
+								<tr>
+									<th>Visit Date</th>
+									<th>Description</th>
+								</tr>
+							</thead>
+							<tr>
+								<td>2013-01-04</td>
+								<td>spayed</td>
+							</tr>
+							<tr>
+								<td>2013-01-01</td>
+								<td>rabies shot</td>
+							</tr>
+							<tr>
+								<td><a href="6/pets/7/edit">Edit Pet</a></td>
+								<td><a href="6/pets/7/visits/new">Add Visit</a></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+ -->
+				</tbody>
+			</table>
+
+
+
+			<br /> <br />
+			<div class="container">
+				<div class="row">
+					<div class="col-12 text-center">
+						<img src="../resources/images/spring-pivotal-logo.png" alt="Sponsored by Pivotal" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+<script>
+let ownerId = new URL(location.href).searchParams.get('ownerId');
+
+document.getElementById('edit-owner-btn').href = 'edit.html?ownerId=' + ownerId;
+document.getElementById('new-pet-btn').href = '../pets/new.html?ownerId=' + ownerId;
+		
+let headers = new Headers();
+headers.set('Accept', 'application/json');
+
+fetch(url + '/owners/' + encodeURIComponent(ownerId), {
+	headers,
+	method: 'GET'
+})
+.then(response => {
+	return response.json();
+})
+.then(owner => {
+	console.log(owner);
+
+	document.getElementById('owner-name').textContent = owner.first_name + ' ' + owner.last_name;
+	document.getElementById('owner-address').textContent = owner.address;
+	document.getElementById('owner-city').textContent = owner.city;
+	document.getElementById('owner-telephone').textContent = owner.telephone;
+
+	return fetch(url + '/owners/' + encodeURIComponent(ownerId) + '/pets', {
+		headers,
+		method: 'GET'
+	});
+})
+.then(response => {
+	return response.json();
+})
+.then(pets => {
+	console.log(pets);
+
+	let petsTableEl = document.getElementById('pets');
+	let petsTbodyEl = petsTableEl.tBodies[0];
+	for (let pet_id in pets) {
+ 	 	let pet = pets[pet_id];
+
+ 	 	let trEl = document.createElement('tr');
+		petsTbodyEl.append(trEl);
+		//
+		let td0El = document.createElement('td');
+		td0El.setAttribute('valign', 'top');
+		trEl.append(td0El);
+		//
+		let dlEl = document.createElement('dl');
+		dlEl.setAttribute('class', 'dl-horizontal');
+		td0El.append(dlEl);
+		//
+		dlEl.innerHTML = '<dt>Name</dt><dd>' + pet.name + '</dd><dt>Birth Date</dt><dd>' + pet.birth_date + '</dd><dt>Type</dt><dd>' + pet.type_name + '</dd>';
+		//
+		//
+		let td1El = document.createElement('td');
+		td1El.setAttribute('valign', 'top');
+		trEl.append(td1El);
+		//
+		fetch(url + '/pets/' + encodeURIComponent(pet_id) + '/visits', {
+			headers,
+			method: 'GET'
+		})
+		.then(response => {
+			return response.json();
+		})
+		.then(visits => {
+			console.log(visits);
+
+			let html = '<table class="table-condensed"><thead><tr><th>Visit Date</th><th>Description</th></tr></thead>';
+			for (let visit_id in visits) {
+		 	 	let visit = visits[visit_id];
+				html += '<tr><td>' + visit.visit_date + '</td><td>' + visit.description + '</td></tr>';
+			}
+			html += '<tr><td><a href="' + '../pets/edit.html?ownerId=' + ownerId + '&petId=' + pet_id + '">Edit Pet</a></td><td><a href="' + '../visits/new.html?ownerId=' + ownerId + '&petId=' + pet_id + '">Add Visit</a></td></tr>';
+			html += '</table>';
+			td1El.innerHTML = html;
+		});
+	}
+});
+</script>
+</body>
+</html>
+

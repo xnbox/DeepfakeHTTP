@@ -1,0 +1,186 @@
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="shortcut icon" type="image/x-icon" href="../resources/images/favicon.png">
+
+<title>PetClinic :: a Spring Framework demonstration</title>
+
+<link rel="stylesheet" href="../resources/css/petclinic.css" />
+<script type="text/javascript" src="../config.js"></script>
+
+</head>
+
+<body>
+
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="/"><span></span></a>
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+					<span class="sr-only"><os-p>Toggle navigation</os-p></span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="navbar-collapse collapse" id="main-navbar">
+				<ul class="nav navbar-nav navbar-right">
+
+					<li><a href="../" title="home page"><span>Home</span></a></li>
+
+					<li class="active"><a href="../owners/find.html" title="find owners"><span>Find owners</span></a></li>
+
+					<li><a href="../vets" title="veterinarians"> <span>Veterinarians</span></a></li>
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="container-fluid">
+		<div class="container xd-container">
+
+
+
+			<h2>Owner</h2>
+			<form class="form-horizontal" id="add-owner-form" method="post">
+				<div class="form-group has-feedback">
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">First Name</label>
+						<div class="col-sm-10">
+							<div>
+								<input class="form-control" type="text" id="firstName" name="firstName" value="Jean" />
+
+							</div>
+							<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">Last Name</label>
+						<div class="col-sm-10">
+							<div>
+								<input class="form-control" type="text" id="lastName" name="lastName" value="Coleman" />
+
+							</div>
+							<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">Address</label>
+						<div class="col-sm-10">
+							<div>
+								<input class="form-control" type="text" id="address" name="address" value="105 N. Lake St." />
+
+							</div>
+							<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">City</label>
+						<div class="col-sm-10">
+							<div>
+								<input class="form-control" type="text" id="city" name="city" value="Monona" />
+
+							</div>
+							<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">Telephone</label>
+						<div class="col-sm-10">
+							<div>
+								<input class="form-control" type="text" id="telephone" name="telephone" value="6085552654" />
+
+							</div>
+							<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+
+						</div>
+					</div>
+
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<button class="btn btn-default" type="submit">Update Owner</button>
+					</div>
+				</div>
+			</form>
+
+
+			<br /> <br />
+			<div class="container">
+				<div class="row">
+					<div class="col-12 text-center">
+						<img src="../resources/images/spring-pivotal-logo.png" alt="Sponsored by Pivotal" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+let ownerId = new URL(location.href).searchParams.get('ownerId');
+
+let headers = new Headers();
+headers.set('Accept', 'application/json');
+
+fetch(url + '/owners/' + encodeURIComponent(ownerId), {
+	headers,
+	method: 'GET'
+})
+.then(response => {
+	return response.json();
+})
+.then(owner => {
+	console.log(owner);
+
+	document.getElementById('firstName').value = owner.first_name;
+	document.getElementById('lastName').value = owner.last_name;
+	document.getElementById('address').value = owner.address;
+	document.getElementById('city').value = owner.city;
+	document.getElementById('telephone').value = owner.telephone;
+
+});
+	let formEl = document.getElementById('add-owner-form');
+	formEl.addEventListener('submit', event => {
+
+		headers.set('Accept', 'application/json');
+		headers.set('Content-Type', 'application/x-www-form-urlencoded');
+
+		let body = ''
+		body += 'first_name=' + document.querySelector("input[name='firstName']").value;
+		body += '&last_name=' + document.querySelector("input[name='lastName']").value;
+		body += '&address=' + document.querySelector("input[name='address']").value;
+		body += '&city=' + document.querySelector("input[name='city']").value;
+		body += '&telephone=' + document.querySelector("input[name='telephone']").value;
+
+		fetch(url + '/owners/' + ownerId, {
+			method: 'PUT',
+			body: body,
+			headers
+		})
+		.then(response => {
+			location.href = document.referrer;
+		});
+		event.preventDefault();
+	});
+</script>
+
+</body>
+
+</html>
+
