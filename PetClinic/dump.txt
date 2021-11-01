@@ -1,7 +1,8 @@
 GET /petclinic/api/owners?lastName=* HTTP/1.1
 X-OpenAPI-Summary: Get owners
 X-OpenAPI-Description: Get owners and pets
-X-OpenAPI-Tags: owners
+X-OpenAPI-Tags: Owners
+X-OpenAPI-Parameters: name=lastName;description='Owner last name starts with'
 
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -10,10 +11,11 @@ X-Handler-JS: getOwners
 POST /petclinic/api/owners HTTP/1.1
 X-OpenAPI-Summary: Add owner
 X-OpenAPI-Description: Add owner
-X-OpenAPI-Tags: owners
+X-OpenAPI-Tags: Owners
 X-OpenAPI-Parameters: name=first_name;description='Owner first name',
  name=last_name;description=Owner last name,
- name=address;description=Owner address
+ name=address;description=Owner's address,
+ name=telephone;description=Owner's phone number
 Content-Type: application/x-www-form-urlencoded
 
 first_name=?*&last_name=?*&address=*&city=*&telephone=*
@@ -25,7 +27,12 @@ X-Handler-JS: newOwner
 PUT /petclinic/api/owners/{id} HTTP/1.1
 X-OpenAPI-Summary: Update owner
 X-OpenAPI-Description: Update owner
-X-OpenAPI-Tags: owners
+X-OpenAPI-Tags: Owners
+X-OpenAPI-Parameters: name=id;description='Owner ID',
+ name=first_name;description='Owner first name',
+ name=last_name;description=Owner last name,
+ name=address;description=Owner's address,
+ name=telephone;description=Owner's phone number
 Content-Type: application/x-www-form-urlencoded
 
 first_name=*&last_name=*&address=*&city=*&telephone=*
@@ -37,7 +44,7 @@ X-Handler-JS: updateOwner
 GET /petclinic/api/owners/{id} HTTP/1.1
 X-OpenAPI-Summary: Get owner by ID
 X-OpenAPI-Description: Get Owners by ID
-X-OpenAPI-Tags: owners
+X-OpenAPI-Tags: Owners
 
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -46,7 +53,7 @@ X-Handler-JS: getOwner
 GET /petclinic/api/owners/{id}/pets HTTP/1.1
 X-OpenAPI-Summary: Get pets by owner ID
 X-OpenAPI-Description: Get pets by owner ID
-X-OpenAPI-Tags: pets
+X-OpenAPI-Tags: Pets
 
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -55,7 +62,7 @@ X-Handler-JS: getPets
 GET /petclinic/api/pets/{id} HTTP/1.1
 X-OpenAPI-Summary: Get pet by pet ID
 X-OpenAPI-Description: Get pet by pet ID
-X-OpenAPI-Tags: pets
+X-OpenAPI-Tags: Pets
 
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -64,7 +71,9 @@ X-Handler-JS: getPet
 POST /petclinic/api/owners/{id}/pets HTTP/1.1
 X-OpenAPI-Summary: Add new pet to owner
 X-OpenAPI-Description: Add new pet to owner
-X-OpenAPI-Tags: pets
+X-OpenAPI-Tags: Pets
+X-OpenAPI-Parameters: name=birth_date;description='Pet's date of birth',
+ name=type_id;description=Pet's type ID
 Content-Type: application/x-www-form-urlencoded
 
 name=*&birth_date=*&type_id=*
@@ -76,7 +85,10 @@ X-Handler-JS: newPet
 PUT /petclinic/api/pets/{id} HTTP/1.1
 X-OpenAPI-Summary: Edit pet
 X-OpenAPI-Description: Edit pet
-X-OpenAPI-Tags: pets
+X-OpenAPI-Tags: Pets
+X-OpenAPI-Parameters: name=ownerId;description='Owner ID',
+ name=birthDate;description='Pet's date of birth',
+ name=typeId;description=Pet's type ID
 Content-Type: application/x-www-form-urlencoded
 
 ownerId=*&name=*&birthDate=*&typeId=*
@@ -88,7 +100,7 @@ X-Handler-JS: updatePet
 GET /petclinic/api/types HTTP/1.1
 X-OpenAPI-Summary: Get pet types
 X-OpenAPI-Description: Get pet types
-X-OpenAPI-Tags: types
+X-OpenAPI-Tags: Pets, Types
 
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -97,7 +109,7 @@ X-Handler-JS: getTypes
 GET /petclinic/api/pets/{id}/visits HTTP/1.1
 X-OpenAPI-Summary: Get visits by pet ID
 X-OpenAPI-Description: Get visits by pet ID
-X-OpenAPI-Tags: pets, visits
+X-OpenAPI-Tags: Pets, Visits
 
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -106,7 +118,9 @@ X-Handler-JS: getVisits
 POST /petclinic/api/pets/{id}/visits HTTP/1.1
 X-OpenAPI-Summary: Add new visit
 X-OpenAPI-Description: Add new visit
-X-OpenAPI-Tags: pets, visits
+X-OpenAPI-Tags: Pets, Visits
+X-OpenAPI-Parameters: name=visitDate;description='Visit date',
+ name=description;description='Visit description'
 Content-Type: application/x-www-form-urlencoded
 
 visitDate=*&description=*
@@ -118,7 +132,7 @@ X-Handler-JS: newVisit
 GET /petclinic/api/vets HTTP/1.1
 X-OpenAPI-Summary: Get vets
 X-OpenAPI-Description: Get vets
-X-OpenAPI-Tags: pets, vets
+X-OpenAPI-Tags: Vets
 
 HTTP/1.1 200 OK
 Content-Type: application/json
