@@ -29,7 +29,6 @@ package org.deepfake_http.common.utils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -275,6 +274,7 @@ public class OpenApiUtils {
 			String                    methodLowerCase = method.toLowerCase(Locale.ENGLISH);
 			String                    queryString     = HttpPathUtils.extractQueryStringFromUri(firstLineReq.getUri());
 			Map<String, List<String>> queryParams     = new LinkedHashMap<>();
+			Map<String, List<String>> formParams      = new LinkedHashMap<>();
 			String                    requestBody     = reqResp.request.body;
 
 			String requestContentType = null;
@@ -284,7 +284,7 @@ public class OpenApiUtils {
 					requestContentType = header.value;
 					if (requestContentType.startsWith("application/x-www-form-urlencoded"))
 						if (!requestBody.strip().isEmpty())
-							MatchUtils.parseQuery(requestBody.strip(), queryParams);
+							MatchUtils.parseQuery(requestBody.strip(), formParams);
 					break;
 				}
 			}
@@ -357,7 +357,9 @@ public class OpenApiUtils {
 			}
 
 			Map<String, Object> mapStatuses = new LinkedHashMap<>();
+
 			mapMethodProps.put("parameters", listParameters);
+
 			mapMethodProps.put("responses", mapStatuses);
 
 			Map<String, Object> mapStatusProps = new LinkedHashMap<>();
@@ -389,7 +391,26 @@ public class OpenApiUtils {
 				} else
 					objBody = requestBody;
 				mapOpenApiRequestBodyContentMime.put("example", objBody);
-				mapOpenApiRequestBodyContentMime.put("schema", new HashMap<>(0));
+
+				Map<String, Object> mapOpenApiRequestBodyContentMimeSchema = new LinkedHashMap<>();
+				if (requestContentType != null && requestContentType.startsWith("application/x-www-form-urlencoded")) {
+					mapOpenApiRequestBodyContentMimeSchema.put("type", "object");
+
+					Map<String, Object> mapParamProps = new LinkedHashMap<>();
+					for (String param : formParams.keySet()) {
+						Map<String, Object> m                    = new LinkedHashMap<>();
+						Map<String, Object> openApiParameterInfo = openApiParametersInfo.get(param);
+						if (openApiParameterInfo != null) {
+							String description = (String) openApiParameterInfo.get("description");
+							if (description != null)
+								m.put("description", description);
+						}
+						m.put("type", "string");
+						mapParamProps.put(param, m);
+					}
+					mapOpenApiRequestBodyContentMimeSchema.put("properties", mapParamProps);
+				}
+				mapOpenApiRequestBodyContentMime.put("schema", mapOpenApiRequestBodyContentMimeSchema);
 			}
 
 			String contentType = null;
