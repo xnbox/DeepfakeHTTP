@@ -74,7 +74,7 @@ java -jar df.jar \
 
 <li>data:
 <br>
-<pre><a href="http://localhost:8080/db">http://localhost:8080/db</a></pre>
+<pre id="db"><a href="http://localhost:8080/db">http://localhost:8080/db</a></pre>
 <table><tr><td>
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/petclinic-screenshots/5.png">
 </td></tr></table>
