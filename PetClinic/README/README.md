@@ -47,7 +47,7 @@ java -jar df.jar \
 </li>
 </li>
 
-<li>OpenAPI client:
+<li>Bonus 1. Self-hosted OpenAPI client:
 <br>
 <pre id="api"><a href="http://localhost:8080/api">http://localhost:8080/api</a></pre>
 <table><tr><td>
@@ -55,7 +55,7 @@ java -jar df.jar \
 </td></tr></table>
 </li>
 
-<li>openapi.json:
+<li>Bonus 2. <code>openapi.json</code>:
 <br>
 <pre><a href="http://localhost:8080/api/openapi.json">http://localhost:8080/api/openapi.json</a></pre>
 <table><tr><td>
@@ -63,7 +63,7 @@ java -jar df.jar \
 </td></tr></table>
 </li>
 
-<li>openapi.yaml:
+<li>Bonus 3. <code>openapi.yaml</code>:
 <br>
 <pre><a href="http://localhost:8080/api/openapi.yaml">http://localhost:8080/api/openapi.yaml</a></pre>
 <table><tr><td>
@@ -71,8 +71,7 @@ java -jar df.jar \
 </td></tr></table>
 </li>
 
-
-<li>data:
+<li>Bonus 4. Live data dump:
 <br>
 <pre id="db"><a href="http://localhost:8080/db">http://localhost:8080/db</a></pre>
 <table><tr><td>
