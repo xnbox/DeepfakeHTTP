@@ -1,4 +1,4 @@
-<h1>REST version of the Spring PetClinic Sample Application built with DeepfakeHTTP</h1>
+<h1>REST version of the Spring PetClinic built with DeepfakeHTTP</h1>
 <p id="start" align="center">
 <br>
 <a href="#start"><img width="250rem" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/pets.png"></a>
