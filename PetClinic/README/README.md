@@ -25,7 +25,7 @@ The Spring PetClinic is an example application designed to show how a particular
     <li>Unzip the <code>df-spring-petclinic.zip</code> archive</li>
 <li>Start the server from command line:
 
-```
+<pre>
 java -jar df.jar \
 --dump PetClinic/petclinic.txt \
 --js PetClinic/context.js \
@@ -34,7 +34,8 @@ java -jar df.jar \
 --db PetClinic/petclinic.json \
 --openapi-path /api \
 --db-path /db
-```
+</pre>
+
 </li>
 
 <li>Use a browser to check whether the server is running:
