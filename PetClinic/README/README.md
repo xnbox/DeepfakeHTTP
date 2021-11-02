@@ -31,7 +31,7 @@ java -jar df.jar \
 --js <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/PetClinic/context.js">PetClinic/context.js</a> \
 --dir <a href="https://github.com/xnbox/DeepfakeHTTP/tree/main/PetClinic">PetClinic</a> \
 --openapi-title 'Spring Pet Clinic API v1.2.7' \
---db <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/PetClinic/petclinic.json">PetClinic/petclinic.json</a> \
+--db <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/PetClinic/db.json">PetClinic/db.json</a> \
 --openapi-path <a href="#api">/api</a> \
 --db-path <a href="#db">/db</a>
 </pre>
