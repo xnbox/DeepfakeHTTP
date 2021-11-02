@@ -27,11 +27,11 @@ The Spring PetClinic is an example application designed to show how a particular
 
 <pre>
 java -jar df.jar \
---dump <a href="#petclinic_txt">PetClinic/petclinic.txt</a> \
---js <a href="#context_js">PetClinic/context.js</a> \
---dir <a href="#context_js">PetClinic</a> \
+--dump <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/PetClinic/dump.txt">PetClinic/dump.txt</a> \
+--js <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/PetClinic/context.js">PetClinic/context.js</a> \
+--dir <a href="https://github.com/xnbox/DeepfakeHTTP/tree/main/PetClinic">PetClinic</a> \
 --openapi-title 'Spring Pet Clinic API v1.2.7' \
---db <a href="#context_js">PetClinic/petclinic.json</a> \
+--db <a href="https://github.com/xnbox/DeepfakeHTTP/blob/main/PetClinic/petclinic.json">PetClinic/petclinic.json</a> \
 --openapi-path <a href="#api">/api</a> \
 --db-path <a href="#db">/db</a>
 </pre>
@@ -49,7 +49,7 @@ java -jar df.jar \
 
 <li>OpenAPI client:
 <br>
-<pre><a href="http://localhost:8080/api">http://localhost:8080/api</a></pre>
+<pre id="api"><a href="http://localhost:8080/api">http://localhost:8080/api</a></pre>
 <table><tr><td>
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/petclinic-screenshots/2.png">
 </td></tr></table>
