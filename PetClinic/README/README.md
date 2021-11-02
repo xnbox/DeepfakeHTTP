@@ -41,33 +41,43 @@ java -jar df.jar \
 <li>Use a browser to check whether the server is running:
 <br>
 <pre><a href="http://localhost:8080">http://localhost:8080</a></pre>
+<table><tr><td>
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/petclinic-screenshots/1.png">
+</td></tr></table>
 </li>
 </li>
 
 <li>OpenAPI client:
 <br>
 <pre><a href="http://localhost:8080/api">http://localhost:8080/api</a></pre>
+<table><tr><td>
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/petclinic-screenshots/2.png">
+</td></tr></table>
 </li>
 
 <li>openapi.json:
 <br>
 <pre><a href="http://localhost:8080/api/openapi.json">http://localhost:8080/api/openapi.json</a></pre>
+<table><tr><td>
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/petclinic-screenshots/3.png">
+</td></tr></table>
 </li>
 
 <li>openapi.yaml:
 <br>
 <pre><a href="http://localhost:8080/api/openapi.yaml">http://localhost:8080/api/openapi.yaml</a></pre>
+<table><tr><td>
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/petclinic-screenshots/4.png">
+</td></tr></table>
 </li>
 
 
 <li>data:
 <br>
 <pre><a href="http://localhost:8080/db">http://localhost:8080/db</a></pre>
+<table><tr><td>
 <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/petclinic-screenshots/5.png">
+</td></tr></table>
 </li>
 
 </ol>
