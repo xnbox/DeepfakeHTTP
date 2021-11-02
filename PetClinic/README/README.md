@@ -2,7 +2,6 @@
 <p id="start" align="center">
 <br>
 <a href="#start"><img width="250rem" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/pets.png"></a>
-<h1></h1>
 </p>
 
 <br>
