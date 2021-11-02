@@ -12,7 +12,7 @@
 <tr>
 <td>
 <br><a href="#banner"><img align="left" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/petclinic-screenshots/1.png" width="190"></a>
-<h3>About Spring Petclinic</h3>
+<strong>About Spring Petclinic</strong>
 The Spring PetClinic is an example application designed to show how a particular stack can be used to create simple but powerful database-oriented applications.<br>
 <img width="1000" height="0">
 </td>
