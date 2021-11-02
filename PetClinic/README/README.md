@@ -27,13 +27,13 @@ The Spring PetClinic is an example application designed to show how a particular
 
 <pre>
 java -jar df.jar \
---dump PetClinic/petclinic.txt \
---js PetClinic/context.js \
---dir PetClinic \
+--dump <a href="#petclinic_txt">PetClinic/petclinic.txt</a> \
+--js <a href="#context_js">PetClinic/context.js</a> \
+--dir <a href="#context_js">PetClinic</a> \
 --openapi-title 'Spring Pet Clinic API v1.2.7' \
---db PetClinic/petclinic.json \
---openapi-path /api \
---db-path /db
+--db <a href="#context_js">PetClinic/petclinic.json</a> \
+--openapi-path <a href="#api">/api</a> \
+--db-path <a href="#db">/db</a>
 </pre>
 
 </li>
