@@ -135,7 +135,6 @@ public class OpenApiUtils {
 				String paramExample = (String) mapParamProps.get("example");
 				queryStringSb.append(paramExample);
 				Map<String, Object> mapSchemaProps = (Map<String, Object>) mapParamProps.get("schema");
-
 				parematersInfoSb.append(param);
 				parematersInfoSb.append(';');
 				for (Entry<String, Object> entry : mapParamProps.entrySet()) {
@@ -397,7 +396,15 @@ public class OpenApiUtils {
 					mapOpenApiRequestBodyContentMimeSchema.put("type", "object");
 
 					Map<String, Object> mapParamProps = new LinkedHashMap<>();
-					for (String param : formParams.keySet()) {
+					List<String>        reuiredList   = new ArrayList<>();
+					for (Entry<String, List<String>> entry : formParams.entrySet()) {
+						String       param  = entry.getKey();
+						List<String> values = entry.getValue();
+						if (values != null && !values.isEmpty()) {
+							String value = values.get(0);
+							if (!(value.isEmpty() || value.equals("*")))
+								reuiredList.add(param);
+						}
 						Map<String, Object> m                    = new LinkedHashMap<>();
 						Map<String, Object> openApiParameterInfo = openApiParametersInfo.get(param);
 						if (openApiParameterInfo != null) {
@@ -409,6 +416,8 @@ public class OpenApiUtils {
 						mapParamProps.put(param, m);
 					}
 					mapOpenApiRequestBodyContentMimeSchema.put("properties", mapParamProps);
+					if (!reuiredList.isEmpty())
+						mapOpenApiRequestBodyContentMimeSchema.put("required", reuiredList);
 				}
 				mapOpenApiRequestBodyContentMime.put("schema", mapOpenApiRequestBodyContentMimeSchema);
 			}
