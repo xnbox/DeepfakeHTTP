@@ -36,12 +36,13 @@ E-Mail: xnbox.team@outlook.com
 
 	<target name="main">
 		<property name="dollar" value="$" />
-		<property name="build.version" value="6.3.2" />
+		<property name="build.version" value="6.4.1" />
 		<property name="tmpDir" value="${java.io.tmpdir}" />
 		<property name="tmpAppWar" value="${tmpDir}/app.war" />
 		<property name="tmpMetaInfDir" value="${tmpDir}/DeepfakeHTTP/META-INF" />
 		<property name="tmpManifest" value="${tmpMetaInfDir}/MANIFEST.MF" />
 		<property name="releaseJar" value="${basedir}/RELEASE/df-${build.version}.jar" />
+		<property name="petclinicZip" value="${basedir}/RELEASE/df-spring-petclinic-${build.version}.zip" />
 
 		<delete file="${tmpAppWar}" failonerror="false" />
 		<war destfile="${tmpAppWar}" webxml="${basedir}/WEB-INF/web.xml" manifest="${basedir}/META-INF/MANIFEST.MF" level="9">
@@ -69,6 +70,14 @@ E-Mail: xnbox.team@outlook.com
 			<zipfileset prefix="" dir="${tmpDir}/DeepfakeHTTP" />
 			<zipfileset prefix="" dir="${basedir}/bin" />
 			<zipfileset prefix="" file="${tmpAppWar}" />
+		</zip>
+
+		<delete file="${petclinicZip}" failonerror="false" />
+		<zip destfile="${petclinicZip}" level="9">
+			<zipfileset dir="${basedir}">
+				<include name="PetClinic/**/**">
+				</include>
+			</zipfileset>
 		</zip>
 
 		<delete file="${tmpAppWar}" failonerror="false" />

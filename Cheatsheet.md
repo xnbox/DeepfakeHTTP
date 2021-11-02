@@ -26,7 +26,7 @@
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /api/customer/123 HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -87,7 +87,7 @@ Get response:
 <!-- -------------------------------------------------------------------- -->
 <br><table><tr><td><h2 id="comments">Comments in dump</h2>
 
-```http
+```httpx
 # Client request
 GET /api/customer/123 HTTP/1.1
 
@@ -129,7 +129,7 @@ Content-Type: application/json
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /form1.html HTTP/1.1
 
 .
@@ -212,7 +212,7 @@ Hello John Doe!
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /form2.html HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -306,7 +306,7 @@ Request failed with status: <code>404 Not found</code>
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /api/customer/5 HTTP/1.1
 Accept-Language: ru;*
 
@@ -392,7 +392,7 @@ Expected result:
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /api/customers/{id}/profile?mode=* HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -458,7 +458,7 @@ Get response:
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /api/customers/{id}/profile/{id}/info?mode=open&mode=* HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -524,7 +524,7 @@ Get response:
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /api/customers/{id}/profile HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -600,7 +600,7 @@ Prepare external data file <code>customers.json</code>:
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /api/customers/{id}/profile?mode=* HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -678,7 +678,7 @@ Prepare external data file <code>customers.json</code>:
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /api/customers/{id}/profile HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -739,7 +739,7 @@ Get response:
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /favicon.ico HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -803,7 +803,7 @@ The <img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/favi
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /Albert_Einstein.jpeg HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -937,7 +937,7 @@ Get response:<br>
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /customers/{id}/purchases/{date}/report?format=pdf HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -1143,7 +1143,7 @@ View generated <a href="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/mai
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /api/customers/{id}/profile?mode=* HTTP/1.1
 X-OpenAPI-Summary: Customer profile
 X-OpenAPI-Description: Customer profile info
@@ -1187,7 +1187,7 @@ java -jar df.jar --print-openapi --openapi-title 'Acme-CRM REST API v1.2.3' --du
 <li>
 Prepare file <code>dump.txt</code>:
 
-```http
+```httpx
 GET /auth HTTP/1.1
 Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
 

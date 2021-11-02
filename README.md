@@ -40,7 +40,7 @@
     <li>Copy-paste the content of the dump example to the file <code>dump.txt</code>:
 <span></span>
 
-```http
+```httpx
 GET /api/customer/123 HTTP/1.1
 
 HTTP/1.1 200 OK
@@ -365,7 +365,11 @@ Command line options
     Serve built-in OpenAPI client at specified context<br>
     <br>See Also:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-openapi-title"><code>--openapi-title &lt;text&gt;</code></a><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-print-openapi"><code>--print-openapi</code></a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-print-openapi"><code>--print-openapi</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Summary"><code>X-OpenAPI-Summary</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Description"><code>X-OpenAPI-Description</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Tags"><code>X-OpenAPI-Tags</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Parameters"><code>X-OpenAPI-Parameters</code></a>
 </td></tr>
 
 <tr></tr>
@@ -376,7 +380,11 @@ Command line options
     Provide custom OpenAPI specification title<br>
     <br>See Also:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-openapi-path"><code>--openapi-path &lt;path&gt;</code></a><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-print-openapi"><code>--print-openapi</code></a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#cli-print-openapi"><code>--print-openapi</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Summary"><code>X-OpenAPI-Summary</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Description"><code>X-OpenAPI-Description</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Tags"><code>X-OpenAPI-Tags</code></a><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Parameters"><code>X-OpenAPI-Parameters</code></a>
 </td></tr>
 
 <tr></tr>
@@ -638,7 +646,7 @@ Optional REQUEST / RESPONSE headers
     <br>
 
 Two seconds request delay:<br>
-```http
+```httpx
 GET / HTTP/1.1
 X-Delay: 2000
 ```
@@ -646,7 +654,7 @@ X-Delay: 2000
 <h2></h2>
 
 Two seconds response delay:<br>
-```http
+```httpx
 HTTP/1.1 200 OK
 X-Delay: 2000
 ```
@@ -671,7 +679,7 @@ X-Delay: 2000
 
 Get a response body from a remote server:<br>
 
-```http
+```httpx
 HTTP/1.1 200 OK
 Content-Type: application/json
 X-Content-Source: http://example.com/api/car/1234.json
@@ -681,7 +689,7 @@ X-Content-Source: http://example.com/api/car/1234.json
 
 Get a response body from a file:<br>
 
-```http
+```httpx
 HTTP/1.1 200 OK
 Content-Type: image/jpeg
 X-Content-Source: file:///home/john/photo.jpeg
@@ -691,7 +699,7 @@ X-Content-Source: file:///home/john/photo.jpeg
 
 Get a response body from a data URI:<br>
 
-```http
+```httpx
 HTTP/1.1 200 OK
 Content-Type: image/gif
 X-Content-Source: data:image/gif;base64,R0lGODlhAQABAIAAAP...
@@ -705,7 +713,7 @@ X-Content-Source: data:image/gif;base64,R0lGODlhAQABAIAAAP...
     <p>OpenAPI request summary text.</p>
     <i>Example:</i>
 
-```http
+```httpx
 GET /api/customer{id} HTTP/1.1
 X-OpenAPI-Summary: Get customer information
 ```
@@ -724,7 +732,7 @@ X-OpenAPI-Summary: Get customer information
     <br>
     <i>Example:</i>
 
-```http
+```httpx
 GET /api/customer{id} HTTP/1.1
 X-OpenAPI-Summary: Get customer information
 X-OpenAPI-Description: This API extracts customer info from db
@@ -745,7 +753,7 @@ X-OpenAPI-Description: This API extracts customer info from db
     <br>
     <i>Example:</i>
 
-```http
+```httpx
 GET /api/customer{id} HTTP/1.1
 X-OpenAPI-Summary: Get customer information
 X-OpenAPI-Description: This API extracts customer info from db
@@ -767,7 +775,7 @@ X-OpenAPI-Tags: Work with customer, Buyers, Login info
     <br>
     <i>Example:</i>
 
-```http
+```httpx
 GET /api/customer{id} HTTP/1.1
 X-OpenAPI-Summary: Get customer information
 X-OpenAPI-Description: This API extracts customer info from db
@@ -795,7 +803,7 @@ X-OpenAPI-Parameters: name=cust_id;description=Customer ID,
     <i>Example:</i>
 <br>
 
-```http
+```httpx
 HTTP/1.1
 X-Forward-To: http://example.com:8080
 ```
@@ -810,7 +818,7 @@ X-Forward-To: http://example.com:8080
     <i>Example:</i>
 <br>
 
-```http
+```httpx
 HTTP/1.1 200 OK
 X-Handler-CGI: /home/john/myprog.sh param1 param2
 ```
@@ -833,7 +841,7 @@ All CGI environment variables are also available to XGI program.<br>
     <i>Example:</i>
 <br>
 
-```http
+```httpx
 HTTP/1.1
 X-XGI: /home/john/myprog.sh param1 param2
 ```
@@ -882,7 +890,7 @@ Among other things, the <code>X-Handler-JS</code> header allows you to modify pe
 
 JavaScript function modify memory data:
 
-```http
+```httpx
 DELETE /customers/{id}
 
 HTTP/1.1 200 OK
@@ -902,7 +910,7 @@ function deleteCustomer(request, response, data) {
 <h2></h2>
 JavaScript function modify memory data and provide response status, headers and body:
 
-```http
+```httpx
 DELETE /customers/{id}
 
 HTTP/1.1
