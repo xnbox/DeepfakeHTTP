@@ -7,7 +7,7 @@
 </p>
 
 <a title="License MIT" href="https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
-<a title="Release 6.3.2" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-6.3.2-4DC71F?style=flat-square"></a>
+<a title="Release 6.4.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-6.4.1-4DC71F?style=flat-square"></a>
 <a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
 <br>
 <p id="banner" align="center">
@@ -71,7 +71,8 @@ java -jar df.jar --dump dump.txt
 </ol>
 That's it!
 <br>
-For more examples see the <a href="Cheatsheet.md">cheatsheet</a>.
+For more examples see the <a href="Cheatsheet.md">cheatsheet</a>.<br>
+Also take look at <a href="https://github.com/xnbox/DeepfakeHTTP/tree/main/PetClinic/README#readme">REST version of the Spring PetClinic built with DeepfakeHTTP</a>.
 
 <h2>Usage</h2>
 
@@ -710,7 +711,8 @@ X-OpenAPI-Summary: Get customer information
 ```
 <br>See Also:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Description"><code>X-OpenAPI-Description</code></a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Tags"><code>X-OpenAPI-Tags</code></a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Tags"><code>X-OpenAPI-Tags</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Parameters"><code>X-OpenAPI-Parameters</code></a>
 
 </td></tr>
 <tr></tr>
@@ -729,7 +731,9 @@ X-OpenAPI-Description: This API extracts customer info from db
 ```
 <br>See Also:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Summary"><code>X-OpenAPI-Summary</code></a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Tags"><code>X-OpenAPI-Tags</code></a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Tags"><code>X-OpenAPI-Tags</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Parameters"><code>X-OpenAPI-Parameters</code></a>
+
 
 </td></tr>
 <tr></tr>
@@ -749,9 +753,36 @@ X-OpenAPI-Tags: Work with customer, Buyers, Login info
 ```
 <br>See Also:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Summary"><code>X-OpenAPI-Summary</code></a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Description"><code>X-OpenAPI-Description</code></a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Description"><code>X-OpenAPI-Description</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Parameters"><code>X-OpenAPI-Parameters</code></a>
 
 </td></tr>
+
+<tr></tr>
+    <tr id="X-OpenAPI-Parameters"><td valign="top"><pre>X-OpenAPI-Parameters</pre>
+	<a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/request.svg"></a>
+    </td>
+    <td valign="top">
+    OpenAPI request parameters information.<br>
+    <br>
+    <i>Example:</i>
+
+```http
+GET /api/customer{id} HTTP/1.1
+X-OpenAPI-Summary: Get customer information
+X-OpenAPI-Description: This API extracts customer info from db
+X-OpenAPI-Tags: Work with customer, Buyers, Login info
+X-OpenAPI-Parameters: name=cust_id;description=Customer ID,
+ name=rdate;description=Review Date
+```
+<br>See Also:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Summary"><code>X-OpenAPI-Summary</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Description"><code>X-OpenAPI-Description</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#X-OpenAPI-Tags"><code>X-OpenAPI-Tags</code></a>
+
+
+</td></tr>
+
 <tr></tr>
         <tr><td valign="top"><pre>X-Forward-To</pre>
 		<a href="#appendix-boptional-request--response-headers"><img src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/response.svg"></a>

@@ -1,8 +1,8 @@
 GET /petclinic/api/owners?lastName=* HTTP/1.1
 X-OpenAPI-Summary: Get owners
-X-OpenAPI-Description: Get owners and pets
+X-OpenAPI-Description: Get owners
 X-OpenAPI-Tags: Owners
-X-OpenAPI-Parameters: name=lastName;description='Owner last name starts with'
+X-OpenAPI-Parameters: name=lastName;description='Owner last name starts with.<br><small>Send empty value to ger all owners.</small>'
 
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -35,7 +35,7 @@ X-OpenAPI-Parameters: name=id;description='Owner ID',
  name=telephone;description=Owner's phone number
 Content-Type: application/x-www-form-urlencoded
 
-first_name=*&last_name=*&address=*&city=*&telephone=*
+first_name=?*&last_name=?*&address=*&city=*&telephone=*
 
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -76,7 +76,7 @@ X-OpenAPI-Parameters: name=birth_date;description='Pet's date of birth',
  name=type_id;description=Pet's type ID
 Content-Type: application/x-www-form-urlencoded
 
-name=*&birth_date=*&type_id=*
+name=*?&birth_date=*&type_id=*?
 
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -91,7 +91,7 @@ X-OpenAPI-Parameters: name=ownerId;description='Owner ID',
  name=typeId;description=Pet's type ID
 Content-Type: application/x-www-form-urlencoded
 
-ownerId=*&name=*&birthDate=*&typeId=*
+ownerId=?*&name=?*&birthDate=*&typeId=*?
 
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -123,7 +123,7 @@ X-OpenAPI-Parameters: name=visitDate;description='Visit date',
  name=description;description='Visit description'
 Content-Type: application/x-www-form-urlencoded
 
-visitDate=*&description=*
+visitDate=?*&description=*
 
 HTTP/1.1 200 OK
 Content-Type: application/json
