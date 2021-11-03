@@ -1,7 +1,7 @@
 <h1>REST version of the Spring PetClinic built with DeepfakeHTTP</h1>
 <p id="start" align="center">
 <br>
-<a href="#start"><img width="250rem" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/pets.png"></a>
+<table align="center"><tr><td><a href="#start"><img width="250rem" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/pets.png"></a></td></tr></table>
 </p>
 
 <h2>About Spring PetClinic</h2>
