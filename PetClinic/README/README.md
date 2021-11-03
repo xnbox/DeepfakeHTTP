@@ -1,11 +1,18 @@
 <h1 id="start">REST version of the Spring PetClinic built with DeepfakeHTTP</h1>
 <p id="start" align="center">
 <br>
-<table align="center"><tr><td><a href="#start"><img width="250rem" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/pets.png"></a></td></tr></table>
+<table align="center"><tr><td>
+<a href="#start"><img width="250rem" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/pets.png"></a>&nbsp;&nbsp;&nbsp;
+<a href="#start"><img width="180rem" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/img/df.png"></a>
+
+</td></tr></table>
 </p>
 
 <h2>About Spring PetClinic</h2>
 The Spring PetClinic is an example application designed to show how a particular stack can be used to create simple but powerful database-oriented applications.
+
+<h2>About DeepfakeHTTP</h2>
+The <a href="https://github.com/xnbox/DeepfakeHTTP">DeepfakeHTTP</a> is a web server that uses HTTP dumps as a source for responses.
 
 <h2>Get started</h2>
 
