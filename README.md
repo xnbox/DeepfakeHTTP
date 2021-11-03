@@ -7,7 +7,7 @@
 </p>
 
 <a title="License MIT" href="https://github.com/xnbox/DeepfakeHTTP/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
-<a title="Release 6.4.1" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/badge/release-6.4.1-4DC71F?style=flat-square"></a>
+<a title="Latest release" href="https://github.com/xnbox/DeepfakeHTTP/releases"><img src="https://img.shields.io/github/v/release/xnbox/DeepfakeHTTP?style=flat-square&color=-4DC71F"></a>
 <a title="Powered by Tommy" href="https://github.com/xnbox/tommy"><img src="https://img.shields.io/badge/powered_by-Tommy-blueviolet?style=flat-square"></a>
 <br>
 <p id="banner" align="center">
