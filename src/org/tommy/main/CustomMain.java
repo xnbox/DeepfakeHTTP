@@ -119,7 +119,7 @@ public class CustomMain {
 		sb.append("   --host <host>            host name, default: localhost                      \n");
 		sb.append("   --port <number>          HTTP TCP port number, default: 8080                \n");
 		sb.append("   --port-ssl <number>      HTTPS TCP port number, default: 8443               \n");
-		sb.append("   --dump <file|url>...     dump text file(s) and/or OpenAPI json/yaml file(s) \n");
+		sb.append("   --dump <file|url>...     dump text file(s)/URL(s)                           \n");
 		sb.append("   --db <file|url>          json/yaml/csv memory file to populate templates    \n");
 		sb.append("   --db-export <file>       export memory to json file                         \n");
 		sb.append("   --db-path <path>         serve live memory file at specified context        \n");

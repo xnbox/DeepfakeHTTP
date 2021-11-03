@@ -91,7 +91,7 @@ public class ParseCommandLineUtils {
 	//@formatter:on
 
 	/* command line args */
-	public static final String ARGS_DUMP                = "--dump";                // dump text file(s) and/or OpenAPI json/yaml file(s)
+	public static final String ARGS_DUMP                = "--dump";                // dump text file(s)/URL(s)
 	public static final String ARGS_DB                  = "--db";                  // json/yaml/csv memory file to populate templates
 	public static final String ARGS_DB_EXPORT           = "--db-export";           // export memory to json file
 	public static final String ARGS_DB_PATH             = "--db-path";             // serve live memory file at specified context
@@ -120,6 +120,7 @@ public class ParseCommandLineUtils {
 	public static final String ARGS_NO_LOG_HEADERS      = "--no-log-headers";      // disable request/response headers in console logging
 	public static final String ARGS_NO_LOG_REQUEST_INFO = "--no-log-request-info"; // disable request info in console logging
 	public static final String ARGS_NO_LOG_BODY         = "--no-log-body";         // disable request/response body in console logging
+	public static final String ARGS_EXPORT_ON_EXIT      = "--db-export-on-exit";   // export memory only on server close event
 
 	/**
 	 * 
@@ -164,6 +165,7 @@ public class ParseCommandLineUtils {
 		paramMap.put(ARGS_NO_LOG_REQUEST_INFO, false);
 		paramMap.put(ARGS_NO_LOG_HEADERS, false);
 		paramMap.put(ARGS_NO_LOG_BODY, false);
+		paramMap.put(ARGS_EXPORT_ON_EXIT, false);
 
 		for (int i = 0; i < args.length; i++) {
 			/* skip original Tommy options */
@@ -198,6 +200,8 @@ public class ParseCommandLineUtils {
 			else if (args[i].equals(ARGS_NO_LOG_HEADERS))
 				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_NO_LOG_BODY))
+				paramMap.put(args[i], true);
+			else if (args[i].equals(ARGS_EXPORT_ON_EXIT))
 				paramMap.put(args[i], true);
 			else if (args[i].equals(ARGS_NO_CORS))
 				paramMap.put(args[i], true);

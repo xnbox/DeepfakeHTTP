@@ -83,7 +83,7 @@ OPTIONS:
    --host <host>            host name, default: localhost                      
    --port <number>          HTTP TCP port number, default: 8080                
    --port-ssl <number>      HTTPS TCP port number, default: 8443               
-   --dump <file|url>...     dump text file(s) and/or OpenAPI json/yaml file(s) 
+   --dump <file|url>...     dump text file(s)/URL(s)
    --db <file|url>          json/yaml/csv memory file to populate templates    
    --db-export <file>       export memory to json file                         
    --db-path <path>         serve live memory file at specified context        
@@ -126,10 +126,6 @@ Start server on dump file:
 <pre>
 java -jar df.jar --dump dump.txt
 </pre>
-Start server on OpenAPI file:
-<pre>
-java -jar df.jar --dump openapi.json
-</pre>
 Start server with built-in OpenAPI client:
 <pre>java -jar df.jar --openapi-path /api --dump dump.txt
 </pre>
@@ -142,10 +138,6 @@ Start server with built-in OpenAPI client:
 Start server on few dump files:
 <pre>
 java -jar df.jar --dump dump1.txt dump2.txt dump3.txt
-</pre>
-Start server on mix of dump and OpenAPI files:
-<pre>
-java -jar df.jar --dump dump1.txt openapi2.json dump3.txt openapi4.yaml
 </pre>
 Start server with built-in OpenAPI client with custom title:
 <pre>
@@ -212,7 +204,7 @@ That's all.
 &nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;HTTP message formats RFC 7230<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;multiple entries per dump<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;multiple request/response entries per dump<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;extracts responses from HTTP dumps and OpenAPI JSON/YAML<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;extracts responses from HTTP dumps<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;self-hosted built-in OpenAPI client<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;exportable persistent memory<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&check;&nbsp;&nbsp;persistent data<br>
@@ -294,7 +286,7 @@ Command line options
     </td>
     <td valign="top"></td>
     <td valign="top">
-    Dump text file(s) and/or OpenAPI json/yaml file(s)
+    Dump text file(s)/URL(s)
 </td></tr>
 
 <tr></tr>

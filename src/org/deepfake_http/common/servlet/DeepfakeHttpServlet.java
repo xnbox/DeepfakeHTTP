@@ -149,6 +149,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 	private boolean noTemplate;
 	private boolean noWildcard;
 	private boolean noBak;
+	private boolean exportOnExit;
 	private boolean strictJson;
 	private int     badRequestStatus;
 	private int     maxLogBody;
@@ -224,6 +225,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 			noLogHeaders     = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG_HEADERS);
 			nologRequestInfo = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG_REQUEST_INFO);
 			noLogBody        = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_LOG_BODY);
+			exportOnExit     = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_EXPORT_ON_EXIT);
 			noCors           = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_CORS);
 			noPoweredBy      = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_POWERED_BY);
 			noColor          = (boolean) paramMap.get(ParseCommandLineUtils.ARGS_NO_COLOR);
@@ -760,11 +762,15 @@ public class DeepfakeHttpServlet extends HttpServlet {
 								System.arraycopy(outBs, pos2 + 2, bs, 0, bs.length);
 							}
 						} else if (jsFunc != null) {
+							String oldDataJson = dataJson;
 							/* update data */
 							List<String> lst = TemplateUtils.processData(scope, jsFunc, tmpDataMap, jsonRequest);
 							dataJson     = lst.get(0);
 							dataJsonNode = JacksonUtils.parseJsonYamlToMap(dataJson);
 							dataMap      = new ObjectMapper().treeToValue(dataJsonNode, Object.class);
+							if (!exportOnExit)
+								if (!oldDataJson.equals(dataJson))
+									exportMemoryDataToFile();
 							String              responseFromJs         = lst.get(1);
 							JsonNode            responseJsonNodeFromJs = JacksonUtils.parseJsonYamlToMap(responseFromJs);
 							Map<String, Object> responseObjFromJs      = new ObjectMapper().treeToValue(responseJsonNodeFromJs, Map.class);
@@ -1499,11 +1505,15 @@ public class DeepfakeHttpServlet extends HttpServlet {
 						if (requestHeaderContentType != null && requestHeaderContentType.startsWith("application/json"))
 							jsonRequest = true;
 
-						String       js  = new String(bs, StandardCharsets.UTF_8);
-						List<String> lst = TemplateUtils.processJs(scope, js, requestMap, jsonRequest);
+						String       oldDataJson = dataJson;
+						String       js          = new String(bs, StandardCharsets.UTF_8);
+						List<String> lst         = TemplateUtils.processJs(scope, js, requestMap, jsonRequest);
 						dataJson     = lst.get(0);
 						dataJsonNode = JacksonUtils.parseJsonYamlToMap(dataJson);
 						dataMap      = (Map<String, Object>) new ObjectMapper().treeToValue(dataJsonNode, Object.class);
+						if (!exportOnExit)
+							if (!oldDataJson.equals(dataJson))
+								exportMemoryDataToFile();
 
 						String              responseJson     = lst.get(1);
 						JsonNode            responseJsonNode = JacksonUtils.parseJsonYamlToMap(responseJson);

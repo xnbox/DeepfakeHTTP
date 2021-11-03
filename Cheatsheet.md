@@ -9,7 +9,7 @@
 	<li><a href="#match-headers">Match headers</a></li>
 	<li><a href="#req-param-template">Request parameters in template</a></li>
 	<li><a href="#mult-req-param">Multivalued request parameters</a></li>
-	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
+	<li><a href="#openapi-param-in-path">OpenAPI-styled parameters in path</a></li>
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
 	<li><a href="#random-data-in-template">Random data in template</a></li>
 	<li><a href="#favicon-as-binary-data">Provide favicon as binary data</a></li>
@@ -78,7 +78,7 @@ Get response:
 <strong>💡 See Also:</strong>
 <ul>
 	<li><a href="#comments">Comments in dump</a></li>
-	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
+	<li><a href="#openapi-param-in-path">OpenAPI-styled parameters in path</a></li>
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
 	<li><a href="#random-data-in-template">Random data in template</a></li>
 	<li><a href="#resp-with-binary-data">Response with binary data</a></li>
@@ -200,7 +200,7 @@ Hello John Doe!
 <strong>💡 See Also:</strong>
 <ul>
 	<li><a href="#process-form-data2">Process form data with parameters matching</a></li>
-	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
+	<li><a href="#openapi-param-in-path">OpenAPI-styled parameters in path</a></li>
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
 <ul>
 </td></tr></table>
@@ -295,7 +295,7 @@ Request failed with status: <code>404 Not found</code>
 <strong>💡 See Also:</strong>
 <ul>
 	<li><a href="#process-form-data1">Process form data</h2></a></li>
-	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
+	<li><a href="#openapi-param-in-path">OpenAPI-styled parameters in path</a></li>
 <ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
@@ -375,12 +375,12 @@ Expected result:
 	<li>If body was provided in the request, it will be included in match algorithm</li>
 	<li>DeepfakeHTTP supports wildcards (<code>*</code> and <code>?</code>) in request query string and headers</li>
 	<li>Esacape character for wildcards is <code>/</code></li>
-	<li>DeepfakeHTTP supports OpenApi-styled parameters in path</li>
+	<li>DeepfakeHTTP supports OpenAPI-styled parameters in path</li>
 	<li>DeepfakeHTTP supports templates in request line, headers and body</li>
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
-	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
+	<li><a href="#openapi-param-in-path">OpenAPI-styled parameters in path</a></li>
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
 <ul>
 </td></tr></table>
@@ -444,7 +444,7 @@ Get response:
 </ul>
 <strong>💡 See Also:</strong>
 <ul>
-	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
+	<li><a href="#openapi-param-in-path">OpenAPI-styled parameters in path</a></li>
 	<li><a href="#mult-req-param">Multivalued request parameters</a></li>
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
 	<li><a href="#random-data-in-template">Random data in template</a></li>
@@ -512,12 +512,12 @@ Get response:
 <strong>💡 See Also:</strong>
 <ul>
 	<li><a href="#req-param-template">Request parameters in template</a></li>
-	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
+	<li><a href="#openapi-param-in-path">OpenAPI-styled parameters in path</a></li>
 	<li><a href="#ext-data-in-template">External data and request parameters in template</a></li>
 <ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
-<br><table><tr><td><h2 id="openapi-param-in-path">OpenAPI-style parameters in path</h2>
+<br><table><tr><td><h2 id="openapi-param-in-path">OpenAPI-styled parameters in path</h2>
 
 <ol>
 
@@ -655,7 +655,7 @@ Get response:
 <ul>
 	<li><a href="#random-data-in-template">Random data in template</a></li>
 	<li><a href="#req-param-template">Request parameters in template</a></li>
-	<li><a href="#openapi-param-in-path">OpenAPI-style parameters in path</a></li>
+	<li><a href="#openapi-param-in-path">OpenAPI-styled parameters in path</a></li>
 </ul>
 </td></tr></table>
 <!-- -------------------------------------------------------------------- -->
