@@ -70,7 +70,7 @@ java -jar df.jar --dump dump.txt
 </li>
 </ol>
 That's it!
-<br>
+<br><br>
 For more examples see the <a href="Cheatsheet.md">cheatsheet</a>.<br>
 Also take look at <a href="https://github.com/xnbox/DeepfakeHTTP/tree/main/PetClinic/README#readme">REST version of the Spring PetClinic built with DeepfakeHTTP</a>.
 
