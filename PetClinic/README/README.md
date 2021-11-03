@@ -4,7 +4,7 @@
 <a href="#start"><img width="250rem" src="https://raw.githubusercontent.com/xnbox/DeepfakeHTTP/main/PetClinic/README/pets.png"></a>
 </p>
 
-<h2>About Spring Petclinic</h2>
+<h2>About Spring PetClinic</h2>
 The Spring PetClinic is an example application designed to show how a particular stack can be used to create simple but powerful database-oriented applications.
 
 <h2>Get started</h2>
