@@ -141,7 +141,7 @@ java -jar df.jar --dump dump1.txt dump2.txt dump3.txt
 </pre>
 Start server with built-in OpenAPI client with custom title:
 <pre>
-java -jar df.jar --openapi-path /api --openapi-title 'My Killer REST API v18.2.1' --dump dump.txt
+java -jar df.jar --openapi-path /api --openapi-title 'My REST API v18.2.1' --dump dump.txt
 </pre>
 </details>
 <details>
