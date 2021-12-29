@@ -202,7 +202,7 @@ public class OpenApiUtils {
 
 			for (String headerLine : reqResp.request.headers) {
 				Header header              = new Header(headerLine);
-				String lowerCaseHeaderName = header.name.toLowerCase();
+				String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 				String headerValue         = header.value;
 				if (lowerCaseHeaderName.equals(DeepfakeHttpServlet.INTERNAL_HTTP_HEADER_X_OPENAPI_SUMMARY.toLowerCase(Locale.ENGLISH)))
 					openApiMethodSummary = headerValue;
@@ -425,7 +425,7 @@ public class OpenApiUtils {
 			String contentType = null;
 			for (String headerLine : reqResp.response.headers) {
 				Header header              = new Header(headerLine);
-				String lowerCaseHeaderName = header.name.toLowerCase();
+				String lowerCaseHeaderName = header.name.toLowerCase(Locale.ENGLISH);
 				String headerValue         = header.value;
 				if (lowerCaseHeaderName.equals(DeepfakeHttpServlet.HTTP_HEADER_CONTENT_TYPE.toLowerCase(Locale.ENGLISH))) {
 					contentType = headerValue;
