@@ -31,8 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import org.deepfake_http.common.servlet.DeepfakeHttpServlet;
-
 public class ResourceUtils {
 	/**
 	 * 
@@ -41,7 +39,7 @@ public class ResourceUtils {
 	 * @throws IOException
 	 */
 	public static byte[] readResourceAsBytes(String resourcePath) throws IOException {
-		try (InputStream is = DeepfakeHttpServlet.class.getResourceAsStream(resourcePath)) {
+		try (InputStream is = ResourceUtils.class.getResourceAsStream(resourcePath)) {
 			if (is == null)
 				return new byte[0];
 			return is.readAllBytes();
