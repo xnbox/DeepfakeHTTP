@@ -1165,7 +1165,7 @@ public class DeepfakeHttpServlet extends HttpServlet {
 
 		if (activateDirWatchers) {
 			for (String dumpFile : dumps) {
-				Path path     = new File(dumpFile).toPath();
+				Path path     = new File(dumpFile).getAbsoluteFile().toPath();
 				Path dirPath  = path.getParent();
 				Path filePath = path.getFileName();
 
