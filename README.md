@@ -121,7 +121,7 @@ COMMANDS:
    --print-openapi          print OpenAPI specification to stdout as json/yaml
 ```
 
-<h2>Usage Exampes</h2>
+<h2>Usage Examples</h2>
 Start server on dump file:
 <pre>
 java -jar df.jar --dump dump.txt
